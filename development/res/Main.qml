@@ -1,14 +1,16 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Controls
 
 Window {
-    width: 640
-    height: 480
-    visible: true
-    color: "red"
+	id: mainWindow
+	width: 640
+	height: 480
+	visible: true
+	
+	Item {
+		anchors.fill: parent
 
-    Text {
-        anchors.centerIn: parent
-        text: "Hello, World!"
-    }
+		ResourcesGridPanel {}
+	}
 }

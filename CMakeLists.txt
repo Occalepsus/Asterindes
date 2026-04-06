@@ -7,11 +7,32 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
 
+# Set Asterindes as the default startup project in Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Asterindes)
+
 set(ASTERINDES_DEVELOPMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/development)
-set(ASTERINDES_SOURCES
-	${ASTERINDES_DEVELOPMENT_DIR}/src/asterindes.cpp
+
+set(ASTERINDES_HEADERS
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesApp.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectManager.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/Resource.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesManager.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/GuiClient.h
 )
 
+set(ASTERINDES_SOURCES
+	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesMain.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesApp.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectManager.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/Resource.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesManager.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/GuiClient.cpp
+)
+
+set(ASTERINDES_QML_FILES
+	"development/res/Main.qml"
+	"development/res/ResourcesGridPanel.qml"
+)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick)
 
@@ -19,6 +40,7 @@ qt_standard_project_setup()
 
 qt_add_executable(Asterindes
 	${ASTERINDES_SOURCES}
+	${ASTERINDES_HEADERS}
 )
 
 target_include_directories(Asterindes PRIVATE ${ASTERINDES_DEVELOPMENT_DIR}/inc)
@@ -28,7 +50,7 @@ qt_add_qml_module(Asterindes
 	VERSION 0.1
 	RESOURCE_PREFIX /qt/qml
 	QML_FILES
-		"development/res/Main.qml"
+		${ASTERINDES_QML_FILES}
 )
 
 target_link_libraries(Asterindes PRIVATE Qt6::Core Qt6::Qml Qt6::Quick)
@@ -43,3 +65,8 @@ if(WIN32)
 		)
 	endif()
 endif()
+
+# Organize the project files in Visual Studio in folders
+source_group("Source Files" FILES ${ASTERINDES_SOURCES})
+source_group("Header Files" FILES ${ASTERINDES_HEADERS})
+source_group("Resources" FILES ${ASTERINDES_QML_FILES})

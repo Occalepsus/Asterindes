@@ -1,10 +1,14 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
+import QtQuick.Dialogs
 
 Item {
 	id: resourcesGridPanel
+	objectName: "resourcesGridPanel"
 	anchors.fill: parent
+
+	signal qmlResourceAddRequest(url resourceUrl)
 
 	Component {
 		id: resourceGridDelegate
@@ -38,8 +42,9 @@ Item {
 		
 		GridView {
 			id: resourceGridView
+			objectName: "resourceGridView"
 
-			model: resourcesListModel
+			//model: resourcesListModel
 
 			width: parent.width
 			height: parent.height - addResourceButton.height
@@ -53,6 +58,14 @@ Item {
 			focus: true
 		}
 
+		FileDialog {
+			id: resourceFileDialog
+			title: "Select Resource File"
+			nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
+
+			onAccepted: resourcesGridPanel.qmlResourceAddRequest(selectedFile)
+		}
+
 		Button {
 			id: addResourceButton
 			text: "Add Resource"
@@ -61,7 +74,7 @@ Item {
 			height: 42
 
 			onClicked: {
-				resourcesListModel.append({ name: "New Resource", resourceUrl: "https://example.com/resource.png" })
+				resourceFileDialog.open()
 			}
 		}
 	}

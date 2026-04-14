@@ -1,8 +1,9 @@
-#ifndef ASTERINDESAPP_H
-#define ASTERINDESAPP_H
+#ifndef ASTERINDESCORE_H
+#define ASTERINDESCORE_H
 
 // Asterindes
 #include "ProjectManager.h"
+#include "GuiClient.h"
 
 // Qt
 #include <QGuiApplication>
@@ -13,9 +14,10 @@
 namespace Asterindes
 {
 	/**
-	 * AsterindesApp is the main singleton class of the Asterindes application. It is responsible for initializing the application, managing global resources, and providing access to core functionalities.
+	 * AsterindesCore is the main class of the Asterindes application.
+	 * It is responsible for initializing the application, managing global resources, and providing access to core functionalities.
 	 */
-	class AsterindesApp : public QGuiApplication
+	class AsterindesCore : public QGuiApplication
 	{
 	public:
 
@@ -25,17 +27,17 @@ namespace Asterindes
 		 * @param argc The number of command-line arguments.
 		 * @param argv The array of command-line arguments.
 		 */
-		AsterindesApp(int& argc, char** argv);
+		AsterindesCore(int& argc, char** argv);
 
 		/**
 		 * Destructor.
 		 */
-		~AsterindesApp() final = default;
+		~AsterindesCore() final = default;
 
 		/**
 		 * Gets the project manager instance, which is responsible for managing the current project and its data.
 		 * 
-		 * @return A reference to the instance of AsterindesApp.
+		 * @return A reference to the instance of AsterindesCore.
 		 */
 		inline ProjectManager& getProjectManager() { return m_projectManager; }
 
@@ -46,8 +48,13 @@ namespace Asterindes
 		 */
 		ProjectManager m_projectManager{ this };
 
+		/**
+		 * The GUI client instance, responsible for managing the UI and communicating with the other classes of the project.
+		 */
+		Ui::GuiClient m_guiClient{ *this };
+
 	};
 }
 
 
-#endif // !ASTERINDESAPP_H
+#endif // !ASTERINDESCORE_H

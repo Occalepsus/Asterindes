@@ -2,57 +2,44 @@
 #define GUICLIENT_H
 
 // Asterindes
-#include "ResourceListModel.h"
+#include "ResourcesViewModel.h"
 
 // Qt
 #include <QQmlApplicationEngine>
+#include <memory>
 
 namespace Asterindes
 {
-	class AsterindesCore;
+    class AsterindesCore;
 }
 
 namespace Asterindes::Ui
 {
-	/**
-	 * GuiClient class is the main class of the UI, it is used to manage the UI and to communicate with the other classes of the project.
-	 */
-	class GuiClient : public QObject
-	{
-		Q_OBJECT;
-		Q_DISABLE_COPY_MOVE(GuiClient);
+    /**
+     * GuiClient manages the UI layer.
+     */
+    class GuiClient : public QObject
+    {
+        Q_OBJECT;
+        Q_DISABLE_COPY_MOVE(GuiClient);
 
-	public:
+    public:
+        explicit GuiClient(AsterindesCore& p_parentCoreApp);
+        ~GuiClient() override = default;
 
-		/**
-		 * Default constructor.
-		 * 
-		 * @param p_parentCoreApp The parent AsterindesCore object.
-		 */
-		explicit GuiClient(AsterindesCore& p_parentCoreApp);
+    private:
+        QQmlApplicationEngine m_appQmlEngine{};
+        
+        /**
+         * ViewModel for resources (exposed to QML).
+         */
+        ResourcesViewModel m_resourcesViewModel;
 
-		/**
-		 * Destructor.
-		 */
-		~GuiClient() override = default;
+        void setupQmlContext();
 
-	private:
-
-		/**
-		 * The QML engine, it is used to load the QML files and to manage the UI.
-		 */
-		QQmlApplicationEngine m_appQmlEngine{};
-
-		/**
-		 * The resources list model, it is used to display the resources in the UI and to manage them in the project folders.
-		 * It is filled from the resources manager of the project.
-		 */
-		ResourceListModel m_resourcesListModel;
-
-	private slots:
-
-		void onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url);
-	};
+    private slots:
+        void onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url);
+    };
 }
 
 #endif // GUICLIENT_H

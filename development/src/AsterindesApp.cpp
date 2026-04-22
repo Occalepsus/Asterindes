@@ -12,14 +12,19 @@ using namespace Asterindes;
 
 int main(int argc, char* argv[])
 {
+	qSetMessagePattern(
+#ifdef QT_DEBUG
+		"%{time} %{type} %{function}(): %{message}"
+#else
+		"%{type}: %{message}"
+#endif
+	);
+
 	AsterindesCore app(argc, argv);
 
 	QQmlApplicationEngine engine;
 
 	app.getProjectManager().loadProject("");
-
-
-	ResourcesManager& resourcesManager{ app.getProjectManager().getResourcesManager() };
 
 	return AsterindesCore::exec();
 }

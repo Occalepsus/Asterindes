@@ -3,6 +3,7 @@
 
 // Qt
 #include <QAbstractListModel>
+#include <QString>
 #include <QUrl>
 
 // STL
@@ -24,15 +25,38 @@ namespace Asterindes
 		 */
 		struct Resource
 		{
-			size_t m_id;
 			QString m_name;
 			QUrl m_resourceUrl;
+
+			/**
+			 * Default constructor.
+			 * 
+			 * @param p_id The id of the resource, it is used to identify the resource in the project and to manage it in the project folders.
+			 * @param p_name The name of the resource, it is used to display the resource in the UI and to manage it in the project folders.
+			 */
+			//Resource(QString p_name, QUrl p_resourceUrl)
+			//	: m_name(std::move(p_name)), m_resourceUrl(std::move(p_resourceUrl)) {};
+		};
+
+		struct ResourcePtrHash {
+			size_t operator()(const std::unique_ptr<Resource>& p_res) const {
+				//return std::hash<Resource*>{}(p_res.get());
+				return std::hash<QString>{}(p_res->m_resourceUrl.toString());
+			}
+		};
+
+		struct ResourcePtrEqual {
+			bool operator()(const std::unique_ptr<Resource>& lA,
+				const std::unique_ptr<Resource>& lB) const {
+				//return lA.get() == lB.get();
+				return lA->m_resourceUrl.toString() == lB->m_resourceUrl.toString();
+			}
 		};
 
 		/**
 		 * The list of resources managed by this class, it stores unique_ptr to allow keeping the resources by reference.
 		 */
-		using ResourceList = std::unordered_set<std::unique_ptr<Resource>>;
+		using ResourceList = std::unordered_set<std::unique_ptr<Resource>, ResourcePtrHash, ResourcePtrEqual>;
 
 		/**
 		 * Default constructor.
@@ -53,14 +77,12 @@ namespace Asterindes
 
 		void testCreateResource();
 
-	public slots:
-
 		/**
 		 * Adds a new resource to the project from the given file path.
 		 *
 		 * @param p_resourceUrl The URL of the resource file to add.
 		 */
-		void addResource(const QUrl& p_resourceUrl);
+		bool addResource(const QUrl& p_resourceUrl);
 
 	signals:
 
@@ -75,7 +97,7 @@ namespace Asterindes
 		 * All the resources of the project
 		 * unique_ptr to allow access to the resources by reference.
 		 */
-		ResourceList m_resources;
+		ResourceList m_resources{};
 	};
 }
 

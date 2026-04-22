@@ -1,14 +1,11 @@
 import QtQuick
-import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Dialogs
+import QtQuick.Layouts
 
 Item {
 	id: resourcesGridPanel
-	objectName: "resourcesGridPanel"
 	anchors.fill: parent
-
-	signal qmlResourceAddRequest(url resourceUrl)
 
 	Component {
 		id: resourceGridDelegate
@@ -36,80 +33,165 @@ Item {
 			}
 		}
 	}
-
-	DropArea {
+	
+	ColumnLayout {
 		anchors.fill: parent
+		
+		// ===== Toolbar with search and sort =====
+		ToolBar {
+			Layout.fillWidth: true
+			
+			RowLayout {
+				anchors.fill: parent
+				spacing: 10
 
-		readonly property var canAcceptDrag: (drag) => {
-			let canDrop = true;
-			if (drag.hasUrls) {
-				for (let i = 0; i < drag.urls.length; i++) {
-					let lUrl = drag.urls[i].toString().toLowerCase();
-					if (!(lUrl.endsWith(".png") || lUrl.endsWith(".jpg") || lUrl.endsWith(".jpeg") || lUrl.endsWith(".webp"))) {
-						canDrop = false;
-						break;
+				TextField {
+					id: searchField
+					Layout.fillWidth: true
+					placeholderText: "Search resources..."
+					
+					// Bind to ViewModel's search filter
+					text: "aa"//resourcesViewModel.searchFilter
+					//onTextChanged: resourcesViewModel.searchFilter = text
+				}
+
+				ComboBox {
+					id: sortComboBox
+					Layout.preferredWidth: 150
+					
+					model: ["Name (A-Z)", "Name (Z-A)", "Date Added", "File Size"]
+					
+					// Bind to ViewModel's sort order
+					//currentIndex: resourcesViewModel.sortOrder
+					onCurrentIndexChanged: {
+						//resourcesViewModel.sortOrder = currentIndex;
+					}
+				}
+
+				Button {
+					text: "Clear Filters"
+					enabled: searchField.text !== "" || sortComboBox.currentIndex !== 0
+					//onClicked: resourcesViewModel.clearFilters()
+				}
+
+				Label {
+					text: "bb"//resourcesViewModel.filteredCount + " / " + resourcesViewModel.resourceCount
+					color: "blue"//resourcesViewModel.filteredCount < resourcesViewModel.resourceCount ? "blue" : "black"
+				}
+			}
+		}
+			
+		// ===== Grid view =====
+		DropArea {
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+
+			enabled: !resourcesViewModel.isLoading
+
+			onEntered: (drag) => {
+				let lCanDrop = true;
+				if (drag.hasUrls) {
+					for (let i = 0; i < drag.urls.length; i++) {
+						if (!resourcesViewModel.canAddResource(drag.urls[i])) {
+							lCanDrop = false;
+							break;
+						}
+					}
+				} else {
+					lCanDrop = false;
+				}
+				drag.action = Qt.LinkAction;
+				drag.accepted = lCanDrop;
+			}
+
+			onDropped: (drag) => {
+				if (drag.hasUrls) {
+					for (let i = 0; i < drag.urls.length; i++) {
+						resourcesViewModel.addResource(drag.urls[i]);
 					}
 				}
 			}
-			else
-			{
-				canDrop = false;
-			}
-			return canDrop;
-		}
 
-		onEntered: (drag) => {
-			drag.accepted = canAcceptDrag(drag);
-		}
-
-		onDropped: (drag) => {
-			if (canAcceptDrag(drag)) {
-				for (let i = 0; i < drag.urls.length; i++) {
-					resourcesGridPanel.qmlResourceAddRequest(drag.urls[i]);
-				}
-			}
-		}
-
-		Column {
-			anchors.fill: parent
-		
 			GridView {
 				id: resourceGridView
-				objectName: "resourceGridView"
+				anchors.fill: parent
+				anchors.margins: 10
 
-			//model: resourcesListModel
-
-				width: parent.width
-				height: parent.height - addResourceButton.height
+				// Bind to ViewModel's model (already filtered and sorted)
+				model: resourcesViewModel.resourcesModel
 
 				cellWidth: 120
 				cellHeight: 120
 
 				delegate: resourceGridDelegate
-		
 				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
 				focus: true
-			}
 
-			FileDialog {
-				id: resourceFileDialog
-				title: "Select Resource File"
-				nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
-
-				onAccepted: resourcesGridPanel.qmlResourceAddRequest(selectedFile)
-			}
-
-			Button {
-				id: addResourceButton
-				text: "Add Resource"
-
-				width: parent.width
-				height: 42
-
-				onClicked: {
-					resourceFileDialog.open()
+				// Empty state
+				Label {
+					anchors.centerIn: parent
+					visible: parent.count === 0 && !resourcesViewModel.isLoading
+					text: false//resourcesViewModel.searchFilter !== "" 
+							? "No resources match your search"
+							: "Drop images here or click 'Add Resource'"
+					font.pixelSize: 16
+					color: "gray"
 				}
 			}
+
+			BusyIndicator {
+				anchors.centerIn: parent
+				running: resourcesViewModel.isLoading
+				visible: running
+			}
+		}
+
+		// ===== Bottom toolbar =====
+		ToolBar {
+			Layout.fillWidth: true
+			
+			RowLayout {
+				anchors.fill: parent
+
+				FileDialog {
+					id: resourceFileDialog
+					title: "Select Resource File"
+					nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
+					onAccepted: resourcesViewModel.addResource(selectedFile)
+				}
+
+				Button {
+					text: "Add Resource"
+					enabled: !resourcesViewModel.isLoading
+					onClicked: resourceFileDialog.open()
+				}
+
+				Button {
+					text: "Clear All"
+					enabled: false//!resourcesViewModel.isLoading && resourcesViewModel.resourceCount > 0
+					//onClicked: confirmClearDialog.open()
+				}
+
+				Item { Layout.fillWidth: true } // Spacer
+			}
+		}
+
+		// Error dialog
+		Connections {
+			target: resourcesViewModel
+			function onErrorOccurred(errorMessage) {
+				errorDialog.text = errorMessage;
+				errorDialog.open();
+			}
+		}
+
+		Dialog {
+			id: errorDialog
+			title: "Error"
+			property alias text: errorText.text
+		
+			Text { id: errorText }
+			standardButtons: Dialog.Ok
 		}
 	}
 }

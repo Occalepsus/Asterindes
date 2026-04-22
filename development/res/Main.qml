@@ -7,10 +7,10 @@ Window {
 	width: 640
 	height: 480
 	visible: true
-	
+
 	Item {
 		anchors.fill: parent
-
+	
 		ResourcesGridPanel {}
 	}
 }

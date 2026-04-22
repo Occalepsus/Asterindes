@@ -26,9 +26,8 @@ namespace Asterindes::Ui
 		 * Default constructor.
 		 * 
 		 * @param p_parent the parent QObject.
-		 * @param p_resourcesManager the resource manager to display
 		 */
-		ResourceListModel(QObject* p_parent, const ResourcesManager& p_resourcesManager);
+		explicit ResourceListModel(QObject* p_parent);
 
 		/**
 		 * Destructor.
@@ -62,6 +61,13 @@ namespace Asterindes::Ui
 		 */
 		QVariant data(const QModelIndex& p_index, int p_role = Qt::DisplayRole) const override;
 
+		/**
+		 * Updates the model with the given resources list, it is called by the ResourcesViewModel class when the resources list is updated in the ResourcesManager class.
+		 * 
+		 * @param p_resourceList The list of resources to update the model with, it is a vector of pointers to the resources in the ResourcesManager class.
+		 */
+		void updateFromResourcesList(const std::vector<const ResourcesManager::Resource*>& p_resourceList);
+
 	private:
 
 		/**
@@ -74,18 +80,8 @@ namespace Asterindes::Ui
 		};
 
 		/**
-		 * The resources manager to display in the model.
-		 */
-		const ResourcesManager& m_resourcesManager;
-
-		/**
 		 * The vector that contains the resources to be displayed in the UI, it is filled by the ResourcesManager class.
 		 */
 		std::vector<const ResourcesManager::Resource*> m_displayedResources{};
-
-		/**
-		 * Updates the displayed resources in the model, it is called by the ResourcesManager class when the resources list needs to be updated.
-		 */
-		void updateResourceListModel();
 	};
 }

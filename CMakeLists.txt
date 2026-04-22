@@ -18,6 +18,7 @@ set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/Resource.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceListModel.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesViewModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/GuiClient.h
 )
 
@@ -28,11 +29,13 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/Resource.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceListModel.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesViewModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/GuiClient.cpp
 )
 
 set(ASTERINDES_QML_FILES
 	"development/res/Main.qml"
+	"development/res/ResourcePreview.qml"
 	"development/res/ResourcesGridPanel.qml"
 )
 

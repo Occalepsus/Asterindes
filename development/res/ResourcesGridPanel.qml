@@ -5,7 +5,9 @@ import QtQuick.Layouts
 
 Item {
 	id: resourcesGridPanel
-	anchors.fill: parent
+	//Layout.minimumWidth: 300
+	Layout.fillWidth: true
+	Layout.fillHeight: true
 
 	Component {
 		id: resourceGridDelegate
@@ -75,8 +77,8 @@ Item {
 				}
 
 				Label {
-					text: "bb"//resourcesViewModel.filteredCount + " / " + resourcesViewModel.resourceCount
-					color: "blue"//resourcesViewModel.filteredCount < resourcesViewModel.resourceCount ? "blue" : "black"
+					text: "bb"/*resourcesViewModel.filteredCount */+ " / " + resourcesViewModel.displayedResourceListCount
+					color: "blue"//resourcesViewModel.filteredCount < resourcesViewModel.displayedResourceListCount ? "blue" : "black"
 				}
 			}
 		}
@@ -118,14 +120,31 @@ Item {
 				anchors.margins: 10
 
 				// Bind to ViewModel's model (already filtered and sorted)
-				model: resourcesViewModel.resourcesModel
+				model: resourcesViewModel.displayedResourceListModel
 
 				cellWidth: 120
 				cellHeight: 120
 
 				delegate: resourceGridDelegate
 				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+				// No move animation when changing selection
+				highlightMoveDuration: 0
 				focus: true
+				
+				currentIndex: resourcesViewModel.selectedResourceId
+				onCurrentIndexChanged: {
+					resourcesViewModel.setSelectedResourceId(currentIndex);
+				}
+
+				// Handle clicks to select resources
+				MouseArea {
+					anchors.fill: parent
+					onClicked: (mouse) => {
+						let posInGridView = Qt.point(mouse.x, mouse.y)
+						let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
+						resourcesViewModel.setSelectedResourceId(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
+					}
+				}
 
 				// Empty state
 				Label {
@@ -168,7 +187,7 @@ Item {
 
 				Button {
 					text: "Clear All"
-					enabled: false//!resourcesViewModel.isLoading && resourcesViewModel.resourceCount > 0
+					enabled: false//!resourcesViewModel.isLoading && resourcesViewModel.displayedResourceListCount > 0
 					//onClicked: confirmClearDialog.open()
 				}
 

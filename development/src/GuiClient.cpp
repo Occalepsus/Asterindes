@@ -5,6 +5,7 @@
 
 // Qt
 #include <QQmlContext>
+#include <QTimer>
 
 using namespace Asterindes;
 using namespace Asterindes::Ui;
@@ -21,10 +22,14 @@ GuiClient::GuiClient(AsterindesCore& p_parentCoreApp)
 					 this, &GuiClient::onQmlFileLoaded);
 
 	m_appQmlEngine.loadFromModule("Asterindes", "Main");
-	
+
 	if (m_appQmlEngine.rootObjects().isEmpty()) {
 		qFatal("Cannot load QML component 'Asterindes/Main'.");
 	}
+}
+
+GuiClient::~GuiClient()
+{
 }
 
 void GuiClient::setupQmlContext()
@@ -35,5 +40,4 @@ void GuiClient::setupQmlContext()
 
 void GuiClient::onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url)
 {
-	// All setup is done via Q_PROPERTY bindings
 }

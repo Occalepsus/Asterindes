@@ -6,7 +6,6 @@
 
 // Qt
 #include <QQmlApplicationEngine>
-#include <memory>
 
 namespace Asterindes
 {
@@ -25,16 +24,22 @@ namespace Asterindes::Ui
 
     public:
         explicit GuiClient(AsterindesCore& p_parentCoreApp);
-        ~GuiClient() override = default;
+        ~GuiClient() override;
 
     private:
-        QQmlApplicationEngine m_appQmlEngine{};
-        
         /**
-         * ViewModel for resources (exposed to QML).
+		 * The QML engine for loading and managing QML components.
+         */
+        QQmlApplicationEngine m_appQmlEngine{ this };
+
+        /**
+		 * Resource ViewModel exposed to QML for data binding and UI interaction.
          */
         ResourcesViewModel m_resourcesViewModel;
 
+		/**
+		 * Sets up the QML context by exposing necessary ViewModels and properties to QML.
+         */
         void setupQmlContext();
 
     private slots:

@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Window {
 	id: mainWindow
@@ -8,9 +9,10 @@ Window {
 	height: 480
 	visible: true
 
-	Item {
+	RowLayout {
 		anchors.fill: parent
-	
+
 		ResourcesGridPanel {}
+		ResourcePreview {}
 	}
 }

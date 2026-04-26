@@ -1,5 +1,7 @@
 #include "ResourcesViewModel.h"
 
+#include <utility>
+
 using namespace Asterindes::Ui;
 
 ResourcesViewModel::ResourcesViewModel(ResourcesManager& p_resourcesManager, QObject* p_parent)
@@ -8,10 +10,19 @@ ResourcesViewModel::ResourcesViewModel(ResourcesManager& p_resourcesManager, QOb
 	, m_resourcesListModel(this)
 {
 	// Connect to business logic signals
-	QObject::connect(&m_resourcesManager, &ResourcesManager::resourcesUpdated, this, &ResourcesViewModel::onResourcesUpdated);
+	QObject::connect(&m_resourcesManager, &ResourcesManager::resourcesUpdated, this, &ResourcesViewModel::onManagerResourcesChanged);
 	
 	// Initialize model with current data
-	onResourcesUpdated();
+	onManagerResourcesChanged();
+}
+
+void ResourcesViewModel::setSelectedResourceId(int p_id)
+{
+	if (m_selectedResourceId != p_id)
+	{
+		m_selectedResourceId = p_id;
+		emit selectedResourceIdChanged();
+	}
 }
 
 bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
@@ -67,7 +78,25 @@ bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
 }
 
-void ResourcesViewModel::onResourcesUpdated()
+QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
+{
+	if (p_index < 0 || p_index >= m_resourcesListModel.rowCount())
+	{
+		return QVariantMap();
+	}
+
+	// TODO: How to improve this?
+	QVariantMap l_resourceMap;
+
+	QModelIndex lModelIndex = m_resourcesListModel.index(p_index, 0);
+
+	l_resourceMap["name"] = m_resourcesListModel.data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
+	l_resourceMap["resourceUrl"] = m_resourcesListModel.data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
+
+	return l_resourceMap;
+}
+
+void ResourcesViewModel::onManagerResourcesChanged()
 {
 	// Get the current resources list from the manager
 	const ResourcesManager::ResourceList& l_managerResourcesList{ m_resourcesManager.getResourcesList() };
@@ -92,7 +121,7 @@ void ResourcesViewModel::onResourcesUpdated()
 	// Update the presentation model
 	m_resourcesListModel.updateFromResourcesList(l_displayedResourceList);
 	
-	emit resourceListChanged();
+	emit displayedResourceListChanged();
 }
 
 void ResourcesViewModel::setLoading(bool p_loading)

@@ -23,17 +23,22 @@ namespace Asterindes::Ui
 		/**
 		 * The list model for GridView/ListView binding.
 		 */
-		Q_PROPERTY(ResourceListModel* resourcesModel READ getResourcesModel NOTIFY resourceListChanged)
+		Q_PROPERTY(ResourceListModel* displayedResourceListModel READ getDisplayedResourceListModel NOTIFY displayedResourceListChanged);
 		
 		/**
 		 * Number of resources (for display).
 		 */
-		Q_PROPERTY(int resourceCount READ getResourceCount NOTIFY resourceListChanged)
+		Q_PROPERTY(int displayedResourceListCount READ getDisplayedResourceListCount NOTIFY displayedResourceListChanged);
 		
+		/**
+		 * The id of the selected resource, used for selection management in the UI. -1 means no selection.
+		 */
+		Q_PROPERTY(int selectedResourceId READ getSelectedResourceId WRITE setSelectedResourceId NOTIFY selectedResourceIdChanged);
+
 		/**
 		 * Whether resources are currently being loaded (for loading indicators).
 		 */
-		Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
+		Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged);
 
 	public:
 		/**
@@ -54,14 +59,28 @@ namespace Asterindes::Ui
 		 * 
 		 * @return Pointer to the ResourceListModel.
 		 */
-		inline ResourceListModel* getResourcesModel() { return &m_resourcesListModel; }
+		inline ResourceListModel* getDisplayedResourceListModel() { return &m_resourcesListModel; }
 
 		/**
 		 * Get the count of resources.
 		 * 
 		 * @return The number of resources.
 		 */
-		inline int getResourceCount() const { return m_resourcesListModel.rowCount(); }
+		inline int getDisplayedResourceListCount() const { return m_resourcesListModel.rowCount(); }
+
+		/**
+		 * Get the id of the selected resource.
+		 * 
+		 * @return The id of the selected resource.
+		 */
+		inline int getSelectedResourceId() const { return m_selectedResourceId; }
+
+		/**
+		 * Set the id of the selected resource.
+		 * 
+		 * @param p_id The id to set as selected.
+		 */
+		Q_INVOKABLE void setSelectedResourceId(int p_id);
 
 		/**
 		 * Get the loading state.
@@ -94,19 +113,32 @@ namespace Asterindes::Ui
 		 */
 		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
 
+		/**
+		 * Gets the resource at the given index in the model, it is used to get the resource data when an item in the list is clicked in the UI.
+		 *
+		 * @param p_index The index of the item in the model to get the resource from.
+		 * @return A QVariantMap containing the resource data.
+		 */
+		Q_INVOKABLE QVariantMap getResourceAtIndex(int p_index) const;
+
 	signals:
 		/**
-		 * Emitted when the resource list changes.
+		 * Signal emitted when the resource list changes.
 		 */
-		void resourceListChanged();
+		void displayedResourceListChanged();
 
 		/**
-		 * Emitted when loading state changes.
+		 * Signal emitted when the selected resource changes.
+		 */
+		void selectedResourceIdChanged();
+
+		/**
+		 * Signal emitted when loading state changes.
 		 */
 		void isLoadingChanged();
 
 		/**
-		 * Emitted when an error occurs (for QML error display).
+		 * Signal emitted when an error occurs (for QML error display).
 		 */
 		void errorOccurred(const QString& p_errorMessage);
 
@@ -122,6 +154,11 @@ namespace Asterindes::Ui
 		ResourceListModel m_resourcesListModel;
 
 		/**
+		 * The id of the selected resource, used for selection management in the UI. -1 means no selection.
+		 */
+		int m_selectedResourceId{ -1 };
+
+		/**
 		 * Loading state.
 		 */
 		bool m_isLoading{ false };
@@ -133,9 +170,9 @@ namespace Asterindes::Ui
 
 	private slots:
 		/**
-		 * Handles ResourcesManager's resourcesChanged signal.
+		 * Handles ResourcesManager's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
 		 */
-		void onResourcesUpdated();
+		void onManagerResourcesChanged();
 	};
 }
 

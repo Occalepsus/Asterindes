@@ -21,42 +21,25 @@ namespace Asterindes
 	public:
 
 		/**
-		 * Resource struct represents a resource in the project, it contains the id, name and url of the resource
+		 * Resource struct represents a resource in the project, name and url of the resource
 		 */
 		struct Resource
 		{
+			/**
+			 * The name of the resource, it is used for display purposes and can be different from the file name.
+			 */
 			QString m_name;
-			QUrl m_resourceUrl;
 
 			/**
-			 * Default constructor.
-			 * 
-			 * @param p_id The id of the resource, it is used to identify the resource in the project and to manage it in the project folders.
-			 * @param p_name The name of the resource, it is used to display the resource in the UI and to manage it in the project folders.
+			 * The URL of the resource, it is used to access the resource file and should be unique among the project resources.
 			 */
-			//Resource(QString p_name, QUrl p_resourceUrl)
-			//	: m_name(std::move(p_name)), m_resourceUrl(std::move(p_resourceUrl)) {};
-		};
-
-		struct ResourcePtrHash {
-			size_t operator()(const std::unique_ptr<Resource>& p_res) const {
-				//return std::hash<Resource*>{}(p_res.get());
-				return std::hash<QString>{}(p_res->m_resourceUrl.toString());
-			}
-		};
-
-		struct ResourcePtrEqual {
-			bool operator()(const std::unique_ptr<Resource>& lA,
-				const std::unique_ptr<Resource>& lB) const {
-				//return lA.get() == lB.get();
-				return lA->m_resourceUrl.toString() == lB->m_resourceUrl.toString();
-			}
+			QUrl m_resourceUrl;
 		};
 
 		/**
 		 * The list of resources managed by this class, it stores unique_ptr to allow keeping the resources by reference.
 		 */
-		using ResourceList = std::unordered_set<std::unique_ptr<Resource>, ResourcePtrHash, ResourcePtrEqual>;
+		using ResourceList = std::unordered_map<QString, Resource>;
 
 		/**
 		 * Default constructor.
@@ -69,13 +52,21 @@ namespace Asterindes
 		~ResourcesManager() override = default;
 
 		/**
-		 * Gets the resource list managed by this class. This reference is valid as long as the ResourcesManager instance is alive and should not be stored.
+		 * Gets all the resources managed by this class.
 		 * 
 		 * @return the resource list
 		 */
-		inline const ResourceList& getResourcesList() const { return m_resources; };
+		QList<Resource> getResourcesList() const;
 
 		void testCreateResource();
+
+		/**
+		 * Checks if a resource with the given URL already exists in the project.
+		 *
+		 * @param p_resourceUrl The URL of the resource to check.
+		 * @return true if the resource exists, false otherwise.
+		 */
+		inline bool containsResource(const QUrl& p_resourceUrl) const { return m_resources.contains(p_resourceUrl.toString()); }
 
 		/**
 		 * Adds a new resource to the project from the given file path.

@@ -35,13 +35,6 @@ namespace Asterindes::Ui
 		~ResourceListModel() override = default;
 
 		/**
-		 * Sets up the model for the QML view, it is called by the GuiClient class when the QML file is loaded.
-		 *
-		 * @param p_window The QQuickWindow instance of the QML view to set up the model for.
-		 */
-		void setupQmlModel(const QQuickWindow* p_window);
-
-		/**
 		 * Returns the model's role names.
 		 */
 		inline QHash<int, QByteArray> roleNames() const override { return m_roleNames; };
@@ -64,9 +57,9 @@ namespace Asterindes::Ui
 		/**
 		 * Updates the model with the given resources list, it is called by the ResourcesViewModel class when the resources list is updated in the ResourcesManager class.
 		 * 
-		 * @param p_resourceList The list of resources to update the model with, it is a vector of pointers to the resources in the ResourcesManager class.
+		 * @param p_resourceList The list of resources to update the model with.
 		 */
-		void updateFromResourcesList(const std::vector<const ResourcesManager::Resource*>& p_resourceList);
+		void updateFromResourcesList(const QList<ResourcesManager::Resource>& p_resourceList);
 
 	private:
 
@@ -80,8 +73,8 @@ namespace Asterindes::Ui
 		};
 
 		/**
-		 * The vector that contains the resources to be displayed in the UI, it is filled by the ResourcesManager class.
+		 * The list that contains the resources to be displayed in the UI.
 		 */
-		std::vector<const ResourcesManager::Resource*> m_displayedResources{};
+		QList<ResourcesManager::Resource> m_displayedResources{};
 	};
 }

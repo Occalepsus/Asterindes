@@ -12,7 +12,27 @@ Window {
 	RowLayout {
 		anchors.fill: parent
 
-		ResourcesGridPanel {}
-		ResourcePreview {}
+		Item {
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+			ResourcesGridPanel {}
+		}
+
+		ColumnLayout {
+			Layout.fillWidth: true
+			Layout.fillHeight: true
+
+			Item {
+				Layout.fillWidth: true
+				Layout.fillHeight: true
+				ResourcePreviewPanel {}
+			}
+
+			Item {
+				Layout.fillWidth: true
+				Layout.fillHeight: true
+				ResourceBroadcastingPanel {}
+			}
+		}
 	}
 }

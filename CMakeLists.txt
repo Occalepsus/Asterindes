@@ -35,7 +35,8 @@ set(ASTERINDES_SOURCES
 
 set(ASTERINDES_QML_FILES
 	"development/res/Main.qml"
-	"development/res/ResourcePreview.qml"
+	"development/res/ResourceBroadcastingPanel.qml"
+	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
 )
 

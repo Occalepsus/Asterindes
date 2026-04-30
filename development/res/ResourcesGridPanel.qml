@@ -5,9 +5,8 @@ import QtQuick.Layouts
 
 Item {
 	id: resourcesGridPanel
-	//Layout.minimumWidth: 300
-	Layout.fillWidth: true
-	Layout.fillHeight: true
+
+	anchors.fill: parent
 
 	Component {
 		id: resourceGridDelegate
@@ -131,9 +130,9 @@ Item {
 				highlightMoveDuration: 0
 				focus: true
 				
-				currentIndex: resourcesViewModel.selectedResourceId
+				currentIndex: resourcesViewModel.selectedResourceIndex
 				onCurrentIndexChanged: {
-					resourcesViewModel.setSelectedResourceId(currentIndex);
+					resourcesViewModel.setSelectedResourceIndex(currentIndex);
 				}
 
 				// Handle clicks to select resources
@@ -142,7 +141,7 @@ Item {
 					onClicked: (mouse) => {
 						let posInGridView = Qt.point(mouse.x, mouse.y)
 						let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
-						resourcesViewModel.setSelectedResourceId(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
+						resourcesViewModel.setSelectedResourceIndex(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
 					}
 				}
 

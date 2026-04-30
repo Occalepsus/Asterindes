@@ -33,7 +33,7 @@ namespace Asterindes::Ui
 		/**
 		 * The id of the selected resource, used for selection management in the UI. -1 means no selection.
 		 */
-		Q_PROPERTY(int selectedResourceId READ getSelectedResourceId WRITE setSelectedResourceId NOTIFY selectedResourceIdChanged);
+		Q_PROPERTY(int selectedResourceIndex READ getSelectedResourceIndex WRITE setSelectedResourceIndex NOTIFY selectedResourceIndexChanged);
 
 		/**
 		 * Whether resources are currently being loaded (for loading indicators).
@@ -69,18 +69,18 @@ namespace Asterindes::Ui
 		inline int getDisplayedResourceListCount() const { return m_resourcesListModel.rowCount(); }
 
 		/**
-		 * Get the id of the selected resource.
+		 * Get the index of the selected resource in the displayed list.
 		 * 
-		 * @return The id of the selected resource.
+		 * @return The index of the selected resource in the displayed list.
 		 */
-		inline int getSelectedResourceId() const { return m_selectedResourceId; }
+		inline int getSelectedResourceIndex() const { return m_selectedResourceIndex; }
 
 		/**
-		 * Set the id of the selected resource.
+		 * Set the index of the selected resource.
 		 * 
-		 * @param p_id The id to set as selected.
+		 * @param p_index The index to set as selected.
 		 */
-		Q_INVOKABLE void setSelectedResourceId(int p_id);
+		Q_INVOKABLE void setSelectedResourceIndex(int p_index);
 
 		/**
 		 * Get the loading state.
@@ -130,7 +130,7 @@ namespace Asterindes::Ui
 		/**
 		 * Signal emitted when the selected resource changes.
 		 */
-		void selectedResourceIdChanged();
+		void selectedResourceIndexChanged();
 
 		/**
 		 * Signal emitted when loading state changes.
@@ -154,9 +154,9 @@ namespace Asterindes::Ui
 		ResourceListModel m_resourcesListModel;
 
 		/**
-		 * The id of the selected resource, used for selection management in the UI. -1 means no selection.
+		 * The index of the selected resource in the displayed, used for selection management in the UI. -1 means no selection.
 		 */
-		int m_selectedResourceId{ -1 };
+		int m_selectedResourceIndex{ -1 };
 
 		/**
 		 * Loading state.

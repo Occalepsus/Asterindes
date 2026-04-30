@@ -16,12 +16,17 @@ ResourcesViewModel::ResourcesViewModel(ResourcesManager& p_resourcesManager, QOb
 	onManagerResourcesChanged();
 }
 
-void ResourcesViewModel::setSelectedResourceId(int p_id)
+void ResourcesViewModel::setSelectedResourceIndex(int p_index)
 {
-	if (m_selectedResourceId != p_id)
+	if (p_index < 0 || p_index >= getDisplayedResourceListCount())
 	{
-		m_selectedResourceId = p_id;
-		emit selectedResourceIdChanged();
+		p_index = -1; // Normalize empty selection
+	}
+
+	if (m_selectedResourceIndex != p_index)
+	{
+		m_selectedResourceIndex = p_index;
+		emit selectedResourceIndexChanged();
 	}
 }
 
@@ -80,11 +85,6 @@ bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 
 QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 {
-	if (p_index < 0 || p_index >= m_resourcesListModel.rowCount())
-	{
-		return QVariantMap();
-	}
-
 	// TODO: How to improve this?
 	QVariantMap l_resourceMap;
 
@@ -99,27 +99,16 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 void ResourcesViewModel::onManagerResourcesChanged()
 {
 	// Get the current resources list from the manager
-	const ResourcesManager::ResourceList& l_managerResourcesList{ m_resourcesManager.getResourcesList() };
-
-	// Vector of resources to be sorted and displayed by the model
-	std::vector<const ResourcesManager::Resource*> l_displayedResourceList{};
-	l_displayedResourceList.reserve(l_managerResourcesList.size());
-
-	// Copy the resources pointer in the displayed resources list
-	std::transform(l_managerResourcesList.begin(), l_managerResourcesList.end(),
-		std::back_inserter(l_displayedResourceList),
-		[](const std::unique_ptr<ResourcesManager::Resource>& p_resource) {
-			return p_resource.get();
-		});
+	QList<ResourcesManager::Resource> l_resourcesList{ m_resourcesManager.getResourcesList() };
 
 	// Sort the displayed resources by name
-	std::sort(l_displayedResourceList.begin(), l_displayedResourceList.end(),
-		[](const ResourcesManager::Resource* p_a, const ResourcesManager::Resource* p_b) {
-			return p_a->m_name < p_b->m_name;
+	std::ranges::sort(l_resourcesList,
+		[](const ResourcesManager::Resource& p_a, const ResourcesManager::Resource& p_b) {
+			return p_a.m_name < p_b.m_name;
 		});
 
 	// Update the presentation model
-	m_resourcesListModel.updateFromResourcesList(l_displayedResourceList);
+	m_resourcesListModel.updateFromResourcesList(l_resourcesList);
 	
 	emit displayedResourceListChanged();
 }

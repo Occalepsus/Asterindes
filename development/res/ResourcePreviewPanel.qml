@@ -2,15 +2,16 @@ import QtQuick
 import QtQuick.Layouts
 
 Item {
-	Layout.fillWidth: true
-	Layout.fillHeight: true
+	property var previewResource: resourcesViewModel.getResourceAtIndex(resourcesViewModel.selectedResourceIndex)
+	property bool hasValidSelection: resourcesViewModel.selectedResourceIndex >= 0
 	
+	id: resourcePreviewPanelRoot
+	anchors.fill: parent
+
 	ColumnLayout {
-		property var previewResource: resourcesViewModel.getResourceAtIndex(resourcesViewModel.selectedResourceId)
-		property bool hasValidSelection: resourcesViewModel.selectedResourceId >= 0
 
 		anchors.fill: parent
-		visible: hasValidSelection
+		visible: resourcePreviewPanelRoot.hasValidSelection
 
 		Image {
 			Layout.fillWidth: true
@@ -19,21 +20,21 @@ Item {
 			Layout.maximumWidth: parent.width
 			Layout.maximumHeight: parent.height - 20
 			fillMode: Image.PreserveAspectFit
-			source: parent.previewResource.resourceUrl || ""
+			source: resourcePreviewPanelRoot.previewResource.resourceUrl || ""
 		}
 		Text {
 			Layout.fillWidth: true
 			Layout.preferredHeight: 20
 			horizontalAlignment: Text.AlignHCenter
 			
-			text: parent.previewResource.name || ""
+			text: resourcePreviewPanelRoot.previewResource.name || ""
 		}
 	}
 	
 	// Placeholder when nothing is selected
 	Text {
 		anchors.centerIn: parent
-		visible: resourcesViewModel.selectedResourceId < 0
+		visible: !resourcePreviewPanelRoot.hasValidSelection
 		text: "No resource selected"
 		color: "#888888"
 	}

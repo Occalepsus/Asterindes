@@ -16,6 +16,19 @@ QList<ResourcesManager::Resource> ResourcesManager::getResourcesList() const
 	return lResourcesList;
 }
 
+std::pair<bool, ResourcesManager::Resource> ResourcesManager::getResourceByUrl(const QUrl& p_resourceUrl) const
+{
+	if (auto it{ m_resources.find(p_resourceUrl.toString()) };
+		it != m_resources.end())
+	{
+		return { true, it->second };
+	}
+	else
+	{
+		return { false, Resource{} };
+	}
+}
+
 void ResourcesManager::testCreateResource()
 {
 	Resource l_resource{

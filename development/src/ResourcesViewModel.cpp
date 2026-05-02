@@ -16,20 +16,6 @@ ResourcesViewModel::ResourcesViewModel(ResourcesManager& p_resourcesManager, QOb
 	onManagerResourcesChanged();
 }
 
-void ResourcesViewModel::setSelectedResourceIndex(int p_index)
-{
-	if (p_index < 0 || p_index >= getDisplayedResourceListCount())
-	{
-		p_index = -1; // Normalize empty selection
-	}
-
-	if (m_selectedResourceIndex != p_index)
-	{
-		m_selectedResourceIndex = p_index;
-		emit selectedResourceIndexChanged();
-	}
-}
-
 bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
 {
 	if (!canAddResource(p_resourceUrl))
@@ -70,6 +56,7 @@ bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
 	return l_success;
 }
 
+// TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
 bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 {
 	// Resource validation before adding it to the project
@@ -81,6 +68,30 @@ bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 	QString l_path = p_url.toString().toLower();
 	return l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
 		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
+}
+
+void ResourcesViewModel::setSelectedResourceIndex(int p_index)
+{
+	if (p_index < 0 || p_index >= getDisplayedResourceListCount())
+	{
+		p_index = -1; // Normalize empty selection
+	}
+
+	if (m_selectedResourceIndex != p_index)
+	{
+		m_selectedResourceIndex = p_index;
+		emit selectedResourceIndexChanged();
+	}
+}
+
+void ResourcesViewModel::setBroadcastedResourceUrl(const QUrl& p_url)
+{
+	if (m_broadcastedResource.m_resourceUrl != p_url)
+	{
+		// TODO: check if the resource exists and emit an error if it doesn't
+		m_broadcastedResource = m_resourcesManager.getResourceByUrl(p_url).second;
+		emit broadcastedResourceChanged();
+	}
 }
 
 QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const

@@ -61,6 +61,14 @@ namespace Asterindes::Ui
 		 */
 		void updateFromResourcesList(const QList<ResourcesManager::Resource>& p_resourceList);
 
+		/**
+		 * Gets the index of the resource with the given URL in the model, it is used to get the index of a resource when it is selected in the UI.
+		 * 
+		 * @param p_resourceUrl The URL of the resource to get the index of.
+		 * @return The index of the resource in the model, -1 if not found.
+		 */
+		int getResourceIndex(const QUrl& p_resourceUrl) const;
+
 	private:
 
 		/**

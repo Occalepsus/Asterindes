@@ -58,6 +58,14 @@ namespace Asterindes
 		 */
 		QList<Resource> getResourcesList() const;
 
+		/**
+		 * Gets a resource by its URL.
+		 *
+		 * @param p_resourceUrl The URL of the resource to get.
+		 * @return a pair of a bool indicating if the resource was found, and the resource with the given URL, or a default-constructed Resource if not found.
+		 */
+		std::pair<bool, Resource> getResourceByUrl(const QUrl& p_resourceUrl) const;
+
 		void testCreateResource();
 
 		/**

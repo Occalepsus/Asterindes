@@ -31,7 +31,7 @@ Window {
 			Item {
 				Layout.fillWidth: true
 				Layout.fillHeight: true
-				ResourceBroadcastingPanel {}
+				ResourceBroadcastPanel {}
 			}
 		}
 	}

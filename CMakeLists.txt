@@ -16,6 +16,7 @@ set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesCore.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/Resource.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceBroadcastManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceListModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesViewModel.h
@@ -27,6 +28,7 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesCore.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/Resource.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceBroadcastManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceListModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesViewModel.cpp
@@ -35,7 +37,7 @@ set(ASTERINDES_SOURCES
 
 set(ASTERINDES_QML_FILES
 	"development/res/Main.qml"
-	"development/res/ResourceBroadcastingPanel.qml"
+	"development/res/ResourceBroadcastPanel.qml"
 	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
 )

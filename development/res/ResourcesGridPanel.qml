@@ -76,7 +76,7 @@ Item {
 				}
 
 				Label {
-					text: "bb"/*resourcesViewModel.filteredCount */+ " / " + resourcesViewModel.displayedResourceListCount
+					text: "bb"/*resourcesViewModel.filteredCount */+ " / " + (resourcesViewModel ? resourcesViewModel.displayedResourceListCount : 0)
 					color: "blue"//resourcesViewModel.filteredCount < resourcesViewModel.displayedResourceListCount ? "blue" : "black"
 				}
 			}
@@ -87,11 +87,11 @@ Item {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 
-			enabled: !resourcesViewModel.isLoading
+			enabled: resourcesViewModel ? !resourcesViewModel.isLoading : true
 
 			onEntered: (drag) => {
 				let lCanDrop = true;
-				if (drag.hasUrls) {
+				if (resourcesViewModel && drag.hasUrls) {
 					for (let i = 0; i < drag.urls.length; i++) {
 						if (!resourcesViewModel.canAddResource(drag.urls[i])) {
 							lCanDrop = false;
@@ -106,7 +106,7 @@ Item {
 			}
 
 			onDropped: (drag) => {
-				if (drag.hasUrls) {
+				if (resourcesViewModel && drag.hasUrls) {
 					for (let i = 0; i < drag.urls.length; i++) {
 						resourcesViewModel.addResource(drag.urls[i]);
 					}
@@ -119,7 +119,7 @@ Item {
 				anchors.margins: 10
 
 				// Bind to ViewModel's model (already filtered and sorted)
-				model: resourcesViewModel.displayedResourceListModel
+				model: resourcesViewModel ? resourcesViewModel.displayedResourceListModel : null
 
 				cellWidth: 120
 				cellHeight: 120
@@ -130,25 +130,43 @@ Item {
 				highlightMoveDuration: 0
 				focus: true
 				
-				currentIndex: resourcesViewModel.selectedResourceIndex
+				currentIndex: resourcesViewModel ? resourcesViewModel.selectedResourceIndex : -1
 				onCurrentIndexChanged: {
-					resourcesViewModel.setSelectedResourceIndex(currentIndex);
+					if (resourcesViewModel) {
+						resourcesViewModel.setSelectedResourceIndex(currentIndex);
+					}
 				}
 
 				// Handle clicks to select resources
 				MouseArea {
 					anchors.fill: parent
 					onClicked: (mouse) => {
-						let posInGridView = Qt.point(mouse.x, mouse.y)
-						let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
-						resourcesViewModel.setSelectedResourceIndex(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
+						if (resourcesViewModel) {
+							let posInGridView = Qt.point(mouse.x, mouse.y)
+							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
+							resourcesViewModel.setSelectedResourceIndex(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
+						}
+					}
+					onDoubleClicked: (mouse) => {
+						if (resourcesViewModel) {
+							let posInGridView = Qt.point(mouse.x, mouse.y)
+							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
+							let index = resourceGridView.indexAt(posInContentItem.x, posInContentItem.y)
+
+							if (index >= 0) {
+								let resource = resourcesViewModel.getResourceAtIndex(index);
+								if (resource && resource.resourceUrl) {
+									resourcesViewModel.setBroadcastedResourceUrl(resource.resourceUrl);
+								}
+							}
+						}
 					}
 				}
 
 				// Empty state
 				Label {
 					anchors.centerIn: parent
-					visible: parent.count === 0 && !resourcesViewModel.isLoading
+					visible: parent.count === 0 && (resourcesViewModel ? !resourcesViewModel.isLoading : true)
 					text: false//resourcesViewModel.searchFilter !== "" 
 							? "No resources match your search"
 							: "Drop images here or click 'Add Resource'"
@@ -159,7 +177,7 @@ Item {
 
 			BusyIndicator {
 				anchors.centerIn: parent
-				running: resourcesViewModel.isLoading
+				running: resourcesViewModel ? resourcesViewModel.isLoading : false
 				visible: running
 			}
 		}
@@ -175,12 +193,16 @@ Item {
 					id: resourceFileDialog
 					title: "Select Resource File"
 					nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
-					onAccepted: resourcesViewModel.addResource(selectedFile)
+					onAccepted: {
+						if (resourcesViewModel) {
+							resourcesViewModel.addResource(selectedFile)
+						}
+					}
 				}
 
 				Button {
 					text: "Add Resource"
-					enabled: !resourcesViewModel.isLoading
+					enabled: resourcesViewModel ? !resourcesViewModel.isLoading : false
 					onClicked: resourceFileDialog.open()
 				}
 

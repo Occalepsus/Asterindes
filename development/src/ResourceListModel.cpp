@@ -40,3 +40,13 @@ void ResourceListModel::updateFromResourcesList(const QList<ResourcesManager::Re
 
 	endResetModel();
 }
+
+int ResourceListModel::getResourceIndex(const QUrl& p_resourceUrl) const
+{
+	auto it{ std::ranges::find_if(m_displayedResources, [&p_resourceUrl](const ResourcesManager::Resource& p_resource)
+		{
+			return p_resource.m_resourceUrl == p_resourceUrl;
+		}) - m_displayedResources.begin() };
+
+	return (it != m_displayedResources.size()) ? static_cast<int>(it) : -1;
+}

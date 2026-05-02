@@ -31,9 +31,14 @@ namespace Asterindes::Ui
 		Q_PROPERTY(int displayedResourceListCount READ getDisplayedResourceListCount NOTIFY displayedResourceListChanged);
 		
 		/**
-		 * The id of the selected resource, used for selection management in the UI. -1 means no selection.
+		 * The index of the selected resource in the currently displayed view, used for selection management in the UI. -1 means no selection.
 		 */
 		Q_PROPERTY(int selectedResourceIndex READ getSelectedResourceIndex WRITE setSelectedResourceIndex NOTIFY selectedResourceIndexChanged);
+
+		/**
+		 * The url of the resource being broadcasted, empty means nothing is being broadcasted.
+		 */
+		Q_PROPERTY(QUrl broadcastedResourceUrl READ getBroadcastedResourceUrl WRITE setBroadcastedResourceUrl NOTIFY broadcastedResourceChanged);
 
 		/**
 		 * Whether resources are currently being loaded (for loading indicators).
@@ -69,11 +74,35 @@ namespace Asterindes::Ui
 		inline int getDisplayedResourceListCount() const { return m_resourcesListModel.rowCount(); }
 
 		/**
-		 * Get the index of the selected resource in the displayed list.
-		 * 
-		 * @return The index of the selected resource in the displayed list.
+		 * Adds a resource, use the name of the file.
+		 *
+		 * @param p_resourceUrl The resource URL.
+		 * @return true if successful, false otherwise.
 		 */
-		inline int getSelectedResourceIndex() const { return m_selectedResourceIndex; }
+		Q_INVOKABLE bool addResource(const QUrl& p_resourceUrl);
+
+		/**
+		 * Removes a resource by its URL.
+		 *
+		 * @param p_resourceUrl The resource URL.
+		 * @return true if successful, false otherwise.
+		 */
+		Q_INVOKABLE bool removeResource(const QUrl& p_resourceUrl);
+
+		/**
+		 * Checks if a resource exists using its URL.
+		 *
+		 * @param p_url The URL to check.
+		 * @return true if the resource exists, false otherwise.
+		 */
+		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
+
+		/**
+		 * Get the index of the selected resource in the currently displayed view.
+		 * 
+		 * @return The index of the selected resource in the currently displayed view, -1 if no selection.
+		 */
+		inline int getSelectedResourceIndex() const { return m_selectedResourceIndex; };
 
 		/**
 		 * Set the index of the selected resource.
@@ -83,35 +112,25 @@ namespace Asterindes::Ui
 		Q_INVOKABLE void setSelectedResourceIndex(int p_index);
 
 		/**
+		 * Get the URL of the resource being broadcasted.
+		 * 
+		 * @return The URL of the resource being broadcasted, empty if nothing is being broadcasted.
+		 */
+		inline QUrl getBroadcastedResourceUrl() const { return m_broadcastedResource.m_resourceUrl; };
+
+		/**
+		 * Set the resource being broadcasted using its URL.
+		 * 
+		 * @param p_url The URL to set as being broadcasted, empty to indicate nothing is being broadcasted.
+		 */
+		Q_INVOKABLE void setBroadcastedResourceUrl(const QUrl& p_url);
+
+		/**
 		 * Get the loading state.
 		 * 
 		 * @return true if loading, false otherwise.
 		 */
 		inline bool isLoading() const { return m_isLoading; }
-
-		/**
-		 * Adds a resource, use the name of the file.
-		 * 
-		 * @param p_resourceUrl The resource URL.
-		 * @return true if successful, false otherwise.
-		 */
-		Q_INVOKABLE bool addResource(const QUrl& p_resourceUrl);
-
-		/**
-		 * Removes a resource by its URL.
-		 * 
-		 * @param p_resourceUrl The resource URL.
-		 * @return true if successful, false otherwise.
-		 */
-		Q_INVOKABLE bool removeResource(const QUrl& p_resourceUrl);
-
-		/**
-		 * Checks if a resource exists using its URL.
-		 * 
-		 * @param p_url The URL to check.
-		 * @return true if the resource exists, false otherwise.
-		 */
-		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
 
 		/**
 		 * Gets the resource at the given index in the model, it is used to get the resource data when an item in the list is clicked in the UI.
@@ -131,6 +150,11 @@ namespace Asterindes::Ui
 		 * Signal emitted when the selected resource changes.
 		 */
 		void selectedResourceIndexChanged();
+
+		/**
+		 * Signal emitted when the broadcasted resource changes.
+		 */
+		void broadcastedResourceChanged();
 
 		/**
 		 * Signal emitted when loading state changes.
@@ -157,6 +181,11 @@ namespace Asterindes::Ui
 		 * The index of the selected resource in the displayed, used for selection management in the UI. -1 means no selection.
 		 */
 		int m_selectedResourceIndex{ -1 };
+
+		/**
+		 * The resource being broadcasted, empty means nothing is being broadcasted.
+		 */
+		ResourcesManager::Resource m_broadcastedResource{};
 
 		/**
 		 * Loading state.

@@ -105,9 +105,9 @@ namespace Asterindes
 	signals:
 
 		/**
-		 * Signal called when the resources of this manager are updated.
+		 * Signal called when the resources of this manager are changed.
 		 */
-		void resourcesUpdated();
+		void resourcesChanged();
 
 	private:
 

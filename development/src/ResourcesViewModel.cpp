@@ -10,7 +10,7 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourcesManager, QOb
 	, m_resourcesListModel(new ResourceListModel(this))
 {
 	// Connect to business logic signals
-	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesUpdated, this, &ResourcesViewModel::onManagerResourcesChanged);
+	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::onManagerResourcesChanged);
 	
 	// Initialize model with current data
 	onManagerResourcesChanged();

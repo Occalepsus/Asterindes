@@ -8,6 +8,16 @@ Item {
 
 	anchors.fill: parent
 
+	property int mMinGridItemSize: 80
+	property int mMaxGridItemSize: 320
+	property int mGridItemSize: 120
+	property int mGridTextHeight: 20
+
+	function setGridItemSize(pSize) {
+		let lClampedSize = Math.max(mMinGridItemSize, Math.min(mMaxGridItemSize, Math.round(pSize / 10) * 10))
+		mGridItemSize = lClampedSize
+	}
+
 	Component {
 		id: resourceGridDelegate
 
@@ -17,7 +27,7 @@ Item {
 
 			Image {
 				width: parent.width
-				height: parent.height - 20
+				height: parent.height - resourcesGridPanel.mGridTextHeight
 				anchors.horizontalCenter: parent.horizontalCenter
 
 				fillMode: Image.PreserveAspectFit
@@ -27,10 +37,12 @@ Item {
 
 			Text {
 				width: parent.width
-				height: 20
+				height: resourcesGridPanel.mGridTextHeight
 				anchors.horizontalCenter: parent.horizontalCenter
 				
 				text: name
+				horizontalAlignment: Text.AlignHCenter
+				elide: Text.ElideRight
 			}
 		}
 	}
@@ -67,6 +79,24 @@ Item {
 					onCurrentIndexChanged: {
 						//resourcesViewModel.sortOrder = currentIndex;
 					}
+				}
+
+				Label {
+					text: "Item size"
+				}
+
+				Slider {
+					id: gridSizeSlider
+					Layout.preferredWidth: 140
+					from: resourcesGridPanel.mMinGridItemSize
+					to: resourcesGridPanel.mMaxGridItemSize
+					stepSize: 10
+					value: resourcesGridPanel.mGridItemSize
+					onMoved: resourcesGridPanel.setGridItemSize(value)
+				}
+
+				Label {
+					text: resourcesGridPanel.mGridItemSize + " px"
 				}
 
 				Button {
@@ -121,8 +151,8 @@ Item {
 				// Bind to ViewModel's model (already filtered and sorted)
 				model: resourcesViewModel ? resourcesViewModel.displayedResourceListModel : null
 
-				cellWidth: 120
-				cellHeight: 120
+				cellWidth: resourcesGridPanel.mGridItemSize
+				cellHeight: resourcesGridPanel.mGridItemSize
 
 				delegate: resourceGridDelegate
 				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
@@ -160,6 +190,15 @@ Item {
 								}
 							}
 						}
+					}
+					onWheel: (wheel) => {
+						if (!(wheel.modifiers & Qt.ControlModifier)) {
+							wheel.accepted = false
+							return
+						}
+
+						resourcesGridPanel.setGridItemSize(resourcesGridPanel.mGridItemSize + (wheel.angleDelta.y > 0 ? 10 : -10))
+						wheel.accepted = true
 					}
 				}
 

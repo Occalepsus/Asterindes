@@ -113,7 +113,7 @@ void ResourceRegistry::testCreateResource()
 	};
 	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
 
-	emit resourcesUpdated();
+	emit resourcesChanged();
 }
 
 bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
@@ -122,7 +122,7 @@ bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
 
 	if (l_inserted)
 	{
-		emit resourcesUpdated();
+		emit resourcesChanged();
 	}
 
 	return l_inserted;

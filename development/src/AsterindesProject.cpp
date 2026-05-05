@@ -16,6 +16,7 @@ AsterindesProject::AsterindesProject(const QUrl& p_projectPath, AsterindesCore* 
 	: QObject(p_parent)
 	, m_projectPath(p_projectPath)
 {
+	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &AsterindesProject::saveProject);
 }
 
 AsterindesProject::~AsterindesProject()
@@ -58,12 +59,6 @@ bool AsterindesProject::loadProject()
 	bool l_resourcesLoaded{ m_resourcesRegistry->loadResourcesFromJson(l_projectData["resources"].toArray()) };
 
 	m_isLoaded = l_resourcesLoaded;
-
-
-	QTimer* l_testTimer{ new QTimer(this) };
-	QObject::connect(l_testTimer, &QTimer::timeout, this, &AsterindesProject::saveProject);
-	l_testTimer->setSingleShot(true);
-	l_testTimer->start(5000);
 
 	return l_resourcesLoaded;
 }

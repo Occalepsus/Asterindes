@@ -2,7 +2,7 @@
 #define RESOURCESVIEWMODEL_H
 
 // Asterindes
-#include "ResourcesManager.h"
+#include "ResourceRegistry.h"
 #include "ResourceListModel.h"
 
 // Qt
@@ -13,7 +13,7 @@ namespace Asterindes::Ui
 {
 	/**
 	 * ResourcesViewModel class is responsible for exposing the resources data and operations to the QML UI. 
-	 * It acts as a bridge between the ResourcesManager and the QML views, providing properties, methods, and signals for UI interaction.
+	 * It acts as a bridge between the ResourceRegistry and the QML views, providing properties, methods, and signals for UI interaction.
 	 */
 	class ResourcesViewModel : public QObject
 	{
@@ -52,26 +52,26 @@ namespace Asterindes::Ui
 		 * @param p_resourcesManager Reference to the business logic manager.
 		 * @param p_parent Parent QObject.
 		 */
-		explicit ResourcesViewModel(ResourcesManager& p_resourcesManager, QObject* p_parent = nullptr);
+		explicit ResourcesViewModel(ResourceRegistry* p_resourcesManager, QObject* p_parent = nullptr);
 
 		/**
 		 * Destructor.
 		 */
-		~ResourcesViewModel() override = default;
+		~ResourcesViewModel() override;
 
 		/**
 		 * Get the displayed resource list model.
 		 * 
 		 * @return Pointer to the ResourceListModel.
 		 */
-		inline ResourceListModel* getDisplayedResourceListModel() { return &m_resourcesListModel; }
+		inline ResourceListModel* getDisplayedResourceListModel() { return m_resourcesListModel; }
 
 		/**
 		 * Get the count of resources.
 		 * 
 		 * @return The number of resources.
 		 */
-		inline int getDisplayedResourceListCount() const { return m_resourcesListModel.rowCount(); }
+		inline int getDisplayedResourceListCount() const { return m_resourcesListModel->rowCount(); }
 
 		/**
 		 * Adds a resource, use the name of the file.
@@ -170,12 +170,12 @@ namespace Asterindes::Ui
 		/**
 		 * Reference to the business logic manager.
 		 */
-		ResourcesManager& m_resourcesManager;
+		QPointer<ResourceRegistry> m_resourcesRegistry;
 
 		/**
 		 * The presentation model for QML.
 		 */
-		ResourceListModel m_resourcesListModel;
+		ResourceListModel* m_resourcesListModel;
 
 		/**
 		 * The index of the selected resource in the displayed, used for selection management in the UI. -1 means no selection.
@@ -185,7 +185,7 @@ namespace Asterindes::Ui
 		/**
 		 * The resource being broadcasted, empty means nothing is being broadcasted.
 		 */
-		ResourcesManager::Resource m_broadcastedResource{};
+		ResourceRegistry::Resource m_broadcastedResource{};
 
 		/**
 		 * Loading state.
@@ -199,7 +199,7 @@ namespace Asterindes::Ui
 
 	private slots:
 		/**
-		 * Handles ResourcesManager's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
+		 * Handles ResourceRegistry's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
 		 */
 		void onManagerResourcesChanged();
 	};

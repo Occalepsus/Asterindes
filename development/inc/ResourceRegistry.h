@@ -1,10 +1,12 @@
-#ifndef RESOURCESMANAGER_H
-#define RESOURCESMANAGER_H
+#ifndef RESOURCEREGISTRY_H
+#define RESOURCEREGISTRY_H
 
 // Qt
 #include <QAbstractListModel>
 #include <QString>
 #include <QUrl>
+#include <QJsonArray>
+#include <QJsonObject>
 
 // STL
 #include <utility>
@@ -12,11 +14,12 @@
 namespace Asterindes
 {
 	/**
-	 * ResourcesManager class is responsible for managing the resources of the project and organizing them in project folders
+	 * ResourceRegistry class is responsible for managing the resources of the project and organizing them in project folders
 	 */
-	class ResourcesManager : public QObject
+	class ResourceRegistry : public QObject
 	{
 		Q_OBJECT;
+		Q_DISABLE_COPY(ResourceRegistry);
 
 	public:
 
@@ -37,9 +40,9 @@ namespace Asterindes
 		};
 
 		/**
-		 * The list of resources managed by this class, it stores unique_ptr to allow keeping the resources by reference.
+		 * The list of resources managed by this class.
 		 */
-		using ResourceList = std::unordered_map<QString, Resource>;
+		using ResourceList = QHash<QString, Resource>;
 
 		/**
 		 * Default constructor.
@@ -49,7 +52,23 @@ namespace Asterindes
 		/**
 		 * Destructor.
 		 */
-		~ResourcesManager() override = default;
+		~ResourceRegistry() override = default;
+
+		/**
+		 * Loads the resources from a JSON array and adds them to the project. Removes all the existing resources before loading the new ones.
+		 *
+		 * @param p_resourceJsonArray The JSON array containing the resources to load.
+		 * 
+		 * @return true if the resources were loaded successfully, false otherwise.
+		 */
+		bool loadResourcesFromJson(const QJsonArray& p_resourceJsonArray);
+
+		/**
+		 * Gets the resources of the project as a JSON array.
+		 *
+		 * @return a JSON array containing the resources of the project.
+		 */
+		QJsonArray getResourcesAsJson() const;
 
 		/**
 		 * Gets all the resources managed by this class.
@@ -102,4 +121,4 @@ namespace Asterindes
 
 
 
-#endif // RESOURCESMANAGER_H
+#endif // RESOURCEREGISTRY_H

@@ -14,28 +14,29 @@ set(ASTERINDES_DEVELOPMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/development)
 
 set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesCore.h
-	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectManager.h
-	${ASTERINDES_DEVELOPMENT_DIR}/inc/Resource.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesProject.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectViewModel.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectWindow.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceBroadcastManager.h
-	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceListModel.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceRegistry.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesViewModel.h
-	${ASTERINDES_DEVELOPMENT_DIR}/inc/GuiClient.h
 )
 
 set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesApp.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesCore.cpp
-	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectManager.cpp
-	${ASTERINDES_DEVELOPMENT_DIR}/src/Resource.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesProject.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectViewModel.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectWindow.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceBroadcastManager.cpp
-	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceListModel.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceRegistry.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesViewModel.cpp
-	${ASTERINDES_DEVELOPMENT_DIR}/src/GuiClient.cpp
 )
 
 set(ASTERINDES_QML_FILES
+	"development/res/AsterindesMenuBar.qml"
 	"development/res/Main.qml"
 	"development/res/ResourceBroadcastPanel.qml"
 	"development/res/ResourcePreviewPanel.qml"

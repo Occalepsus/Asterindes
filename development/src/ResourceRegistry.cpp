@@ -1,14 +1,66 @@
-#include "ResourcesManager.h"
+#include "ResourceRegistry.h"
 
 using namespace Asterindes;
 
-QList<ResourcesManager::Resource> ResourcesManager::getResourcesList() const
+bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArray)
+{
+	bool l_jsonValid = true;
+
+	m_resources.clear();
+
+	for (const auto& l_resourceJsonValue : p_resourceJsonArray)
+	{
+		if (!l_resourceJsonValue.isObject())
+		{
+			qWarning("Invalid resource JSON value, expected an object");
+			l_jsonValid = false;
+			continue;
+		}
+
+		const auto& l_resourceJsonObject = l_resourceJsonValue.toObject();
+		if (!l_resourceJsonObject.contains("name") || !l_resourceJsonObject.contains("url"))
+		{
+			qWarning("Invalid resource JSON object, missing 'name' or 'url' field");
+			l_jsonValid = false;
+			continue;
+		}
+
+		const auto& l_name = l_resourceJsonObject["name"].toString();
+		const auto& l_urlString = l_resourceJsonObject["url"].toString();
+		const QUrl l_url{ l_urlString };
+		if (!l_url.isValid())
+		{
+			qWarning("Invalid resource URL");
+			continue;
+		}
+		m_resources.try_emplace(l_url.toString(), Resource{ .m_name = l_name, .m_resourceUrl = l_url });
+	}
+
+	return l_jsonValid;
+}
+
+QJsonArray ResourceRegistry::getResourcesAsJson() const
+{
+	QJsonArray l_resourceJsonArray;
+
+	for (const auto& l_resource : m_resources.values())
+	{
+		l_resourceJsonArray.append(QJsonObject{
+			{ "name", l_resource.m_name },
+			{ "url", l_resource.m_resourceUrl.toString() }
+		});
+	}
+
+	return l_resourceJsonArray;
+}
+
+QList<ResourceRegistry::Resource> ResourceRegistry::getResourcesList() const
 {
 	QList<Resource> lResourcesList;
 	lResourcesList.reserve(m_resources.size());
 
-	// Extract raw pointers from unique_ptr
-	for (const auto& [_, l_resource] : m_resources)
+	// Copy pointers to the resources in the hash to the list
+	for (const auto& l_resource : m_resources.values())
 	{
 		lResourcesList.push_back(l_resource);
 	}
@@ -16,12 +68,12 @@ QList<ResourcesManager::Resource> ResourcesManager::getResourcesList() const
 	return lResourcesList;
 }
 
-std::pair<bool, ResourcesManager::Resource> ResourcesManager::getResourceByUrl(const QUrl& p_resourceUrl) const
+std::pair<bool, ResourceRegistry::Resource> ResourceRegistry::getResourceByUrl(const QUrl& p_resourceUrl) const
 {
 	if (auto it{ m_resources.find(p_resourceUrl.toString()) };
 		it != m_resources.end())
 	{
-		return { true, it->second };
+		return { true, it.value() };
 	}
 	else
 	{
@@ -29,7 +81,7 @@ std::pair<bool, ResourcesManager::Resource> ResourcesManager::getResourceByUrl(c
 	}
 }
 
-void ResourcesManager::testCreateResource()
+void ResourceRegistry::testCreateResource()
 {
 	Resource l_resource{
 		"Test Resource 0",
@@ -64,7 +116,7 @@ void ResourcesManager::testCreateResource()
 	emit resourcesUpdated();
 }
 
-bool ResourcesManager::addResource(const QUrl& p_resourceUrl)
+bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
 {
 	auto [_, l_inserted] { m_resources.try_emplace(p_resourceUrl.toString(), Resource{.m_name = p_resourceUrl.fileName(), .m_resourceUrl = p_resourceUrl}) };
 

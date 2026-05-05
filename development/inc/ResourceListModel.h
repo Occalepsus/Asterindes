@@ -1,5 +1,5 @@
 // Asterindes
-#include "ResourcesManager.h"
+#include "ResourceRegistry.h"
 
 // Qt
 #include <QAbstractListModel>
@@ -55,11 +55,11 @@ namespace Asterindes::Ui
 		QVariant data(const QModelIndex& p_index, int p_role = Qt::DisplayRole) const override;
 
 		/**
-		 * Updates the model with the given resources list, it is called by the ResourcesViewModel class when the resources list is updated in the ResourcesManager class.
+		 * Updates the model with the given resources list, it is called by the ResourcesViewModel class when the resources list is updated in the ResourceRegistry class.
 		 * 
 		 * @param p_resourceList The list of resources to update the model with.
 		 */
-		void updateFromResourcesList(const QList<ResourcesManager::Resource>& p_resourceList);
+		void updateFromResourcesList(const QList<ResourceRegistry::Resource>& p_resourceList);
 
 		/**
 		 * Gets the index of the resource with the given URL in the model, it is used to get the index of a resource when it is selected in the UI.
@@ -83,6 +83,6 @@ namespace Asterindes::Ui
 		/**
 		 * The list that contains the resources to be displayed in the UI.
 		 */
-		QList<ResourcesManager::Resource> m_displayedResources{};
+		QList<ResourceRegistry::Resource> m_displayedResources{};
 	};
 }

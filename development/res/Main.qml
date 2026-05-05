@@ -3,11 +3,13 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 
-Window {
+ApplicationWindow {
 	id: mainWindow
 	width: 640
 	height: 480
 	visible: true
+
+	menuBar: AsterindesMenuBar {}
 
 	RowLayout {
 		anchors.fill: parent

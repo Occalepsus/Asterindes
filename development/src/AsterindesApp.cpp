@@ -24,7 +24,5 @@ int main(int argc, char* argv[])
 
 	QQmlApplicationEngine engine;
 
-	app.getProjectManager().loadProject("");
-
 	return AsterindesCore::exec();
 }

@@ -17,7 +17,7 @@ QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const
 		return QVariant();
 	}
 
-	const ResourcesManager::Resource l_resource{ m_displayedResources[p_index.row()] };
+	const ResourceRegistry::Resource l_resource{ m_displayedResources[p_index.row()] };
 
 	switch (auto l_roleEnum = static_cast<ResourceRoles>(p_role); l_roleEnum)
 	{
@@ -31,7 +31,7 @@ QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const
 	}
 }
 
-void ResourceListModel::updateFromResourcesList(const QList<ResourcesManager::Resource>& p_resourceList)
+void ResourceListModel::updateFromResourcesList(const QList<ResourceRegistry::Resource>& p_resourceList)
 {
 	// Notify QML that we're about to insert new elements
 	beginResetModel();
@@ -43,7 +43,7 @@ void ResourceListModel::updateFromResourcesList(const QList<ResourcesManager::Re
 
 int ResourceListModel::getResourceIndex(const QUrl& p_resourceUrl) const
 {
-	auto it{ std::ranges::find_if(m_displayedResources, [&p_resourceUrl](const ResourcesManager::Resource& p_resource)
+	auto it{ std::ranges::find_if(m_displayedResources, [&p_resourceUrl](const ResourceRegistry::Resource& p_resource)
 		{
 			return p_resource.m_resourceUrl == p_resourceUrl;
 		}) - m_displayedResources.begin() };

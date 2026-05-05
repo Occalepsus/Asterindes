@@ -4,16 +4,20 @@
 
 using namespace Asterindes::Ui;
 
-ResourcesViewModel::ResourcesViewModel(ResourcesManager& p_resourcesManager, QObject* p_parent)
+ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourcesManager, QObject* p_parent)
 	: QObject(p_parent)
-	, m_resourcesManager(p_resourcesManager)
-	, m_resourcesListModel(this)
+	, m_resourcesRegistry(p_resourcesManager)
+	, m_resourcesListModel(new ResourceListModel(this))
 {
 	// Connect to business logic signals
-	QObject::connect(&m_resourcesManager, &ResourcesManager::resourcesUpdated, this, &ResourcesViewModel::onManagerResourcesChanged);
+	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesUpdated, this, &ResourcesViewModel::onManagerResourcesChanged);
 	
 	// Initialize model with current data
 	onManagerResourcesChanged();
+}
+
+ResourcesViewModel::~ResourcesViewModel()
+{
 }
 
 bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
@@ -27,7 +31,7 @@ bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
 	setLoading(true);
 	
 	// Delegate to business logic
-	bool l_success{ m_resourcesManager.addResource(p_resourceUrl) };
+	bool l_success{ m_resourcesRegistry->addResource(p_resourceUrl) };
 	
 	if (!l_success)
 	{
@@ -42,9 +46,9 @@ bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
 {
 	setLoading(true);
 
-	// TODO: implement removeResource in ResourcesManager and call it here
+	// TODO: implement removeResource in ResourceRegistry and call it here
 	bool l_success = false;
-	//bool l_success = m_resourcesManager.removeResource(p_resourceUrl);
+	//bool l_success = m_resourcesRegistry.removeResource(p_resourceUrl);
 	//
 	//if (!l_success)
 	//{
@@ -89,7 +93,7 @@ void ResourcesViewModel::setBroadcastedResourceUrl(const QUrl& p_url)
 	if (m_broadcastedResource.m_resourceUrl != p_url)
 	{
 		// TODO: check if the resource exists and emit an error if it doesn't
-		m_broadcastedResource = m_resourcesManager.getResourceByUrl(p_url).second;
+		m_broadcastedResource = m_resourcesRegistry->getResourceByUrl(p_url).second;
 		emit broadcastedResourceChanged();
 	}
 }
@@ -99,10 +103,10 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 	// TODO: How to improve this?
 	QVariantMap l_resourceMap;
 
-	QModelIndex lModelIndex = m_resourcesListModel.index(p_index, 0);
+	QModelIndex lModelIndex = m_resourcesListModel->index(p_index, 0);
 
-	l_resourceMap["name"] = m_resourcesListModel.data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
-	l_resourceMap["resourceUrl"] = m_resourcesListModel.data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
+	l_resourceMap["name"] = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
+	l_resourceMap["resourceUrl"] = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
 
 	return l_resourceMap;
 }
@@ -110,16 +114,16 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 void ResourcesViewModel::onManagerResourcesChanged()
 {
 	// Get the current resources list from the manager
-	QList<ResourcesManager::Resource> l_resourcesList{ m_resourcesManager.getResourcesList() };
+	QList<ResourceRegistry::Resource> l_resourcesList{ m_resourcesRegistry->getResourcesList() };
 
 	// Sort the displayed resources by name
 	std::ranges::sort(l_resourcesList,
-		[](const ResourcesManager::Resource& p_a, const ResourcesManager::Resource& p_b) {
+		[](const ResourceRegistry::Resource& p_a, const ResourceRegistry::Resource& p_b) {
 			return p_a.m_name < p_b.m_name;
 		});
 
 	// Update the presentation model
-	m_resourcesListModel.updateFromResourcesList(l_resourcesList);
+	m_resourcesListModel->updateFromResourcesList(l_resourcesList);
 	
 	emit displayedResourceListChanged();
 }

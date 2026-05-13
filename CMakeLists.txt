@@ -15,6 +15,7 @@ set(ASTERINDES_DEVELOPMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/development)
 set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesCore.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesProject.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/BroadcastServer.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectViewModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectWindow.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceBroadcastManager.h
@@ -27,6 +28,7 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesApp.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesCore.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesProject.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/BroadcastServer.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectViewModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectWindow.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceBroadcastManager.cpp
@@ -43,7 +45,7 @@ set(ASTERINDES_QML_FILES
 	"development/res/ResourcesGridPanel.qml"
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick HttpServer WebSockets)
 
 qt_standard_project_setup()
 
@@ -62,7 +64,7 @@ qt_add_qml_module(Asterindes
 		${ASTERINDES_QML_FILES}
 )
 
-target_link_libraries(Asterindes PRIVATE Qt6::Core Qt6::Qml Qt6::Quick)
+target_link_libraries(Asterindes PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets)
 
 if(WIN32)
 	find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)

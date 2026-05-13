@@ -3,6 +3,7 @@
 
 // Asterindes
 #include "ResourceRegistry.h"
+#include "ResourceBroadcastManager.h"
 
 // Qt
 #include <QObject>
@@ -91,6 +92,11 @@ namespace Asterindes
 		 * The resources registry of the project, it keeps track of all the resources in the project and provides methods to manage them.
 		 */
 		ResourceRegistry* m_resourcesRegistry{ new ResourceRegistry(this) };
+
+		/**
+		 * The resource broadcast manager of the project, it is responsible for managing the resources and broadcasting them to the clients via the BroadcastServer.
+		 */
+		ResourceBroadcastManager* m_resourceBroadcastManager{ new ResourceBroadcastManager(this) };
 	};
 }
 

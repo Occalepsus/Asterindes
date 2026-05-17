@@ -72,6 +72,15 @@ namespace Asterindes
 		 */
 		void stop();
 
+		/**
+		 * Gets the response sent to the clients when they fetch the broadcast resource.
+		 *
+		 * @param p_withoutContent true to only send headers without the content, false otherwise
+		 * 
+		 * @return The response sent to the clients when they fetch the broadcast resource.
+		 */
+		QHttpServerResponse getBroadcastResourceResponse(bool p_withoutContent) const;
+
 	private:
 		
 		/**
@@ -98,6 +107,11 @@ namespace Asterindes
 		 * The WebSocket server used notify the clients of a resource broadcast change.
 		 */
 		QWebSocketServer* m_webSocketServer{ nullptr };
+
+		/**
+		 * The broadcasted resource url, empty means no resource is being broadcasted.
+		 */
+		QUrl m_broadcastResourceUrl{};
 	};
 }
 

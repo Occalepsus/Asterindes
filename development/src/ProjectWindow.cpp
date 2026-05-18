@@ -15,7 +15,7 @@ ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_cor
 	: QObject(p_coreApp)
 	// Create ViewModels which connects to their respective models internally
 	, m_projectViewModel(new ProjectViewModel(p_project, this))
-	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourcesRegistry(), this))
+	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourceRegistry(), this))
 {
 	//QObject::connect(&p_project, &AsterindesProject::projectLoaded, this, &ProjectWindow::openProjectWindow);
 }
@@ -43,6 +43,7 @@ void ProjectWindow::openProjectWindow()
 void ProjectWindow::setupQmlContext()
 {
 	// Expose the resources ViewModel to QML
+	m_appQmlEngine.rootContext()->setContextProperty("projectViewModel", m_projectViewModel);
 	m_appQmlEngine.rootContext()->setContextProperty("resourcesViewModel", m_resourcesViewModel);
 }
 

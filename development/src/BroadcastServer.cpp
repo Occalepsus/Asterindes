@@ -155,6 +155,14 @@ void BroadcastServer::stop()
 	}
 }
 
+void BroadcastServer::setBroadcastResourceUrl(const QUrl& p_broadcastResourceUrl)
+{
+	if (p_broadcastResourceUrl != m_broadcastResourceUrl)
+	{
+		m_broadcastResourceUrl = p_broadcastResourceUrl;
+	}
+}
+
 // TODO: Refacto
 // TODO: Proxy requests?
 QHttpServerResponse BroadcastServer::getBroadcastResourceResponse(bool p_withoutContent) const

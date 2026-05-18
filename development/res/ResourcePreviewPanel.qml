@@ -54,8 +54,8 @@ Item {
 		text: "⇣"
 		
 		onClicked: {
-			if (resourcesViewModel && resourcePreviewPanelRoot.hasValidSelection) {
-				resourcesViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl);
+			if (projectViewModel && resourcePreviewPanelRoot.hasValidSelection) {
+				projectViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl);
 			}
 		}
 	}

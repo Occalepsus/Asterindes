@@ -12,6 +12,6 @@ Item {
 
 		fillMode: Image.PreserveAspectFit
 
-		source: resourcesViewModel.broadcastedResourceUrl || ""
+		source: projectViewModel.broadcastedResourceUrl || ""
 	}
 }

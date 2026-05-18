@@ -73,6 +73,20 @@ namespace Asterindes
 		void stop();
 
 		/**
+		 * Gets the broadcasted resource url, empty means no resource is being broadcasted.
+		 *
+		 * @return The broadcasted resource url, empty means no resource is being broadcasted.
+		 */
+		QUrl getBroadcastResourceUrl() const { return m_broadcastResourceUrl; }
+
+		/**
+		 * Sets the broadcasted resource url, empty means no resource is being broadcasted.
+		 *
+		 * @param p_broadcastResourceUrl The broadcasted resource url, empty means no resource is being broadcasted.
+		 */
+		void setBroadcastResourceUrl(const QUrl& p_broadcastResourceUrl);
+
+		/**
 		 * Gets the response sent to the clients when they fetch the broadcast resource.
 		 *
 		 * @param p_withoutContent true to only send headers without the content, false otherwise

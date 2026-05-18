@@ -36,11 +36,6 @@ namespace Asterindes::Ui
 		Q_PROPERTY(int selectedResourceIndex READ getSelectedResourceIndex WRITE setSelectedResourceIndex NOTIFY selectedResourceIndexChanged);
 
 		/**
-		 * The url of the resource being broadcasted, empty means nothing is being broadcasted.
-		 */
-		Q_PROPERTY(QUrl broadcastedResourceUrl READ getBroadcastedResourceUrl WRITE setBroadcastedResourceUrl NOTIFY broadcastedResourceChanged);
-
-		/**
 		 * Whether resources are currently being loaded (for loading indicators).
 		 */
 		Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged);
@@ -112,20 +107,6 @@ namespace Asterindes::Ui
 		Q_INVOKABLE void setSelectedResourceIndex(int p_index);
 
 		/**
-		 * Get the URL of the resource being broadcasted.
-		 * 
-		 * @return The URL of the resource being broadcasted, empty if nothing is being broadcasted.
-		 */
-		inline QUrl getBroadcastedResourceUrl() const { return m_broadcastedResource.m_resourceUrl; };
-
-		/**
-		 * Set the resource being broadcasted using its URL.
-		 * 
-		 * @param p_url The URL to set as being broadcasted, empty to indicate nothing is being broadcasted.
-		 */
-		Q_INVOKABLE void setBroadcastedResourceUrl(const QUrl& p_url);
-
-		/**
 		 * Get the loading state.
 		 * 
 		 * @return true if loading, false otherwise.
@@ -150,11 +131,6 @@ namespace Asterindes::Ui
 		 * Signal emitted when the selected resource changes.
 		 */
 		void selectedResourceIndexChanged();
-
-		/**
-		 * Signal emitted when the broadcasted resource changes.
-		 */
-		void broadcastedResourceChanged();
 
 		/**
 		 * Signal emitted when loading state changes.

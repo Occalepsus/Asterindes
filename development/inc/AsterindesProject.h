@@ -44,7 +44,13 @@ namespace Asterindes
 		 * Gets the resources registry of the project, it keeps track of all the resources in the project and provides methods to manage them.
 		 * This reference is valid as long as the AsterindesProject instance is alive.
 		 */
-		inline ResourceRegistry* getResourcesRegistry() { return m_resourcesRegistry; }
+		inline ResourceRegistry* getResourceRegistry() { return m_resourcesRegistry; }
+
+		/**
+		 * Gets the resource broadcast manager of the project, it is responsible for managing the resources and broadcasting them to the clients via the BroadcastServer.
+		 * This reference is valid as long as the AsterindesProject instance is alive.
+		 */
+		inline ResourceBroadcastManager* getResourceBroadcastManager() { return m_resourceBroadcastManager; }
 
 		/**
 		 * Loads the project from its path, it reads the project file and loads the data into the project managers.

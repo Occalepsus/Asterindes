@@ -183,10 +183,10 @@ Item {
 							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
 							let index = resourceGridView.indexAt(posInContentItem.x, posInContentItem.y)
 
-							if (index >= 0) {
+							if (index >= 0 && projectViewModel) {
 								let resource = resourcesViewModel.getResourceAtIndex(index);
 								if (resource && resource.resourceUrl) {
-									resourcesViewModel.setBroadcastedResourceUrl(resource.resourceUrl);
+									projectViewModel.setBroadcastedResourceUrl(resource.resourceUrl);
 								}
 							}
 						}

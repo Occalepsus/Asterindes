@@ -17,12 +17,17 @@ namespace Asterindes::Ui
 	class ProjectViewModel : public QObject
 	{
 		Q_OBJECT;
-		Q_DISABLE_COPY_MOVE(ProjectViewModel);
+		Q_DISABLE_COPY(ProjectViewModel);
 
 		/**
 		 * The URL of the currently opened project, empty if no project is opened. This is used to display the project path in the UI and to check if a project is currently opened.
 		 */
 		Q_PROPERTY(QUrl currentProjectPath READ getCurrentProjectPath NOTIFY currentProjectPathChanged);
+
+		/**
+		 * The url of the resource being broadcasted, empty means nothing is being broadcasted.
+		 */
+		Q_PROPERTY(QUrl broadcastedResourceUrl READ getBroadcastedResourceUrl WRITE setBroadcastedResourceUrl NOTIFY broadcastedResourceChanged);
 
 	public:
 		/**
@@ -50,11 +55,30 @@ namespace Asterindes::Ui
 		 */
 		inline QUrl getCurrentProjectPath() const { return m_projectPath; };
 
+		/**
+		 * Get the URL of the resource being broadcasted.
+		 *
+		 * @return The URL of the resource being broadcasted, empty if nothing is being broadcasted.
+		 */
+		inline QUrl getBroadcastedResourceUrl() const { return m_resourceBroadcastManager ? m_resourceBroadcastManager->getBroadcastedResource().m_resourceUrl : QUrl(); }
+
+		/**
+		 * Set the resource being broadcasted using its URL.
+		 *
+		 * @param p_url The URL to set as being broadcasted, empty to indicate nothing is being broadcasted.
+		 */
+		Q_INVOKABLE void setBroadcastedResourceUrl(const QUrl& p_url);
+
 	signals:
 		/**
 		 * Signal emitted when the current project path changes.
 		 */
 		void currentProjectPathChanged();
+
+		/**
+		 * Signal emitted when the broadcasted resource changes.
+		 */
+		void broadcastedResourceChanged();
 
 	private:
 		/**
@@ -63,9 +87,14 @@ namespace Asterindes::Ui
 		QPointer<AsterindesProject> m_projectManager;
 
 		/**
+		 * The resource broadcast manager of the project
+		 */
+		QPointer<ResourceBroadcastManager> m_resourceBroadcastManager;
+
+		/**
 		 * The URL of the currently opened project, empty if no project is opened. This is used to display the project path in the UI and to check if a project is currently opened.
 		 */
-		QUrl m_projectPath;
+		QUrl m_projectPath{};
 
 	private slots:
 		/**

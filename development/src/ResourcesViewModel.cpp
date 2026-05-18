@@ -88,16 +88,6 @@ void ResourcesViewModel::setSelectedResourceIndex(int p_index)
 	}
 }
 
-void ResourcesViewModel::setBroadcastedResourceUrl(const QUrl& p_url)
-{
-	if (m_broadcastedResource.m_resourceUrl != p_url)
-	{
-		// TODO: check if the resource exists and emit an error if it doesn't
-		m_broadcastedResource = m_resourcesRegistry->getResourceByUrl(p_url).second;
-		emit broadcastedResourceChanged();
-	}
-}
-
 QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 {
 	// TODO: How to improve this?

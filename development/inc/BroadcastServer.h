@@ -4,7 +4,8 @@
 // Qt
 #include <QTcpServer>
 #include <QHttpServer>
-#include <QWebSocketServer>
+#include <QList>
+#include <QWebSocket>
 
 namespace Asterindes
 {
@@ -28,7 +29,7 @@ namespace Asterindes
 		/**
 		 * Destructor.
 		 */
-		~BroadcastServer() final = default;
+		~BroadcastServer() final;
 
 		/**
 		 * Gets the host address the HTTP and WebSocket servers will bind to.
@@ -118,14 +119,19 @@ namespace Asterindes
 		QHttpServer* m_httpServer{ new QHttpServer(this) };
 
 		/**
-		 * The WebSocket server used notify the clients of a resource broadcast change.
+		 * The list of WebSocket connections on the server.
 		 */
-		QWebSocketServer* m_webSocketServer{ nullptr };
+		QList<QWebSocket*> m_webSocketConnections;
 
 		/**
 		 * The broadcasted resource url, empty means no resource is being broadcasted.
 		 */
 		QUrl m_broadcastResourceUrl{};
+
+		/**
+		 * Notifies all connected clients that the broadcast resource has changed.
+		 */
+		void notifyBroadcastResourceChanged() const;
 	};
 }
 

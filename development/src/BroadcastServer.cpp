@@ -52,7 +52,23 @@ R"(<!DOCTYPE html>
 				container.appendChild(img);
 			}
 			
+			function connectWebSocket() {
+				const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+				const socket = new WebSocket(protocol + '://' + window.location.host + '/ws');
+
+				socket.addEventListener('message', function(event) {
+					if (event.data === 'broadcasted-resource-changed') {
+						loadResource();
+					}
+				});
+
+				socket.addEventListener('close', function() {
+					window.setTimeout(connectWebSocket, 1000);
+				});
+			}
+
 			loadResource();
+			connectWebSocket();
 		</script>
 	</body>
 </html>
@@ -73,51 +89,46 @@ BroadcastServer::BroadcastServer(QObject* p_parent)
 	// Route to get the broadcasted resource, return only headers for an HEAD request.
 	m_httpServer->route("/broadcasted-resource", QHttpServerRequest::Method::Head, [this]() { return getBroadcastResourceResponse(true); });
 	m_httpServer->route("/broadcasted-resource", QHttpServerRequest::Method::Get, [this]() { return getBroadcastResourceResponse(false); });
-		//[this](const QHttpServerRequest& p_request)
+
+
+	m_httpServer->addWebSocketUpgradeVerifier(
+		m_httpServer,
+		[](const QHttpServerRequest& p_request)
 		{
-			//return this->m_broadcastResourceResponse;
-			//QFile l_test(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 3\Illustrations\Asterindes allongé.jpg)");
-			//if (l_test.open(QIODevice::ReadOnly))
-			//{
-			//	QByteArray l_data = l_test.readAll();
-			//	return QHttpServerResponse("image/jpeg", l_data);
-			//}
-
-			//return QHttpServerResponse("Hi there!");
+			if (p_request.url().path() == "/ws")
+			{
+				return QHttpServerWebSocketUpgradeResponse::accept();
+			}
+			else
+			{
+				return QHttpServerWebSocketUpgradeResponse::passToNext();
+			}
 		}
-	//);
+	);
 
-		m_broadcastResourceUrl = QUrl::fromUserInput(R"(https://cloud.occalepsus.fr/public.php/dav/files/QdLn8mJf68zAeqC/)");
+	QObject::connect(m_httpServer, &QHttpServer::newWebSocketConnection, this,
+		[this]()
+		{
+			// Use release to transfer ownership to the connection list
+			if (QWebSocket* l_connection{ m_httpServer->nextPendingWebSocketConnection().release() })
+			{
+				m_webSocketConnections.append(l_connection);
 
+				QObject::connect(l_connection, &QWebSocket::disconnected, this,
+					[this, l_connection]()
+					{
+						m_webSocketConnections.removeAll(l_connection);
+						l_connection->deleteLater();
+					}
+				);
+			}
+		}
+	);
+}
 
-	//// --- WebSocket Upgrade ---
-	//// Filter: only allow upgrades on "/ws"
-	//m_httpServer->addWebSocketUpgradeVerifier(&m_httpServer,
-	//	[](const QHttpServerRequest& pRequest) {
-	//		return pRequest.url().path() == "/ws";
-	//	}
-	//);
-
-	//// Handle new WebSocket connections
-	//QObject::connect(&m_httpServer, &QHttpServer::newWebSocketConnection, [&]() {
-	//	QWebSocket* lClient = lHttpServer.nextPendingWebSocketConnection();
-	//	lClients.append(lClient);
-
-	//	qInfo() << "New WS client connected:" << lClient->peerAddress();
-
-	//	QObject::connect(lClient, &QWebSocket::textMessageReceived,
-	//		[lClient, &lClients](const QString& pMessage) {
-	//			for (QWebSocket* lOther : lClients)
-	//				lOther->sendTextMessage("Echo: " + pMessage);
-	//		});
-
-	//	QObject::connect(lClient, &QWebSocket::disconnected, [lClient, &lClients]() {
-	//		qInfo() << "WS client disconnected";
-	//		lClients.removeAll(lClient);
-	//		lClient->deleteLater();
-	//		});
-	//	});
-
+BroadcastServer::~BroadcastServer()
+{
+	stop();
 }
 
 void BroadcastServer::setHostAddress(const QHostAddress& p_hostAddress)
@@ -149,6 +160,12 @@ bool BroadcastServer::start()
 
 void BroadcastServer::stop()
 {
+	for (const auto& l_webSocketConnection : m_webSocketConnections)
+	{
+		l_webSocketConnection->deleteLater();
+	}
+	m_webSocketConnections.clear();
+
 	if (m_tcpServer->isListening())
 	{
 		m_tcpServer->close();
@@ -160,6 +177,7 @@ void BroadcastServer::setBroadcastResourceUrl(const QUrl& p_broadcastResourceUrl
 	if (p_broadcastResourceUrl != m_broadcastResourceUrl)
 	{
 		m_broadcastResourceUrl = p_broadcastResourceUrl;
+		notifyBroadcastResourceChanged();
 	}
 }
 
@@ -197,5 +215,16 @@ QHttpServerResponse BroadcastServer::getBroadcastResourceResponse(bool p_without
 		l_response.setHeaders(l_headers);
 
 		return l_response;
+	}
+}
+
+void BroadcastServer::notifyBroadcastResourceChanged() const
+{
+	for (const auto l_webSocketConnection : m_webSocketConnections)
+	{
+		if (l_webSocketConnection)
+		{
+			l_webSocketConnection->sendTextMessage("broadcasted-resource-changed");
+		}
 	}
 }

@@ -4,7 +4,7 @@ import QtQuick.Controls
 
 Item {
 	property var previewResource: resourcesViewModel ? resourcesViewModel.getResourceAtIndex(resourcesViewModel.selectedResourceIndex) : null
-	property bool hasValidSelection: resourcesViewModel ? resourcesViewModel.selectedResourceIndex >= 0 : false
+	property bool hasValidSelection: resourcesViewModel && resourcesViewModel.selectedResourceIndex >= 0
 	
 	id: resourcePreviewPanelRoot
 	anchors.fill: parent
@@ -14,6 +14,7 @@ Item {
 		anchors.fill: parent
 		visible: resourcePreviewPanelRoot.hasValidSelection
 
+		// Resource preview image
 		Image {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
@@ -23,12 +24,19 @@ Item {
 			fillMode: Image.PreserveAspectFit
 			source: resourcePreviewPanelRoot.previewResource ? (resourcePreviewPanelRoot.previewResource.resourceUrl || "") : ""
 		}
-		Text {
-			Layout.fillWidth: true
-			Layout.preferredHeight: 20
-			horizontalAlignment: Text.AlignHCenter
 
+		// Resource name field, modifiable
+		TextField {
+			id: resourceNameField
+			Layout.fillWidth: false
+			placeholderText: "Nom affiché"
 			text: resourcePreviewPanelRoot.previewResource ? (resourcePreviewPanelRoot.previewResource.name || "") : ""
+
+			onAccepted: {
+				if (resourcesViewModel && resourcePreviewPanelRoot.previewResource) {
+					resourcesViewModel.renameResource(resourcePreviewPanelRoot.previewResource.resourceUrl, text)
+				}
+			}
 		}
 	}
 	
@@ -40,22 +48,36 @@ Item {
 		color: "#888888"
 	}
 
-	// Send to broadcast button
-	Button {
+	Column {
 		anchors.right: parent.right
 		anchors.bottom: parent.bottom
 		anchors.margins: 10
-		
-		width: 25
-		height: 25
+		spacing: 8
 
-		visible: resourcePreviewPanelRoot.hasValidSelection
-		
-		text: "⇣"
-		
-		onClicked: {
-			if (projectViewModel && resourcePreviewPanelRoot.hasValidSelection) {
-				projectViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl);
+		Button {
+			enabled: resourcePreviewPanelRoot.hasValidSelection
+			text: "🗑"
+			width: 32
+			height: 32
+
+			onClicked: {
+				if (resourcesViewModel && resourcePreviewPanelRoot.hasValidSelection) {
+					resourcesViewModel.removeResource(resourcePreviewPanelRoot.previewResource.resourceUrl)
+				}
+			}
+		}
+
+		Button {
+			enabled: resourcePreviewPanelRoot.hasValidSelection
+
+			text: "⇣"
+			width: 32
+			height: 32
+
+			onClicked: {
+				if (projectViewModel && resourcePreviewPanelRoot.hasValidSelection) {
+					projectViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl)
+				}
 			}
 		}
 	}

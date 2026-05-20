@@ -10,10 +10,10 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourcesManager, QOb
 	, m_resourcesListModel(new ResourceListModel(this))
 {
 	// Connect to business logic signals
-	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::onManagerResourcesChanged);
+	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::updateResourceList);
 	
 	// Initialize model with current data
-	onManagerResourcesChanged();
+	updateResourceList();
 }
 
 ResourcesViewModel::~ResourcesViewModel()
@@ -22,6 +22,11 @@ ResourcesViewModel::~ResourcesViewModel()
 
 bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
 {
+	if (!m_resourcesRegistry)
+	{
+		return false;
+	}
+
 	if (!canAddResource(p_resourceUrl))
 	{
 		emit errorOccurred(tr("Invalid resource URL: %1").arg(p_resourceUrl.toString()));
@@ -42,20 +47,40 @@ bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
 	return l_success;
 }
 
-bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
+bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
 {
+	if (!m_resourcesRegistry)
+	{
+		return false;
+	}
+
 	setLoading(true);
 
-	// TODO: implement removeResource in ResourceRegistry and call it here
-	bool l_success = false;
-	//bool l_success = m_resourcesRegistry.removeResource(p_resourceUrl);
-	//
-	//if (!l_success)
-	//{
-	//    emit errorOccurred(tr("Failed to remove resource: %1").arg(p_resourceUrl.fileName()));
-	//}
-	emit errorOccurred(tr("Remove not implemented"));
-	
+	const bool l_success{ m_resourcesRegistry->renameResource(p_resourceUrl, p_newName) };
+	if (!l_success)
+	{
+		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl.toString()));
+	}
+
+	setLoading(false);
+	return l_success;
+}
+
+bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
+{
+	if (!m_resourcesRegistry)
+	{
+		return false;
+	}
+
+	setLoading(true);
+
+	const bool l_success{ m_resourcesRegistry->removeResource(p_resourceUrl) };
+	if (!l_success)
+	{
+		emit errorOccurred(tr("Failed to remove resource: %1").arg(p_resourceUrl.toString()));
+	}
+
 	setLoading(false);
 	return l_success;
 }
@@ -69,9 +94,30 @@ bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 		return false;
 	}
 
-	QString l_path = p_url.toString().toLower();
+	QString l_path = p_url.path(QUrl::ComponentFormattingOption::FullyDecoded).toLower();
 	return l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
 		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
+}
+
+int ResourcesViewModel::getSelectedResourceIndex() const
+{
+	int l_index{ -1 };
+
+	if (m_selectedResourceUrl.isValid() && !m_selectedResourceUrl.isEmpty())
+	{
+		for (int i = 0; i < getDisplayedResourceListCount(); ++i)
+		{
+			QModelIndex lModelIndex = m_resourcesListModel->index(i, 0);
+			QUrl l_resourceUrl = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl();
+			if (l_resourceUrl == m_selectedResourceUrl)
+			{
+				l_index = i;
+				break;
+			}
+		}
+	}
+
+	return l_index;
 }
 
 void ResourcesViewModel::setSelectedResourceIndex(int p_index)
@@ -81,9 +127,13 @@ void ResourcesViewModel::setSelectedResourceIndex(int p_index)
 		p_index = -1; // Normalize empty selection
 	}
 
-	if (m_selectedResourceIndex != p_index)
+	QModelIndex l_modelIndex = m_resourcesListModel->index(p_index, 0);
+
+	QUrl l_newSelectedUrl{ m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl() };
+
+	if (m_selectedResourceUrl != l_newSelectedUrl)
 	{
-		m_selectedResourceIndex = p_index;
+		m_selectedResourceUrl = l_newSelectedUrl;
 		emit selectedResourceIndexChanged();
 	}
 }
@@ -93,29 +143,29 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 	// TODO: How to improve this?
 	QVariantMap l_resourceMap;
 
-	QModelIndex lModelIndex = m_resourcesListModel->index(p_index, 0);
+	QModelIndex l_modelIndex = m_resourcesListModel->index(p_index, 0);
 
-	l_resourceMap["name"] = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
-	l_resourceMap["resourceUrl"] = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
+	l_resourceMap["name"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
+	l_resourceMap["resourceUrl"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
 
 	return l_resourceMap;
 }
 
-void ResourcesViewModel::onManagerResourcesChanged()
+void ResourcesViewModel::updateResourceList()
 {
-	// Get the current resources list from the manager
 	QList<ResourceRegistry::Resource> l_resourcesList{ m_resourcesRegistry->getResourcesList() };
 
-	// Sort the displayed resources by name
 	std::ranges::sort(l_resourcesList,
 		[](const ResourceRegistry::Resource& p_a, const ResourceRegistry::Resource& p_b) {
 			return p_a.m_name < p_b.m_name;
 		});
 
-	// Update the presentation model
 	m_resourcesListModel->updateFromResourcesList(l_resourcesList);
-	
+
 	emit displayedResourceListChanged();
+
+	// Update selection in case the selected resource was modified/removed
+	emit selectedResourceIndexChanged();
 }
 
 void ResourcesViewModel::setLoading(bool p_loading)

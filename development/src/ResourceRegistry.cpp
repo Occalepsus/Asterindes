@@ -81,41 +81,6 @@ std::pair<bool, ResourceRegistry::Resource> ResourceRegistry::getResourceByUrl(c
 	}
 }
 
-void ResourceRegistry::testCreateResource()
-{
-	Resource l_resource{
-		"Test Resource 0",
-		QUrl::fromLocalFile(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 4\Illustration\Amidor et Pollenela.webp)")
-	};
-	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
-
-	l_resource = Resource{
-		"Test Resource 1",
-		QUrl::fromLocalFile(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 4\Illustration\Kassam Thaldrîn.jpg)")
-	};
-	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
-
-	l_resource = Resource{
-		"Test Resource 2",
-		QUrl::fromLocalFile(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 4\Illustration\Tasha et Mordenkainen.jpg)")
-	};
-	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
-
-	l_resource = Resource{
-		"Test Resource 3",
-		QUrl::fromLocalFile(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 4\Illustration\Théatre.webp)")
-	};
-	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
-
-	l_resource = Resource{
-		"Test Resource 4",
-		QUrl::fromLocalFile(R"(C:\Users\jujuj\Nextcloud\Documents\Projets persos\JDR\Les Contes de le Faille\Par delà le carnaval de Sorcelume\Chapitre 4\Illustration\Zoltorak.jpg)")
-	};
-	m_resources.try_emplace(l_resource.m_resourceUrl.toString(), std::move(l_resource));
-
-	emit resourcesChanged();
-}
-
 bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
 {
 	auto [_, l_inserted] { m_resources.try_emplace(p_resourceUrl.toString(), Resource{.m_name = p_resourceUrl.fileName(), .m_resourceUrl = p_resourceUrl}) };
@@ -126,4 +91,44 @@ bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
 	}
 
 	return l_inserted;
+}
+
+bool ResourceRegistry::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
+{
+	const QString l_cleanName{ p_newName.trimmed() };
+	if (l_cleanName.isEmpty())
+	{
+		return false;
+	}
+
+	if (auto it{ m_resources.find(p_resourceUrl.toString()) };
+		it != m_resources.end())
+	{
+		if (it->m_name == l_cleanName)
+		{
+			return true;
+		}
+		it->m_name = l_cleanName;
+		emit resourcesChanged();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ResourceRegistry::removeResource(const QUrl& p_resourceUrl)
+{
+	if (auto it{ m_resources.find(p_resourceUrl.toString()) };
+		it != m_resources.end())
+	{
+		m_resources.erase(it);
+		emit resourcesChanged();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

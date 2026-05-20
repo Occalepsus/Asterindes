@@ -159,11 +159,11 @@ Item {
 				// No move animation when changing selection
 				highlightMoveDuration: 0
 				focus: true
-				
+								
 				currentIndex: resourcesViewModel ? resourcesViewModel.selectedResourceIndex : -1
 				onCurrentIndexChanged: {
-					if (resourcesViewModel) {
-						resourcesViewModel.setSelectedResourceIndex(currentIndex);
+					if (resourcesViewModel && currentIndex !== resourcesViewModel.selectedResourceIndex) {
+						resourcesViewModel.setSelectedResourceIndex(currentIndex)
 					}
 				}
 
@@ -174,7 +174,9 @@ Item {
 						if (resourcesViewModel) {
 							let posInGridView = Qt.point(mouse.x, mouse.y)
 							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
-							resourcesViewModel.setSelectedResourceIndex(resourceGridView.indexAt(posInContentItem.x, posInContentItem.y))
+							resourcesViewModel.setSelectedResourceIndex(
+								resourceGridView.indexAt(posInContentItem.x, posInContentItem.y)
+							)
 						}
 					}
 					onDoubleClicked: (mouse) => {
@@ -231,10 +233,13 @@ Item {
 				FileDialog {
 					id: resourceFileDialog
 					title: "Select Resource File"
+					fileMode: FileDialog.OpenFiles
 					nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
 					onAccepted: {
 						if (resourcesViewModel) {
-							resourcesViewModel.addResource(selectedFile)
+							for (selectedFile of selectedFiles) {
+								resourcesViewModel.addResource(selectedFile)
+							}
 						}
 					}
 				}
@@ -249,6 +254,30 @@ Item {
 					text: "Clear All"
 					enabled: false//!resourcesViewModel.isLoading && resourcesViewModel.displayedResourceListCount > 0
 					//onClicked: confirmClearDialog.open()
+				}
+
+				TextField {
+					id: resourceUrlField
+					Layout.preferredWidth: 280
+					placeholderText: "http://exemple.com/image.png"
+					selectByMouse: true
+
+					onAccepted: addWebResourceButton.clicked()
+				}
+
+				Button {
+					id: addResourceUrlButton
+					text: "Add Resource"
+					enabled: resourcesViewModel ? !resourcesViewModel.isLoading && resourceUrlField.text !== "" : false
+
+					onClicked: {
+						if (resourcesViewModel) {
+							const url = resourceUrlField.text
+							if (resourcesViewModel.addResource(url)) {
+								resourceUrlField.clear()
+							}
+						}
+					}
 				}
 
 				Item { Layout.fillWidth: true } // Spacer

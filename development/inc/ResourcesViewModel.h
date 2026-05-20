@@ -77,6 +77,16 @@ namespace Asterindes::Ui
 		Q_INVOKABLE bool addResource(const QUrl& p_resourceUrl);
 
 		/**
+		 * Renames a resource by its URL.
+		 *
+		 * @param p_resourceUrl The URL of the resource to rename.
+		 * @param p_newName The new name for the resource.
+		 * 
+		 * @return true if successful, false otherwise.
+		 */
+		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
+
+		/**
 		 * Removes a resource by its URL.
 		 *
 		 * @param p_resourceUrl The resource URL.
@@ -97,7 +107,7 @@ namespace Asterindes::Ui
 		 * 
 		 * @return The index of the selected resource in the currently displayed view, -1 if no selection.
 		 */
-		inline int getSelectedResourceIndex() const { return m_selectedResourceIndex; };
+		int getSelectedResourceIndex() const;
 
 		/**
 		 * Set the index of the selected resource.
@@ -154,9 +164,9 @@ namespace Asterindes::Ui
 		ResourceListModel* m_resourcesListModel;
 
 		/**
-		 * The index of the selected resource in the displayed, used for selection management in the UI. -1 means no selection.
+		 * The URL of the selected resource in the displayed, used for selection management in the UI. An empty URL means no selection.
 		 */
-		int m_selectedResourceIndex{ -1 };
+		QUrl m_selectedResourceUrl{};
 
 		/**
 		 * The resource being broadcasted, empty means nothing is being broadcasted.
@@ -177,7 +187,7 @@ namespace Asterindes::Ui
 		/**
 		 * Handles ResourceRegistry's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
 		 */
-		void onManagerResourcesChanged();
+		void updateResourceList();
 	};
 }
 

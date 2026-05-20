@@ -81,16 +81,16 @@ namespace Asterindes
 		 * Gets a resource by its URL.
 		 *
 		 * @param p_resourceUrl The URL of the resource to get.
+		 * 
 		 * @return a pair of a bool indicating if the resource was found, and the resource with the given URL, or a default-constructed Resource if not found.
 		 */
 		std::pair<bool, Resource> getResourceByUrl(const QUrl& p_resourceUrl) const;
-
-		void testCreateResource();
 
 		/**
 		 * Checks if a resource with the given URL already exists in the project.
 		 *
 		 * @param p_resourceUrl The URL of the resource to check.
+		 * 
 		 * @return true if the resource exists, false otherwise.
 		 */
 		inline bool containsResource(const QUrl& p_resourceUrl) const { return m_resources.contains(p_resourceUrl.toString()); }
@@ -101,6 +101,25 @@ namespace Asterindes
 		 * @param p_resourceUrl The URL of the resource file to add.
 		 */
 		bool addResource(const QUrl& p_resourceUrl);
+
+		/**
+		 * Rename a resource from the project from its URL.
+		 *
+		 * @param p_resourceUrl The URL of the resource to rename.
+		 * @param p_newName The new name for the resource.
+		 * 
+		 * @return true if the resource was renamed successfully, false otherwise.
+		 */
+		bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
+
+		/**
+		 * Removes a resource from the project by its URL.
+		 *
+		 * @param p_resourceUrl The URL of the resource to remove.
+		 *
+		 * @return true if the resource was removed successfully, false otherwise.
+		 */
+		bool removeResource(const QUrl& p_resourceUrl);
 
 	signals:
 

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Asterindes</title>
+    <style>
+      html {
+        overflow: hidden;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: black;
+
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+      }
+
+      #media-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+      }
+
+      img,
+      video {
+        max-width: 100vw;
+        max-height: 100vh;
+      }
+
+      #loading {
+        color: #666;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="media-container">
+      <div id="loading" class="current">Loading resource...</div>
+    </div>
+    <script>
+      // Creates an image element that attempts to load the broadcasted resource.
+      // Calls onReady if the image is loaded successfully, or onError if it fails to load.
+      function createImageElement(container, resourceUrl, onReady, onError) {
+        const image = document.createElement("img");
+        container.appendChild(image);
+
+        image.className = "hidden";
+        image.alt = "Broadcasted Resource";
+        image.onload = function () {
+          onReady(image);
+        };
+        image.onerror = function () {
+          onError(image);
+        };
+        image.src = resourceUrl;
+
+        return image;
+      }
+
+      // Creates a video element that attempts to load the broadcasted resource.
+      // Calls onReady if the video is loaded successfully, or onError if it fails to load.
+      function createVideoElement(container, resourceUrl, onReady, onError) {
+        const video = document.createElement("video");
+        container.appendChild(video);
+
+        video.className = "hidden";
+        video.autoplay = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.controls = false;
+        video.onloadeddata = function () {
+          onReady(video);
+        };
+        video.onerror = function () {
+          onError(video);
+        };
+        video.src = resourceUrl;
+        video.load();
+
+        return video;
+      }
+
+      // Replaces the current media element in the container with the nextElement.
+      // Handles the transition by changing the "current" class and removing the old element.
+      function replaceMedia(container, nextElement) {
+        const currentElement = container.querySelector(".current");
+        if (currentElement) {
+          container.insertBefore(nextElement, currentElement.nextSibling);
+          currentElement.remove();
+        } else {
+          container.innerHTML = "";
+          container.appendChild(nextElement);
+        }
+        nextElement.classList.remove("hidden");
+        nextElement.classList.add("current");
+      }
+
+      // Loads the broadcasted resource (image or video) into the media container.
+      function loadResource() {
+        const container = document.getElementById("media-container");
+        const resourceUrl = "/broadcasted-resource?timestamp=" + Date.now();
+
+        const loadVideo = function () {
+          createVideoElement(
+            container,
+            resourceUrl,
+            function (readyVideo) {
+              replaceMedia(container, readyVideo);
+            },
+            function (errorVideo) {
+              errorVideo.remove();
+              const errorMessage = document.createElement("p");
+              errorMessage.textContent = "Unable to load resource";
+              replaceMedia(container, errorMessage);
+            },
+          );
+        };
+
+        const image = createImageElement(
+          container,
+          resourceUrl,
+          function (readyImage) {
+            replaceMedia(container, readyImage);
+          },
+          function (errorImage) {
+            errorImage.remove();
+            loadVideo();
+          },
+        );
+      }
+
+      let socket = null;
+      let reconnectAttempts = 0;
+      let reconnectTimerId = null;
+      let allowReconnect = true;
+
+      // Clears any pending reconnection attempt.
+      function clearReconnectTimer() {
+        if (reconnectTimerId !== null) {
+          window.clearTimeout(reconnectTimerId);
+          reconnectTimerId = null;
+        }
+      }
+
+      // Calculates the delay for the next reconnection attempt using exponential backoff
+      // Use jitter to avoid different clients reconnecting simultaneously.
+      function getReconnectDelayMs(attempt) {
+        const baseDelayMs = 1000;
+        const maxDelayMs = 30000;
+        const exponentialDelay = Math.min(
+          maxDelayMs,
+          baseDelayMs * Math.pow(2, attempt),
+        );
+        const jitterMs = Math.floor(Math.random() * 800);
+
+        return exponentialDelay + jitterMs;
+      }
+
+      // Schedules a reconnection attempt if allowed and not already scheduled.
+      function scheduleReconnect() {
+        if (!allowReconnect || reconnectTimerId !== null) {
+          return;
+        }
+
+        const delayMs = getReconnectDelayMs(reconnectAttempts);
+        reconnectAttempts += 1;
+
+        reconnectTimerId = window.setTimeout(function () {
+          reconnectTimerId = null;
+          connectWebSocket();
+        }, delayMs);
+      }
+
+      // Establishes a WebSocket connection and sets up event listeners.
+      function connectWebSocket() {
+        if (
+          socket &&
+          (socket.readyState === WebSocket.OPEN ||
+            socket.readyState === WebSocket.CONNECTING)
+        ) {
+          return;
+        }
+
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        socket = new WebSocket(protocol + "://" + window.location.host + "/ws");
+
+        socket.addEventListener("open", function () {
+          reconnectAttempts = 0;
+          clearReconnectTimer();
+        });
+
+        socket.addEventListener("message", function (event) {
+          if (event.data === "broadcasted-resource-changed") {
+            loadResource();
+          }
+        });
+
+        socket.addEventListener("error", function () {
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+          }
+        });
+
+        socket.addEventListener("close", function () {
+          socket = null;
+          scheduleReconnect();
+        });
+      }
+
+      window.addEventListener("online", function () {
+        if (!socket || socket.readyState === WebSocket.CLOSED) {
+          clearReconnectTimer();
+          connectWebSocket();
+        }
+      });
+
+      window.addEventListener("beforeunload", function () {
+        allowReconnect = false;
+        clearReconnectTimer();
+
+        if (socket) {
+          socket.close();
+        }
+      });
+
+      // Initial load of the resource and setup WebSocket connection for updates.
+      loadResource();
+      connectWebSocket();
+    </script>
+  </body>
+</html>

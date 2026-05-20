@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
 
 # Set Asterindes as the default startup project in Visual Studio
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Asterindes)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 set(ASTERINDES_DEVELOPMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/development)
 
@@ -45,34 +45,50 @@ set(ASTERINDES_QML_FILES
 	"development/res/ResourcesGridPanel.qml"
 )
 
+set(ASTERINDES_HTML_RESOURCES
+	"development/res/ClientPage.html"
+)
+
 find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick HttpServer WebSockets)
 
 qt_standard_project_setup()
 
-qt_add_executable(Asterindes
+qt_add_executable(${PROJECT_NAME}
 	${ASTERINDES_SOURCES}
 	${ASTERINDES_HEADERS}
 )
 
-target_include_directories(Asterindes PRIVATE ${ASTERINDES_DEVELOPMENT_DIR}/inc)
+target_include_directories(${PROJECT_NAME} PRIVATE ${ASTERINDES_DEVELOPMENT_DIR}/inc)
 
-qt_add_qml_module(Asterindes
-	URI Asterindes
+qt_add_qml_module(${PROJECT_NAME}
+	URI ${PROJECT_NAME}
 	VERSION 0.1
 	RESOURCE_PREFIX /qt/qml
 	QML_FILES
 		${ASTERINDES_QML_FILES}
 )
 
-target_link_libraries(Asterindes PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets)
+foreach(resource IN LISTS ASTERINDES_HTML_RESOURCES)
+	get_filename_component(resourceName "${resource}" NAME)
+	set_source_files_properties("${resource}" PROPERTIES QT_RESOURCE_ALIAS "${resourceName}")
+endforeach()
+
+
+qt_add_resources(${PROJECT_NAME} "HTML"
+	PREFIX "/html"
+	FILES
+		${ASTERINDES_HTML_RESOURCES}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets)
 
 if(WIN32)
 	find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
 	if(WINDEPLOYQT)
 		set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
-		add_custom_command(TARGET Asterindes POST_BUILD
-			COMMAND ${WINDEPLOYQT} --no-translations --qmldir "${ASTERINDES_QML_DIR}" $<TARGET_FILE:Asterindes>
-			COMMENT "Déploiement des DLLs Qt avec windeployqt"
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${WINDEPLOYQT} --no-translations --qmldir "${ASTERINDES_QML_DIR}" $<TARGET_FILE:${PROJECT_NAME}>
+			COMMENT "Deploying Qt DLLs with windeployqt"
 		)
 	endif()
 endif()
@@ -80,4 +96,5 @@ endif()
 # Organize the project files in Visual Studio in folders
 source_group("Source Files" FILES ${ASTERINDES_SOURCES})
 source_group("Header Files" FILES ${ASTERINDES_HEADERS})
-source_group("Resources" FILES ${ASTERINDES_QML_FILES})
+source_group("Resources/qml" FILES ${ASTERINDES_QML_FILES})
+source_group("Resources/html" FILES ${ASTERINDES_HTML_RESOURCES})

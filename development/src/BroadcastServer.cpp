@@ -5,84 +5,13 @@
 
 using namespace Asterindes;
 
-namespace
-{
-	const QByteArray sc_htmlContent{
-R"(<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="UTF-8">
-		<title>Asterindes</title>
-		<style>
-			body { font-family: Arial, sans-serif; }
-			#media-container { margin-top: 20px; }
-			img, video { max-width: 100%; height: auto; }
-			#loading { color: #666; }
-		</style>
-	</head>
-	<body>
-		<h1>Welcome to Asterindes!</h1>
-		<div id="media-container">
-			<div id="loading">Loading resource...</div>
-		</div>
-		<script>
-			function loadAsVideo() {
-				const container = document.getElementById('media-container');
-				container.innerHTML = '';
-				
-				const video = document.createElement('video');
-				video.src = '/broadcasted-resource';
-				video.controls = false;
-				video.autoplay = true;
-				video.loop = true;
-				video.onerror = function() {
-					container.innerHTML = '<p>Unable to load resource</p>';
-				};
-				container.appendChild(video);
-			}
-			
-			function loadResource() {
-				const container = document.getElementById('media-container');
-				container.innerHTML = '';
-				
-				const img = document.createElement('img');
-				img.src = '/broadcasted-resource';
-				img.alt = 'Broadcasted Resource';
-				img.onerror = loadAsVideo;
-				container.appendChild(img);
-			}
-			
-			function connectWebSocket() {
-				const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-				const socket = new WebSocket(protocol + '://' + window.location.host + '/ws');
-
-				socket.addEventListener('message', function(event) {
-					if (event.data === 'broadcasted-resource-changed') {
-						loadResource();
-					}
-				});
-
-				socket.addEventListener('close', function() {
-					window.setTimeout(connectWebSocket, 1000);
-				});
-			}
-
-			loadResource();
-			connectWebSocket();
-		</script>
-	</body>
-</html>
-)"
-	};
-}
-
 BroadcastServer::BroadcastServer(QObject* p_parent)
 	: QObject(p_parent)
 {
 	m_httpServer->route("/", QHttpServerRequest::Method::Get,
 		[](const QHttpServerRequest& p_request)
 		{
-			return QHttpServerResponse("text/html", sc_htmlContent);
+			return QHttpServerResponse::fromFile(":/html/ClientPage.html");
 		}
 	);
 

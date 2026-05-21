@@ -81,16 +81,26 @@ std::pair<bool, ResourceRegistry::Resource> ResourceRegistry::getResourceByUrl(c
 	}
 }
 
-bool ResourceRegistry::addResource(const QUrl& p_resourceUrl)
+QList<QUrl> ResourceRegistry::addResources(const QList<QUrl>& p_resourceUrls)
 {
-	auto [_, l_inserted] { m_resources.try_emplace(p_resourceUrl.toString(), Resource{.m_name = p_resourceUrl.fileName(), .m_resourceUrl = p_resourceUrl}) };
+	QList<QUrl> l_added{};
 
-	if (l_inserted)
+	for (const auto& l_resourceUrl : p_resourceUrls)
+	{
+		// Try to emplace the new resource, and if it works add it to the list of added urls
+		auto [_, l_inserted] { m_resources.try_emplace(l_resourceUrl.toString(), Resource{.m_name = l_resourceUrl.fileName(), .m_resourceUrl = l_resourceUrl}) };
+		if (l_inserted)
+		{
+			l_added.append(l_resourceUrl);
+		}
+	}
+
+	if (!l_added.isEmpty())
 	{
 		emit resourcesChanged();
 	}
 
-	return l_inserted;
+	return l_added;
 }
 
 bool ResourceRegistry::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
@@ -118,17 +128,24 @@ bool ResourceRegistry::renameResource(const QUrl& p_resourceUrl, const QString& 
 	}
 }
 
-bool ResourceRegistry::removeResource(const QUrl& p_resourceUrl)
+QList<QUrl> ResourceRegistry::removeResources(const QList<QUrl>& p_resourceUrls)
 {
-	if (auto it{ m_resources.find(p_resourceUrl.toString()) };
-		it != m_resources.end())
+	QList<QUrl> l_removed{};
+
+	for (const auto& l_resourceUrl : p_resourceUrls)
 	{
-		m_resources.erase(it);
+		if (auto it{ m_resources.find(l_resourceUrl.toString()) };
+			it != m_resources.end())
+		{
+			l_removed.append(l_resourceUrl);
+			m_resources.erase(it);
+		}
+	}
+
+	if (!l_removed.isEmpty())
+	{
 		emit resourcesChanged();
-		return true;
 	}
-	else
-	{
-		return false;
-	}
+
+	return l_removed;
 }

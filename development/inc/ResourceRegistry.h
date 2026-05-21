@@ -96,11 +96,13 @@ namespace Asterindes
 		inline bool containsResource(const QUrl& p_resourceUrl) const { return m_resources.contains(p_resourceUrl.toString()); }
 
 		/**
-		 * Adds a new resource to the project from the given file path.
+		 * Adds new resources to the project from the given file path list.
 		 *
-		 * @param p_resourceUrl The URL of the resource file to add.
+		 * @param p_resourceUrls The list of URLs of the resource files to add.
+		 * 
+		 * @return the list of the url of the added resources.
 		 */
-		bool addResource(const QUrl& p_resourceUrl);
+		QList<QUrl> addResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
 		 * Rename a resource from the project from its URL.
@@ -113,13 +115,13 @@ namespace Asterindes
 		bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
 
 		/**
-		 * Removes a resource from the project by its URL.
+		 * Removes resources from the project by their URLs.
 		 *
-		 * @param p_resourceUrl The URL of the resource to remove.
+		 * @param p_resourceUrls The list of URLs of the resources to remove.
 		 *
-		 * @return true if the resource was removed successfully, false otherwise.
+		 * @return the list of the urls of the removed resources.
 		 */
-		bool removeResource(const QUrl& p_resourceUrl);
+		QList<QUrl> removeResources(const QList<QUrl>& p_resourceUrls);
 
 	signals:
 

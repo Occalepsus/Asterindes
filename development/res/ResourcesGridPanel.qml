@@ -137,9 +137,7 @@ Item {
 
 			onDropped: (drag) => {
 				if (resourcesViewModel && drag.hasUrls) {
-					for (let i = 0; i < drag.urls.length; i++) {
-						resourcesViewModel.addResource(drag.urls[i]);
-					}
+					resourceViewModel.addResources(drag.urls);
 				}
 			}
 
@@ -237,9 +235,7 @@ Item {
 					nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
 					onAccepted: {
 						if (resourcesViewModel) {
-							for (selectedFile of selectedFiles) {
-								resourcesViewModel.addResource(selectedFile)
-							}
+							resourcesViewModel.addResources(selectedFiles)
 						}
 					}
 				}
@@ -273,7 +269,7 @@ Item {
 					onClicked: {
 						if (resourcesViewModel) {
 							const url = resourceUrlField.text
-							if (resourcesViewModel.addResource(url)) {
+							if (resourcesViewModel.addResources([url])) {
 								resourceUrlField.clear()
 							}
 						}

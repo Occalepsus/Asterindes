@@ -20,27 +20,39 @@ ResourcesViewModel::~ResourcesViewModel()
 {
 }
 
-bool ResourcesViewModel::addResource(const QUrl& p_resourceUrl)
+bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 {
 	if (!m_resourcesRegistry)
 	{
 		return false;
 	}
 
-	if (!canAddResource(p_resourceUrl))
+	setLoading(true);
+
+	for (const auto& l_resourceUrl : p_resourceUrls)
 	{
-		emit errorOccurred(tr("Invalid resource URL: %1").arg(p_resourceUrl.toString()));
-		return false;
+
+		if (!canAddResource(l_resourceUrl))
+		{
+			emit errorOccurred(tr("Invalid resource URL: %1").arg(l_resourceUrl.toString()));
+			setLoading(false);
+			return false;
+		}
 	}
 
-	setLoading(true);
-	
-	// Delegate to business logic
-	bool l_success{ m_resourcesRegistry->addResource(p_resourceUrl) };
+	// Call resource registry addResources, it worked if all the resources were added.
+	QList<QUrl> l_addedResources{ m_resourcesRegistry->addResources(p_resourceUrls) };
+	bool l_success{ l_addedResources.size() == p_resourceUrls.size() };
 	
 	if (!l_success)
 	{
-		emit errorOccurred(tr("Failed to add resource: %1").arg(p_resourceUrl.fileName()));
+		for (const auto& l_resourceToAdd : p_resourceUrls)
+		{
+			if (!l_addedResources.contains(l_resourceToAdd))
+			{
+				emit errorOccurred(tr("Failed to add resource: %1").arg(l_resourceToAdd.fileName()));
+			}
+		}
 	}
 	
 	setLoading(false);
@@ -66,7 +78,7 @@ bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString
 	return l_success;
 }
 
-bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
+bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 {
 	if (!m_resourcesRegistry)
 	{
@@ -75,10 +87,17 @@ bool ResourcesViewModel::removeResource(const QUrl& p_resourceUrl)
 
 	setLoading(true);
 
-	const bool l_success{ m_resourcesRegistry->removeResource(p_resourceUrl) };
+	QList<QUrl> l_removedResources{ m_resourcesRegistry->removeResources(p_resourceUrls) };
+	const bool l_success{ l_removedResources.size() == p_resourceUrls.size() };
 	if (!l_success)
 	{
-		emit errorOccurred(tr("Failed to remove resource: %1").arg(p_resourceUrl.toString()));
+		for (const auto& l_resourceToRemove : p_resourceUrls)
+		{
+			if (!l_removedResources.contains(l_resourceToRemove))
+			{
+				emit errorOccurred(tr("Failed to remove resource: %1").arg(l_resourceToRemove.fileName()));
+			}
+		}
 	}
 
 	setLoading(false);

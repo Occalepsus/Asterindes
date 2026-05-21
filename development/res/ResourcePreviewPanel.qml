@@ -62,7 +62,7 @@ Item {
 
 			onClicked: {
 				if (resourcesViewModel && resourcePreviewPanelRoot.hasValidSelection) {
-					resourcesViewModel.removeResource(resourcePreviewPanelRoot.previewResource.resourceUrl)
+					resourcesViewModel.removeResources([resourcePreviewPanelRoot.previewResource.resourceUrl])
 				}
 			}
 		}

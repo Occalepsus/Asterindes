@@ -69,12 +69,13 @@ namespace Asterindes::Ui
 		inline int getDisplayedResourceListCount() const { return m_resourcesListModel->rowCount(); }
 
 		/**
-		 * Adds a resource, use the name of the file.
+		 * Adds a list of resources, use the name of the file.
 		 *
-		 * @param p_resourceUrl The resource URL.
-		 * @return true if successful, false otherwise.
+		 * @param p_resourceUrls The list of resource URLs.
+		 * 
+		 * @return true if everything was successful, false otherwise.
 		 */
-		Q_INVOKABLE bool addResource(const QUrl& p_resourceUrl);
+		Q_INVOKABLE bool addResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
 		 * Renames a resource by its URL.
@@ -87,12 +88,13 @@ namespace Asterindes::Ui
 		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
 
 		/**
-		 * Removes a resource by its URL.
+		 * Removes resources by their URLs.
 		 *
-		 * @param p_resourceUrl The resource URL.
-		 * @return true if successful, false otherwise.
+		 * @param p_resourceUrls The list of resource URLs.
+		 * 
+		 * @return true if everything was successful, false otherwise.
 		 */
-		Q_INVOKABLE bool removeResource(const QUrl& p_resourceUrl);
+		Q_INVOKABLE bool removeResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
 		 * Checks if a resource exists using its URL.

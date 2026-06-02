@@ -11,7 +11,7 @@ AsterindesCore::AsterindesCore(int& argc, char** argv)
 {
 	if (argc == 2)
 	{
-		openProject(argv[1]);
+		openProject(QString::fromLatin1(argv[1], strlen(argv[1])));
 	}
 
 	// TODO: put that in a specific startup window

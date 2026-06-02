@@ -98,3 +98,8 @@ source_group("Source Files" FILES ${ASTERINDES_SOURCES})
 source_group("Header Files" FILES ${ASTERINDES_HEADERS})
 source_group("Resources/qml" FILES ${ASTERINDES_QML_FILES})
 source_group("Resources/html" FILES ${ASTERINDES_HTML_RESOURCES})
+
+# Set the application to be a Windows application only in Release mode
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	WIN32_EXECUTABLE $<$<CONFIG:Release>:ON>
+)

@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
 		"%{type}: %{message}"
 #endif
 	);
+	
+	QCoreApplication::setOrganizationName("Occalepsus");
+	QCoreApplication::setOrganizationDomain("occalepsus.github.io");
+	QCoreApplication::setApplicationName("Asterindes");
 
 	AsterindesCore app(argc, argv);
 

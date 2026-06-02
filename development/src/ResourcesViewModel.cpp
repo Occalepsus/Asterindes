@@ -4,13 +4,15 @@
 
 using namespace Asterindes::Ui;
 
-ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourcesManager, QObject* p_parent)
+ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QObject* p_parent)
 	: QObject(p_parent)
-	, m_resourcesRegistry(p_resourcesManager)
-	, m_resourcesListModel(new ResourceListModel(this))
+	, m_resourceRegistry(p_resourceRegistry)
 {
+	// ResourceRegistry is required for this ViewModel to function
+	Q_ASSERT(m_resourceRegistry);
+
 	// Connect to business logic signals
-	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::updateResourceList);
+	QObject::connect(m_resourceRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::updateResourceList);
 	
 	// Initialize model with current data
 	updateResourceList();
@@ -22,7 +24,7 @@ ResourcesViewModel::~ResourcesViewModel()
 
 bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 {
-	if (!m_resourcesRegistry)
+	if (!m_resourceRegistry)
 	{
 		return false;
 	}
@@ -41,7 +43,7 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 	}
 
 	// Call resource registry addResources, it worked if all the resources were added.
-	QList<QUrl> l_addedResources{ m_resourcesRegistry->addResources(p_resourceUrls) };
+	QList<QUrl> l_addedResources{ m_resourceRegistry->addResources(p_resourceUrls) };
 	bool l_success{ l_addedResources.size() == p_resourceUrls.size() };
 	
 	if (!l_success)
@@ -61,14 +63,14 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 
 bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
 {
-	if (!m_resourcesRegistry)
+	if (!m_resourceRegistry)
 	{
 		return false;
 	}
 
 	setLoading(true);
 
-	const bool l_success{ m_resourcesRegistry->renameResource(p_resourceUrl, p_newName) };
+	const bool l_success{ m_resourceRegistry->renameResource(p_resourceUrl, p_newName) };
 	if (!l_success)
 	{
 		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl.toString()));
@@ -80,14 +82,14 @@ bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString
 
 bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 {
-	if (!m_resourcesRegistry)
+	if (!m_resourceRegistry)
 	{
 		return false;
 	}
 
 	setLoading(true);
 
-	QList<QUrl> l_removedResources{ m_resourcesRegistry->removeResources(p_resourceUrls) };
+	QList<QUrl> l_removedResources{ m_resourceRegistry->removeResources(p_resourceUrls) };
 	const bool l_success{ l_removedResources.size() == p_resourceUrls.size() };
 	if (!l_success)
 	{
@@ -172,7 +174,7 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 
 void ResourcesViewModel::updateResourceList()
 {
-	QList<ResourceRegistry::Resource> l_resourcesList{ m_resourcesRegistry->getResourcesList() };
+	QList<ResourceRegistry::Resource> l_resourcesList{ m_resourceRegistry->getResourcesList() };
 
 	std::ranges::sort(l_resourcesList,
 		[](const ResourceRegistry::Resource& p_a, const ResourceRegistry::Resource& p_b) {

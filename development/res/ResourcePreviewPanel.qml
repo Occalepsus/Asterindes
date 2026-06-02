@@ -3,8 +3,8 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 Item {
-	property var previewResource: resourcesViewModel ? resourcesViewModel.getResourceAtIndex(resourcesViewModel.selectedResourceIndex) : null
-	property bool hasValidSelection: resourcesViewModel && resourcesViewModel.selectedResourceIndex >= 0
+	property var previewResource: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.getResourceAtIndex(projectWindow.resourcesViewModel.selectedResourceIndex) : null
+	property bool hasValidSelection: projectWindow.resourcesViewModel && projectWindow.resourcesViewModel.selectedResourceIndex >= 0
 	
 	id: resourcePreviewPanelRoot
 	anchors.fill: parent
@@ -33,8 +33,8 @@ Item {
 			text: resourcePreviewPanelRoot.previewResource ? (resourcePreviewPanelRoot.previewResource.name || "") : ""
 
 			onAccepted: {
-				if (resourcesViewModel && resourcePreviewPanelRoot.previewResource) {
-					resourcesViewModel.renameResource(resourcePreviewPanelRoot.previewResource.resourceUrl, text)
+				if (projectWindow.resourcesViewModel && resourcePreviewPanelRoot.previewResource) {
+					projectWindow.resourcesViewModel.renameResource(resourcePreviewPanelRoot.previewResource.resourceUrl, text)
 				}
 			}
 		}
@@ -61,8 +61,8 @@ Item {
 			height: 32
 
 			onClicked: {
-				if (resourcesViewModel && resourcePreviewPanelRoot.hasValidSelection) {
-					resourcesViewModel.removeResources([resourcePreviewPanelRoot.previewResource.resourceUrl])
+				if (projectWindow.resourcesViewModel && resourcePreviewPanelRoot.hasValidSelection) {
+					projectWindow.resourcesViewModel.removeResources([resourcePreviewPanelRoot.previewResource.resourceUrl])
 				}
 			}
 		}

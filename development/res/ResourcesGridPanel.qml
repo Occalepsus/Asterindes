@@ -64,8 +64,8 @@ Item {
 					placeholderText: "Search resources..."
 					
 					// Bind to ViewModel's search filter
-					text: "aa"//resourcesViewModel.searchFilter
-					//onTextChanged: resourcesViewModel.searchFilter = text
+					text: "aa"//projectWindow.resourcesViewModel.searchFilter
+					//onTextChanged: projectWindow.resourcesViewModel.searchFilter = text
 				}
 
 				ComboBox {
@@ -75,9 +75,9 @@ Item {
 					model: ["Name (A-Z)", "Name (Z-A)", "Date Added", "File Size"]
 					
 					// Bind to ViewModel's sort order
-					//currentIndex: resourcesViewModel.sortOrder
+					//currentIndex: projectWindow.resourcesViewModel.sortOrder
 					onCurrentIndexChanged: {
-						//resourcesViewModel.sortOrder = currentIndex;
+						//projectWindow.resourcesViewModel.sortOrder = currentIndex;
 					}
 				}
 
@@ -102,12 +102,12 @@ Item {
 				Button {
 					text: "Clear Filters"
 					enabled: searchField.text !== "" || sortComboBox.currentIndex !== 0
-					//onClicked: resourcesViewModel.clearFilters()
+					//onClicked: projectWindow.resourcesViewModel.clearFilters()
 				}
 
 				Label {
-					text: "bb"/*resourcesViewModel.filteredCount */+ " / " + (resourcesViewModel ? resourcesViewModel.displayedResourceListCount : 0)
-					color: "blue"//resourcesViewModel.filteredCount < resourcesViewModel.displayedResourceListCount ? "blue" : "black"
+					text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + (projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListCount : 0)
+					color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
 				}
 			}
 		}
@@ -117,13 +117,13 @@ Item {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 
-			enabled: resourcesViewModel ? !resourcesViewModel.isLoading : true
+			enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading : true
 
 			onEntered: (drag) => {
 				let lCanDrop = true;
-				if (resourcesViewModel && drag.hasUrls) {
+				if (projectWindow.resourcesViewModel && drag.hasUrls) {
 					for (let i = 0; i < drag.urls.length; i++) {
-						if (!resourcesViewModel.canAddResource(drag.urls[i])) {
+						if (!projectWindow.resourcesViewModel.canAddResource(drag.urls[i])) {
 							lCanDrop = false;
 							break;
 						}
@@ -136,7 +136,7 @@ Item {
 			}
 
 			onDropped: (drag) => {
-				if (resourcesViewModel && drag.hasUrls) {
+				if (projectWindow.resourcesViewModel && drag.hasUrls) {
 					resourceViewModel.addResources(drag.urls);
 				}
 			}
@@ -147,7 +147,7 @@ Item {
 				anchors.margins: 10
 
 				// Bind to ViewModel's model (already filtered and sorted)
-				model: resourcesViewModel ? resourcesViewModel.displayedResourceListModel : null
+				model: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel : null
 
 				cellWidth: resourcesGridPanel.mGridItemSize
 				cellHeight: resourcesGridPanel.mGridItemSize
@@ -158,10 +158,10 @@ Item {
 				highlightMoveDuration: 0
 				focus: true
 								
-				currentIndex: resourcesViewModel ? resourcesViewModel.selectedResourceIndex : -1
+				currentIndex: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.selectedResourceIndex : -1
 				onCurrentIndexChanged: {
-					if (resourcesViewModel && currentIndex !== resourcesViewModel.selectedResourceIndex) {
-						resourcesViewModel.setSelectedResourceIndex(currentIndex)
+					if (projectWindow.resourcesViewModel && currentIndex !== projectWindow.resourcesViewModel.selectedResourceIndex) {
+						projectWindow.resourcesViewModel.setSelectedResourceIndex(currentIndex)
 					}
 				}
 
@@ -169,24 +169,24 @@ Item {
 				MouseArea {
 					anchors.fill: parent
 					onClicked: (mouse) => {
-						if (resourcesViewModel) {
+						if (projectWindow.resourcesViewModel) {
 							let posInGridView = Qt.point(mouse.x, mouse.y)
 							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
-							resourcesViewModel.setSelectedResourceIndex(
+							projectWindow.resourcesViewModel.setSelectedResourceIndex(
 								resourceGridView.indexAt(posInContentItem.x, posInContentItem.y)
 							)
 						}
 					}
 					onDoubleClicked: (mouse) => {
-						if (resourcesViewModel) {
+						if (projectWindow.resourcesViewModel) {
 							let posInGridView = Qt.point(mouse.x, mouse.y)
 							let posInContentItem = mapToItem(resourceGridView.contentItem, posInGridView)
 							let index = resourceGridView.indexAt(posInContentItem.x, posInContentItem.y)
 
-							if (index >= 0 && projectViewModel) {
-								let resource = resourcesViewModel.getResourceAtIndex(index);
+							if (index >= 0 && projectWindow.projectViewModel) {
+								let resource = projectWindow.resourcesViewModel.getResourceAtIndex(index);
 								if (resource && resource.resourceUrl) {
-									projectViewModel.setBroadcastedResourceUrl(resource.resourceUrl);
+									projectWindow.projectViewModel.setBroadcastedResourceUrl(resource.resourceUrl);
 								}
 							}
 						}
@@ -205,8 +205,8 @@ Item {
 				// Empty state
 				Label {
 					anchors.centerIn: parent
-					visible: parent.count === 0 && (resourcesViewModel ? !resourcesViewModel.isLoading : true)
-					text: false//resourcesViewModel.searchFilter !== "" 
+					visible: parent.count === 0 && (projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading : true)
+					text: false//projectWindow.resourcesViewModel.searchFilter !== "" 
 							? "No resources match your search"
 							: "Drop images here or click 'Add Resource'"
 					font.pixelSize: 16
@@ -216,7 +216,7 @@ Item {
 
 			BusyIndicator {
 				anchors.centerIn: parent
-				running: resourcesViewModel ? resourcesViewModel.isLoading : false
+				running: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.isLoading : false
 				visible: running
 			}
 		}
@@ -234,21 +234,21 @@ Item {
 					fileMode: FileDialog.OpenFiles
 					nameFilters: ["Images (*.png *.jpg *.jpeg *.webp)"]
 					onAccepted: {
-						if (resourcesViewModel) {
-							resourcesViewModel.addResources(selectedFiles)
+						if (projectWindow.resourcesViewModel) {
+							projectWindow.resourcesViewModel.addResources(selectedFiles)
 						}
 					}
 				}
 
 				Button {
 					text: "Add Resource"
-					enabled: resourcesViewModel ? !resourcesViewModel.isLoading : false
+					enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading : false
 					onClicked: resourceFileDialog.open()
 				}
 
 				Button {
 					text: "Clear All"
-					enabled: false//!resourcesViewModel.isLoading && resourcesViewModel.displayedResourceListCount > 0
+					enabled: false//!projectWindow.resourcesViewModel.isLoading && projectWindow.resourcesViewModel.displayedResourceListCount > 0
 					//onClicked: confirmClearDialog.open()
 				}
 
@@ -264,12 +264,12 @@ Item {
 				Button {
 					id: addResourceUrlButton
 					text: "Add Resource"
-					enabled: resourcesViewModel ? !resourcesViewModel.isLoading && resourceUrlField.text !== "" : false
+					enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading && resourceUrlField.text !== "" : false
 
 					onClicked: {
-						if (resourcesViewModel) {
+						if (projectWindow.resourcesViewModel) {
 							const url = resourceUrlField.text
-							if (resourcesViewModel.addResources([url])) {
+							if (projectWindow.resourcesViewModel.addResources([url])) {
 								resourceUrlField.clear()
 							}
 						}
@@ -282,7 +282,7 @@ Item {
 
 		// Error dialog
 		Connections {
-			target: resourcesViewModel
+			target: projectWindow.resourcesViewModel
 			function onErrorOccurred(errorMessage) {
 				errorDialog.text = errorMessage;
 				errorDialog.open();

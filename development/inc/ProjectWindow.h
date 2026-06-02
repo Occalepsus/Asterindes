@@ -24,6 +24,16 @@ namespace Asterindes::Ui
 		Q_OBJECT;
 		Q_DISABLE_COPY_MOVE(ProjectWindow);
 
+		/**
+		 * Exposes the project ViewModel to QML for data binding and UI interaction.
+		 */
+		Q_PROPERTY(ProjectViewModel* projectViewModel READ projectViewModel CONSTANT)
+
+		/**
+		 * Exposes the resources ViewModel to QML for data binding and UI interaction.
+		 */
+		Q_PROPERTY(ResourcesViewModel* resourcesViewModel READ resourcesViewModel CONSTANT)
+
 	public:
 		/**
 		 * Default constructor.
@@ -43,6 +53,20 @@ namespace Asterindes::Ui
 		 */
 		void openProjectWindow();
 
+		/**
+		 * Gets the project ViewModel, it is used to access the project data and operations from QML.
+		 *
+		 * @return Pointer to the ProjectViewModel.
+		 */
+		inline ProjectViewModel* projectViewModel() const { return m_projectViewModel; }
+
+		/**
+		 * Gets the resources ViewModel, it is used to access the resources data and operations from QML.
+		 *
+		 * @return Pointer to the ResourcesViewModel.
+		 */
+		inline ResourcesViewModel* resourcesViewModel() const { return m_resourcesViewModel; }
+
 	private:
 		/**
 		 * Project ViewModel
@@ -56,8 +80,9 @@ namespace Asterindes::Ui
 
 		/**
 		 * The QML engine for loading and managing QML components.
+		 * This is not the child of the ProjectWindow since it needs to have deleteLater called on it to ensure proper cleanup.
 		 */
-		QQmlApplicationEngine m_appQmlEngine{ this };
+		QQmlApplicationEngine* m_appQmlEngine{ new QQmlApplicationEngine() };
 
 		/**
 		 * Sets up the QML context by exposing necessary ViewModels and properties to QML.

@@ -6,6 +6,8 @@ import QtCore
 
 ApplicationWindow {
 	id: mainWindow
+	required property var projectWindow
+	
 	visible: true
 
 	Settings {

@@ -44,10 +44,10 @@ namespace Asterindes::Ui
 		/**
 		 * Constructor.
 		 * 
-		 * @param p_resourcesManager Reference to the business logic manager.
+		 * @param p_resourceRegistry Reference to the business logic registry.
 		 * @param p_parent Parent QObject.
 		 */
-		explicit ResourcesViewModel(ResourceRegistry* p_resourcesManager, QObject* p_parent = nullptr);
+		explicit ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QObject* p_parent = nullptr);
 
 		/**
 		 * Destructor.
@@ -158,12 +158,12 @@ namespace Asterindes::Ui
 		/**
 		 * Reference to the business logic manager.
 		 */
-		QPointer<ResourceRegistry> m_resourcesRegistry;
+		QPointer<ResourceRegistry> m_resourceRegistry;
 
 		/**
 		 * The presentation model for QML.
 		 */
-		ResourceListModel* m_resourcesListModel;
+		ResourceListModel* m_resourcesListModel{ new ResourceListModel(this) };
 
 		/**
 		 * The URL of the selected resource in the displayed, used for selection management in the UI. An empty URL means no selection.

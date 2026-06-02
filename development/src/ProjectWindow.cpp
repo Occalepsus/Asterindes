@@ -22,20 +22,23 @@ ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_cor
 
 ProjectWindow::~ProjectWindow()
 {
-	m_appQmlEngine.clearComponentCache();
-	m_appQmlEngine.clearSingletons();
+	m_appQmlEngine->clearComponentCache();
+	m_appQmlEngine->clearSingletons();
+	m_appQmlEngine->deleteLater();
 }
 
 void ProjectWindow::openProjectWindow()
 {
 	// Setup QML context BEFORE loading QML
-	setupQmlContext();
+	m_appQmlEngine->setInitialProperties({
+		{ "projectWindow", QVariant::fromValue(this) }
+	});
 
 	//QObject::connect(&m_appQmlEngine, &QQmlApplicationEngine::objectCreated, this, &ProjectWindow::onQmlFileLoaded);
 
-	m_appQmlEngine.loadFromModule("Asterindes", "Main");
+	m_appQmlEngine->loadFromModule("Asterindes", "Main");
 
-	if (m_appQmlEngine.rootObjects().isEmpty()) {
+	if (m_appQmlEngine->rootObjects().isEmpty()) {
 		qFatal("Cannot load QML component 'Asterindes/Main'.");
 	}
 }
@@ -43,8 +46,8 @@ void ProjectWindow::openProjectWindow()
 void ProjectWindow::setupQmlContext()
 {
 	// Expose the resources ViewModel to QML
-	m_appQmlEngine.rootContext()->setContextProperty("projectViewModel", m_projectViewModel);
-	m_appQmlEngine.rootContext()->setContextProperty("resourcesViewModel", m_resourcesViewModel);
+	//m_appQmlEngine->rootContext()->setContextProperty("projectViewModel", m_projectViewModel);
+	//m_appQmlEngine->rootContext()->setContextProperty("resourcesViewModel", m_resourcesViewModel);
 }
 
 void ProjectWindow::onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url)

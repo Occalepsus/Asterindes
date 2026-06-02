@@ -75,8 +75,8 @@ Item {
 			height: 32
 
 			onClicked: {
-				if (projectViewModel && resourcePreviewPanelRoot.hasValidSelection) {
-					projectViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl)
+				if (projectWindow.projectViewModel && resourcePreviewPanelRoot.hasValidSelection) {
+					projectWindow.projectViewModel.setBroadcastedResourceUrl(resourcePreviewPanelRoot.previewResource.resourceUrl)
 				}
 			}
 		}

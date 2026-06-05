@@ -8,45 +8,29 @@ Item {
 
 	anchors.fill: parent
 
-	property int mMinGridItemSize: 80
-	property int mMaxGridItemSize: 320
+	property int mMinColCount: 1
+	property int mMaxColCount: 10
+
+	property int prefColCount: 3
+	property int realColCount: prefColCount
+
 	property int mGridItemSize: 120
 	property int mGridTextHeight: 20
 
-	function setGridItemSize(pSize) {
-		let lClampedSize = Math.max(mMinGridItemSize, Math.min(mMaxGridItemSize, Math.round(pSize / 10) * 10))
-		mGridItemSize = lClampedSize
+	// Update real column count based on available width and preferred column count
+	function updateGridItemSize() {
+		mGridItemSize = resourceGridView.width / realColCount // 5px margin
 	}
 
-	Component {
-		id: resourceGridDelegate
-
-		Column {
-			width: resourceGridView.cellWidth
-			height: resourceGridView.cellHeight
-
-			Image {
-				width: parent.width
-				height: parent.height - resourcesGridPanel.mGridTextHeight
-				anchors.horizontalCenter: parent.horizontalCenter
-
-				fillMode: Image.PreserveAspectFit
-
-				source: resourceUrl
-			}
-
-			Text {
-				width: parent.width
-				height: resourcesGridPanel.mGridTextHeight
-				anchors.horizontalCenter: parent.horizontalCenter
-				
-				text: name
-				horizontalAlignment: Text.AlignHCenter
-				elide: Text.ElideRight
-			}
-		}
+	onPrefColCountChanged: {
+		realColCount = prefColCount
 	}
-	
+
+	onRealColCountChanged: {
+		if (realColCount < 1) realColCount = 1
+		updateGridItemSize()
+	}
+
 	ColumnLayout {
 		anchors.fill: parent
 		
@@ -82,21 +66,21 @@ Item {
 				}
 
 				Label {
-					text: "Item size"
+					text: "Item per columns"
 				}
 
 				Slider {
 					id: gridSizeSlider
 					Layout.preferredWidth: 140
-					from: resourcesGridPanel.mMinGridItemSize
-					to: resourcesGridPanel.mMaxGridItemSize
-					stepSize: 10
-					value: resourcesGridPanel.mGridItemSize
-					onMoved: resourcesGridPanel.setGridItemSize(value)
+					from: resourcesGridPanel.mMinColCount
+					to: resourcesGridPanel.mMaxColCount
+					stepSize: 1
+					value: resourcesGridPanel.prefColCount
+					onMoved: resourcesGridPanel.prefColCount = value
 				}
 
 				Label {
-					text: resourcesGridPanel.mGridItemSize + " px"
+					text: resourcesGridPanel.realColCount + " items"
 				}
 
 				Button {
@@ -141,10 +125,44 @@ Item {
 				}
 			}
 
+			Component {
+				id: resourceGridDelegate
+
+				Column {
+					width: resourceGridView.cellWidth
+					height: resourceGridView.cellHeight
+
+					Image {
+						width: parent.width
+						height: parent.height - resourcesGridPanel.mGridTextHeight
+						anchors.horizontalCenter: parent.horizontalCenter
+
+						fillMode: Image.PreserveAspectFit
+
+						source: resourceUrl
+					}
+
+					Text {
+						width: parent.width
+						height: resourcesGridPanel.mGridTextHeight
+						anchors.horizontalCenter: parent.horizontalCenter
+				
+						text: name
+						horizontalAlignment: Text.AlignHCenter
+						elide: Text.ElideRight
+					}
+				}
+			}
+	
 			GridView {
 				id: resourceGridView
+
 				anchors.fill: parent
 				anchors.margins: 10
+
+				onWidthChanged: {
+					updateGridItemSize()
+				}
 
 				// Bind to ViewModel's model (already filtered and sorted)
 				model: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel : null
@@ -197,7 +215,10 @@ Item {
 							return
 						}
 
-						resourcesGridPanel.setGridItemSize(resourcesGridPanel.mGridItemSize + (wheel.angleDelta.y > 0 ? 10 : -10))
+						let newPrefColCount = resourcesGridPanel.prefColCount + (wheel.angleDelta.y < 0 ? 1 : -1)
+						if (newPrefColCount < 1) newPrefColCount = 1
+						resourcesGridPanel.prefColCount = newPrefColCount
+						
 						wheel.accepted = true
 					}
 				}

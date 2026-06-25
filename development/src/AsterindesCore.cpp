@@ -68,12 +68,12 @@ void AsterindesCore::onProjectCloseResquested(AsterindesProject* p_project)
 
 void AsterindesCore::saveProjectLocation(const QString& pProjectPath) const
 {
-	QSettings l_settings("Asterindes", "CoreApp");
+	QSettings l_settings;
 	l_settings.setValue("projectLocation", pProjectPath);
 }
 
 QString AsterindesCore::getLastProjectLocation() const
 {
-	QSettings l_settings("Asterindes", "CoreApp");
+	QSettings l_settings;
 	return l_settings.value("projectLocation", "").toString();
 }

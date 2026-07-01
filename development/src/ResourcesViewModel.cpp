@@ -56,6 +56,10 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 			}
 		}
 	}
+
+	// Update selection for the last added resource (first element in the array), clear selection if none were added
+	m_selectedResourceUrl = !l_addedResources.isEmpty() ? l_addedResources.first() : QUrl();
+	emit selectedResourceIndexChanged();
 	
 	setLoading(false);
 	return l_success;

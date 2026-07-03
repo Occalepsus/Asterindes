@@ -10,16 +10,16 @@ ProjectManagerService::ProjectManagerService(QObject* parent)
 {
 }
 
-bool ProjectManagerService::createProject(const QString& p_fileName)
+bool ProjectManagerService::createProject(const QUrl& p_fileName)
 {
-	m_errorString = QString("Failed to create project \"%1\": Not implemented yet").arg(p_fileName);
+	m_errorString = QString("Failed to create project \"%1\": Not implemented yet").arg(p_fileName.toString());
 	qCritical(qPrintable(m_errorString));
 	return false;
 }
 
-bool ProjectManagerService::loadProject(const QString& p_projectPath)
+bool ProjectManagerService::loadProject(const QUrl& p_projectPath)
 {
-	m_errorString = QString("Failed to load project: %1. Reason: Not implemented yet").arg(p_projectPath);
+	m_errorString = QString("Failed to load project: %1. Reason: Not implemented yet").arg(p_projectPath.toString());
 	qCritical(qPrintable(m_errorString));
 	return false;
 }
@@ -54,4 +54,6 @@ void ProjectManagerService::updateRecentProjects(const QUrl& p_lastProjectPath)
 		l_settings.setValue("path", m_recentProjects.at(i));
 	}
 	l_settings.endArray();
+
+	emit recentProjectsChanged(m_recentProjects);
 }

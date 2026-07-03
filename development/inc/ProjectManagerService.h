@@ -39,7 +39,7 @@ namespace Asterindes
 		 * 
 		 * @return true if the project was created successfully, false otherwise.
 		 */
-		bool createProject(const QString& p_fileName);
+		bool createProject(const QUrl& p_fileName);
 
 		/**
 		 * Loads a project from the given file path, if the project is already open it will just focus the project window.
@@ -48,7 +48,7 @@ namespace Asterindes
 		 * 
 		 * @return true if the project was loaded successfully, false otherwise.
 		 */
-		bool loadProject(const QString& p_projectPath);
+		bool loadProject(const QUrl& p_projectPath);
 
 		/**
 		 * Gets the list of recent projects
@@ -64,7 +64,14 @@ namespace Asterindes
 		 */
 		QString getErrorString() const { return m_errorString; }
 
-	public slots:
+	signals:
+
+		/**
+		 * Emitted when the list of recent projects changes.
+		 * 
+		 * @param p_recentProjects The new list of recent projects.
+		 */
+		void recentProjectsChanged(const QList<QUrl>& p_recentProjects);
 
 	private:
 		
@@ -93,4 +100,4 @@ namespace Asterindes
 }
 
 
-#endif // !STARTUPWINDOW_H
+#endif // !PROJECTMANAGERSERVICE_H

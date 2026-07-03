@@ -13,6 +13,10 @@ AsterindesCore::AsterindesCore(int& argc, char** argv)
 	{
 		openProject(QString::fromLatin1(argv[1], strlen(argv[1])));
 	}
+	else
+	{
+		m_startupWindow->setWindowVisible(true);
+	}
 
 	// TODO: put that in a specific startup window
 	//QUrl l_lastProjectPath{ getLastProjectLocation() };

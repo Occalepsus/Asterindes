@@ -9,6 +9,7 @@ using namespace Asterindes;
 AsterindesCore::AsterindesCore(int& argc, char** argv)
 	: QGuiApplication(argc, argv)
 {
+	// If a project path is provided, open the project directly, otherwise show the startup window
 	if (argc == 2)
 	{
 		openProject(QString::fromLatin1(argv[1], strlen(argv[1])));
@@ -17,27 +18,6 @@ AsterindesCore::AsterindesCore(int& argc, char** argv)
 	{
 		m_startupWindow->setWindowVisible(true);
 	}
-
-	// TODO: put that in a specific startup window
-	//QUrl l_lastProjectPath{ getLastProjectLocation() };
-
-	//if (l_lastProjectPath.isEmpty())
-	//{
-	//	l_lastProjectPath = QUrl::fromLocalFile(QDir::home().filePath("AsterindesProjects/UntitledProject.asterindesproj"));
-	//	QFile l_projectFile{ l_lastProjectPath.toLocalFile() };
-	//	if (l_projectFile.open(QIODevice::WriteOnly | QIODeviceBase::NewOnly))
-	//	{
-	//		l_projectFile.write(sc_defaultProjectData.toJson());
-	//		l_projectFile.close();
-	//	}
-	//	else
-	//	{
-	//		qCritical("Failed to create default project file: %s. Reason: %s", qUtf8Printable(l_lastProjectPath.toString()), qUtf8Printable(l_projectFile.errorString()));
-	//		return;
-	//	}
-	//}
-
-	//openProject(l_lastProjectPath.toLocalFile());
 }
 
 bool AsterindesCore::openProject(const QUrl& p_projectPath)

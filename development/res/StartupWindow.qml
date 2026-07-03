@@ -62,27 +62,30 @@ Window {
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 
-				model: startupWindow.startupWindowData ? startupWindow.startupWindowData.recentProjects : []
+				model: startupWindow.startupWindowData ? startupWindow.startupWindowData.recentProjectList : []
 
 				delegate: Item {
+					id: recentProjectItem
+					required property url modelData
+
 					width: parent.width
 					height: 40
 					RowLayout {
 						anchors.fill: parent
 						spacing: 10
 						Text {
-							text: name
+							text: recentProjectItem.modelData.toString().split("/").pop()
 							font.bold: true
 						}
 						Text {
-							text: path
+							text: recentProjectItem.modelData.toString()
 							color: "gray"
 						}
 					}
 					MouseArea {
 						anchors.fill: parent
 						onClicked: {
-							startupWindow.startupWindowData.openProject(path)
+							startupWindow.startupWindowData.openProject(recentProjectItem.modelData)
 						}
 					}
 				}

@@ -24,7 +24,7 @@ namespace Asterindes::Ui
 
 		Q_PROPERTY(bool visible READ isVisible NOTIFY isVisibleChanged);
 
-		Q_PROPERTY(QList<QUrl> recentProjects READ getRecentProjects NOTIFY recentProjectsChanged);
+		Q_PROPERTY(QList<QUrl> recentProjectList READ getRecentProjectList NOTIFY recentProjectListChanged);
 
 	public:
 
@@ -60,7 +60,7 @@ namespace Asterindes::Ui
 		 *
 		 * @return The list of recent projects.
 		 */
-		QList<QUrl> getRecentProjects() const { return m_projectManagerService ? m_projectManagerService->getRecentProjects() : QList<QUrl>(); };
+		QList<QUrl> getRecentProjectList() const { return m_projectManagerService ? m_projectManagerService->getRecentProjectList() : QList<QUrl>(); };
 
 		/**
 		 * Creates a new project given its path, if the project already exists it will not be overwritten and the method will return false.
@@ -86,9 +86,9 @@ namespace Asterindes::Ui
 		/**
 		 * Emitted when the list of recent projects changes.
 		 * 
-		 * @param p_recentProjects The new list of recent projects.
+		 * @param p_recentProjectList The new list of recent projects.
 		 */
-		void recentProjectsChanged(const QList<QUrl>& p_recentProjects);
+		void recentProjectListChanged(const QList<QUrl>& p_recentProjectList);
 
 	private:
 

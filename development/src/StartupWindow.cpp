@@ -7,7 +7,7 @@ StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QOb
 	, m_projectManagerService(p_projectManagerService)
 {
 	if (m_projectManagerService) {
-		QObject::connect(m_projectManagerService, &ProjectManagerService::recentProjectsChanged, this, &StartupWindow::recentProjectsChanged);
+		QObject::connect(m_projectManagerService, &ProjectManagerService::recentProjectListChanged, this, &StartupWindow::recentProjectListChanged);
 	}
 
 	m_startupQmlEngine->setInitialProperties({

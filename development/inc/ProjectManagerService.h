@@ -55,7 +55,7 @@ namespace Asterindes
 		 * 
 		 * @return the list of recent projects
 		 */
-		QList<QUrl> getRecentProjects() const { return m_recentProjects; };
+		QList<QUrl> getRecentProjectList() const { return m_recentProjectList; };
 
 		/**
 		 * Gets the error string containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
@@ -69,33 +69,33 @@ namespace Asterindes
 		/**
 		 * Emitted when the list of recent projects changes.
 		 * 
-		 * @param p_recentProjects The new list of recent projects.
+		 * @param p_recentProjectList The new list of recent projects.
 		 */
-		void recentProjectsChanged(const QList<QUrl>& p_recentProjects);
+		void recentProjectListChanged(const QList<QUrl>& p_recentProjectList);
 
 	private:
 		
 		/**
 		 * The errorString containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
 		 */
-		QString m_errorString;
+		QString m_errorString{};
 
 		/**
 		 * The list of recent projects that will be updated and saved into registers
 		 */
-		QList<QUrl> m_recentProjects;
+		QList<QUrl> m_recentProjectList{};
 
 		/**
 		 * Loads the list of recent projects, it reads the recent projects from the application settings.
 		 */
-		void loadRecentProjects();
+		void loadRecentProjectList();
 
 		/**
 		 * Updates the list of recent projects given the last project path.
 		 * 
 		 * @param p_lastProjectPath The path of the last opened project.
 		 */
-		void updateRecentProjects(const QUrl& p_lastProjectPath);
+		void updateRecentProjectList(const QUrl& p_lastProjectPath);
 	};
 }
 

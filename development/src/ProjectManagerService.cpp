@@ -24,36 +24,36 @@ bool ProjectManagerService::loadProject(const QUrl& p_projectPath)
 	return false;
 }
 
-void ProjectManagerService::loadRecentProjects()
+void ProjectManagerService::loadRecentProjectList()
 {
 	QSettings l_settings;
-	m_recentProjects.clear();
+	m_recentProjectList.clear();
 
 	int size = l_settings.beginReadArray("recentProjects");
 	for (int i = 0; i < size; ++i) {
 		l_settings.setArrayIndex(i);
-		m_recentProjects.append(l_settings.value("path").toUrl());
+		m_recentProjectList.append(l_settings.value("path").toUrl());
 	}
 	l_settings.endArray();
 }
 
-void ProjectManagerService::updateRecentProjects(const QUrl& p_lastProjectPath)
+void ProjectManagerService::updateRecentProjectList(const QUrl& p_lastProjectPath)
 {
 	QSettings l_settings;
 
 	// Remove the project if it already exists in the list
-	m_recentProjects.removeAll(p_lastProjectPath);
+	m_recentProjectList.removeAll(p_lastProjectPath);
 
 	// Add the project to the beginning of the list
-	m_recentProjects.prepend(p_lastProjectPath);
+	m_recentProjectList.prepend(p_lastProjectPath);
 	
 	// Save the updated list back to the settings
 	l_settings.beginWriteArray("recentProjects");
-	for (int i = 0; i < m_recentProjects.size(); ++i) {
+	for (int i = 0; i < m_recentProjectList.size(); ++i) {
 		l_settings.setArrayIndex(i);
-		l_settings.setValue("path", m_recentProjects.at(i));
+		l_settings.setValue("path", m_recentProjectList.at(i));
 	}
 	l_settings.endArray();
 
-	emit recentProjectsChanged(m_recentProjects);
+	emit recentProjectListChanged(m_recentProjectList);
 }

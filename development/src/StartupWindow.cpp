@@ -33,3 +33,45 @@ void StartupWindow::setWindowVisible(bool visible)
 		emit isVisibleChanged(m_isVisible);
 	}
 }
+
+bool StartupWindow::createProject(const QUrl& p_projectPath)
+{
+	bool l_result{ false };
+
+	if (m_projectManagerService)
+	{
+		l_result = m_projectManagerService->createProject(p_projectPath);
+	}
+
+	if (l_result)
+	{
+		setWindowVisible(false);
+	}
+	else
+	{
+		emit errorStringChanged(m_projectManagerService->getErrorString());
+	}
+
+	return l_result;
+}
+
+bool StartupWindow::openProject(const QUrl& p_projectPath)
+{
+	bool l_result{ false };
+
+	if (m_projectManagerService)
+	{
+		l_result = m_projectManagerService->loadProject(p_projectPath);
+	}
+
+	if (l_result)
+	{
+		setWindowVisible(false);
+	}
+	else
+	{
+		emit errorStringChanged(m_projectManagerService->getErrorString());
+	}
+
+	return l_result;
+}

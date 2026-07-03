@@ -40,8 +40,10 @@ namespace Asterindes
 		 * Creates a new file if if does not exist, and loads the project data into the project managers.
 		 * 
 		 * @param p_projectPath The path of the project to open, it should be a local file path pointing to a valid project file.
+		 * 
+		 * @return true if the project was loaded successfully, false otherwise.
 		 */
-		void openProject(const QString& p_projectPath);
+		bool openProject(const QUrl& p_projectPath);
 
 	public slots:
 		/**

@@ -40,20 +40,21 @@ AsterindesCore::AsterindesCore(int& argc, char** argv)
 	//openProject(l_lastProjectPath.toLocalFile());
 }
 
-void AsterindesCore::openProject(const QString& p_projectPath)
+bool AsterindesCore::openProject(const QUrl& p_projectPath)
 {
-	QUrl l_projectUrl{ QUrl::fromLocalFile(p_projectPath) };
-	AsterindesProject* l_project{ new AsterindesProject(l_projectUrl, this) };
+	AsterindesProject* l_project{ new AsterindesProject(p_projectPath, this) };
 
 	if (l_project->loadProject())
 	{
-		m_openedProjects.insert(l_projectUrl, l_project);
-		m_openedProjectWindows.insert(l_projectUrl, new Ui::ProjectWindow(l_project, this)).value()->openProjectWindow();
+		m_openedProjects.insert(p_projectPath, l_project);
+		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this)).value()->openProjectWindow();
+		return true;
 	}
 	else
 	{
-		qCritical("Failed to load project: %s", qUtf8Printable(l_projectUrl.toString()));
+		qCritical("Failed to load project: %s", qUtf8Printable(p_projectPath.toString()));
 		l_project->deleteLater();
+		return false;
 	}
 }
 

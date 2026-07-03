@@ -6,9 +6,12 @@
 // Qt
 #include <QObject>
 #include <QUrl>
+#include <QPointer>
 
 namespace Asterindes
 {
+	class AsterindesCore;
+
 	/**
 	 * The ProjectManagerService class is responsible for managing the projects of the application: creating, loading, and managing recent projects.
 	 */
@@ -24,7 +27,7 @@ namespace Asterindes
 		 *
 		 * @param parent The parent QObject, default is nullptr.
 		 */
-		explicit ProjectManagerService(QObject* parent = nullptr);
+		explicit ProjectManagerService(AsterindesCore* p_coreApp, QObject* parent = nullptr);
 
 		/**
 		 * Destructor.
@@ -75,6 +78,11 @@ namespace Asterindes
 
 	private:
 		
+		/**
+		 * The core application instance, it is used to load projects.
+		 */
+		QPointer<AsterindesCore> m_coreApp;
+
 		/**
 		 * The errorString containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
 		 */

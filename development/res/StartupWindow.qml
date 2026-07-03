@@ -19,10 +19,16 @@ Window {
 	height: 480
 	title: "Startup Window"
 
+	onVisibilityChanged: {
+		windowStack.clear()
+		windowStack.push(mainStartupView)
+	}
+
 	StackView {
 		id: windowStack
 		anchors.fill: parent
 
+		// Not used, the initialItem is set in the onVisibilityChanged
 		initialItem: mainStartupView
 	}
 
@@ -31,6 +37,18 @@ Window {
 		id: mainStartupView
 		
 		ColumnLayout {
+			id: mainStartupLayout
+			
+			function openProject(file) {
+				if (startupWindow.startupWindowData) {
+					const res = startupWindow.startupWindowData.openProject(file)
+					if (!res) {
+						errorText.text = startupWindow.startupWindowData.errorString;
+						errorText.visible = true;
+					}
+				}
+			}
+
 			RowLayout {
 				Layout.fillWidth: true
 				spacing: 10
@@ -85,10 +103,16 @@ Window {
 					MouseArea {
 						anchors.fill: parent
 						onClicked: {
-							startupWindow.startupWindowData.openProject(recentProjectItem.modelData)
+							mainStartupLayout.openProject(recentProjectItem.modelData)
 						}
 					}
 				}
+			}
+
+			Text {
+				id: errorText
+				color: "red"
+				visible: false
 			}
 			
 			FileDialog {
@@ -98,9 +122,7 @@ Window {
 				fileMode: FileDialog.OpenFile
 				nameFilters: ["Asterindes Project (*.asterindesproj)"]
 				onAccepted: {
-					if (startupWindow.startupWindowData) {
-						startupWindow.startupWindowData.openProject(selectedFiles[0])
-					}
+					mainStartupLayout.openProject(selectedFiles[0])
 				}
 			}
 		}
@@ -114,12 +136,18 @@ Window {
 
 			property url projectPath: startupWindow.defaultProjectPath
 			property string projectName: ""
-			
+
 			TextField {
 				id: projectNameInput
 				Layout.fillWidth: true
 
 				placeholderText: "Project Name..."
+				
+				text: newProjectLayout.projectName
+			
+				onTextChanged: {
+					newProjectLayout.projectName = text
+				}
 			}
 
 			RowLayout {
@@ -146,7 +174,7 @@ Window {
 
 			Text {
 				id: fullPathText
-				text: projectPathInput.text + "/" + projectNameInput.text
+				text: projectPathInput.text + "/" + projectNameInput.text + ".asterindesproj"
 			}
 
 			RowLayout {
@@ -161,10 +189,20 @@ Window {
 					text: "Create Project"
 					onClicked: {
 						if (startupWindow.startupWindowData) {
-							startupWindow.startupWindowData.createProject(projectNameInput.text)
+							const res = startupWindow.startupWindowData.createProject(newProjectLayout.projectPath + "/" + newProjectLayout.projectName + ".asterindesproj")
+							if (!res) {
+								errorText.text = startupWindow.startupWindowData.errorString;
+								errorText.visible = true;
+							}
 						}
 					}
 				}
+			}
+
+			Text {
+				id: errorText
+				color: "red"
+				visible: false
 			}
 
 			FolderDialog {

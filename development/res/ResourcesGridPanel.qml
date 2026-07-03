@@ -121,7 +121,7 @@ Item {
 
 			onDropped: (drag) => {
 				if (projectWindow.resourcesViewModel && drag.hasUrls) {
-					resourceViewModel.addResources(drag.urls);
+					projectWindow.resourcesViewModel.addResources(drag.urls);
 				}
 			}
 

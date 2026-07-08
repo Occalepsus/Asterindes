@@ -28,5 +28,11 @@ int main(int argc, char* argv[])
 
 	QQmlApplicationEngine engine;
 
+	// Try to start the application, if it fails (another instance is running) exit the application.
+	if (!app.start())
+	{
+		return 0;
+	}
+
 	return AsterindesCore::exec();
 }

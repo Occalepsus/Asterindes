@@ -2,6 +2,7 @@
 #define ASTERINDESCORE_H
 
 // Asterindes
+#include "SingleInstanceGuard.h"
 #include "ProjectManagerService.h"
 #include "AsterindesProject.h"
 
@@ -36,6 +37,20 @@ namespace Asterindes
 		~AsterindesCore() final = default;
 
 		/**
+		 * Starts the application, it will check if another instance is running or start the application normally.
+		 * 
+		 * @return true if the application started successfully, false otherwise (if another instance is already running).
+		 */
+		bool start();
+
+		/**
+		 * Opens the startup window.
+		 *
+		 * @return true if the startup window was opened successfully, false otherwise.
+		 */
+		inline bool openStartupWindow() { m_startupWindow->setWindowVisible(true); return true; }
+
+		/**
 		 * Opens a project from the given file path, if the project is already open it will just focus the project window.
 		 * Creates a new file if if does not exist, and loads the project data into the project managers.
 		 * 
@@ -52,6 +67,18 @@ namespace Asterindes
 		void onProjectCloseResquested(AsterindesProject* p_project);
 
 	private:
+
+		/**
+		 * The path of the project to open on startup, it is set when the application is started with a project path argument.
+		 * If empty, the application will open the startup window instead of a project window.
+		 */
+		QString m_startupProject{ "" };
+
+		/**
+		 * The SingleInstanceGuard instance used to ensure that only a single instance of the application is running.
+		 * It is responsible for checking if another instance is running and sending the project path to it if so.
+		 */
+		SingleInstanceGuard* m_singleInstanceGuard{ new SingleInstanceGuard(this, this) };
 
 		/**
 		 * The ProjectManagerService instance used to manage the projects of the application.

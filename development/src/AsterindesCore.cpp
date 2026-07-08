@@ -9,14 +9,33 @@ using namespace Asterindes;
 AsterindesCore::AsterindesCore(int& argc, char** argv)
 	: QGuiApplication(argc, argv)
 {
-	// If a project path is provided, open the project directly, otherwise show the startup window
 	if (argc == 2)
 	{
-		openProject(QString::fromLatin1(argv[1], strlen(argv[1])));
+		m_startupProject = QString::fromLatin1(argv[1], strlen(argv[1]));
+	}
+}
+
+bool AsterindesCore::start()
+{
+	// First check if another instance of the application is already running, if so, send the project path to it and exit.
+	if (m_singleInstanceGuard->checkAndSendIfRunning(m_startupProject))
+	{
+		return false;
 	}
 	else
 	{
-		m_startupWindow->setWindowVisible(true);
+		m_singleInstanceGuard->startListeningForConnections();
+
+		// If a project path is provided, open the project directly, otherwise show the startup window
+		if (!m_startupProject.isEmpty())
+		{
+			openProject(QUrl::fromUserInput(m_startupProject));
+		}
+		else
+		{
+			openStartupWindow();
+		}
+		return true;
 	}
 }
 

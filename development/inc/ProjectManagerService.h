@@ -25,6 +25,7 @@ namespace Asterindes
 		/**
 		 * Default constructor.
 		 *
+		 * @param p_coreApp The pointer to the AsterindesCore application instance.
 		 * @param parent The parent QObject, default is nullptr.
 		 */
 		explicit ProjectManagerService(AsterindesCore* p_coreApp, QObject* parent = nullptr);

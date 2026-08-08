@@ -50,6 +50,7 @@ set(ASTERINDES_QML_FILES
 	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
 	"development/res/StartupWindow.qml"
+	"development/res/TagSelectionList.qml"
 )
 
 set(ASTERINDES_HTML_RESOURCES

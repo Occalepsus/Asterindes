@@ -12,7 +12,16 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QOb
 	Q_ASSERT(m_resourceRegistry);
 
 	// Connect to business logic signals
-	QObject::connect(m_resourceRegistry, &ResourceRegistry::resourcesChanged, this, &ResourcesViewModel::updateResourceList);
+	QObject::connect(m_resourceRegistry, &ResourceRegistry::resourceListChanged, this, &ResourcesViewModel::updateResourceList);
+	QObject::connect(m_resourceRegistry, &ResourceRegistry::resourceTagChanged, this, [this](const QUrl& p_resourceUrl, const QString&, bool) {
+		if (m_resourceRegistry)
+		{
+			if (auto [l_found, l_resource] = m_resourceRegistry->getResourceByUrl(p_resourceUrl); l_found)
+			{
+				updateSingleResource(l_resource);
+			}
+		}
+	});
 	
 	// Initialize model with current data
 	updateResourceList();
@@ -20,6 +29,20 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QOb
 
 ResourcesViewModel::~ResourcesViewModel()
 {
+}
+
+// TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
+bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
+{
+	// Resource validation before adding it to the project
+	if (!p_url.isValid() || p_url.isEmpty())
+	{
+		return false;
+	}
+
+	QString l_path = p_url.path(QUrl::ComponentFormattingOption::FullyDecoded).toLower();
+	return l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
+		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
 }
 
 bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
@@ -65,25 +88,6 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 	return l_success;
 }
 
-bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
-{
-	if (!m_resourceRegistry)
-	{
-		return false;
-	}
-
-	setLoading(true);
-
-	const bool l_success{ m_resourceRegistry->renameResource(p_resourceUrl, p_newName) };
-	if (!l_success)
-	{
-		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl.toString()));
-	}
-
-	setLoading(false);
-	return l_success;
-}
-
 bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 {
 	if (!m_resourceRegistry)
@@ -110,18 +114,42 @@ bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 	return l_success;
 }
 
-// TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
-bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
+bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
 {
-	// Resource validation before adding it to the project
-	if (!p_url.isValid() || p_url.isEmpty())
+	if (!m_resourceRegistry)
 	{
 		return false;
 	}
 
-	QString l_path = p_url.path(QUrl::ComponentFormattingOption::FullyDecoded).toLower();
-	return l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
-		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
+	setLoading(true);
+
+	const bool l_success{ m_resourceRegistry->renameResource(p_resourceUrl, p_newName) };
+	if (!l_success)
+	{
+		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl.toString()));
+	}
+
+	setLoading(false);
+	return l_success;
+}
+
+bool ResourcesViewModel::setResourceTag(const QUrl& p_resourceUrl, const QString& p_tag, bool p_add)
+{
+	if (!m_resourceRegistry)
+	{
+		return false;
+	}
+
+	setLoading(true);
+
+	const bool l_success{ p_add ? m_resourceRegistry->addTagToResource(p_resourceUrl, p_tag) : m_resourceRegistry->removeTagFromResource(p_resourceUrl, p_tag) };
+	if (!l_success)
+	{
+		emit errorOccurred(tr("Failed to %1 tag: %2 to resource: %3").arg(p_add ? "add" : "remove", p_tag, p_resourceUrl.toString()));
+	}
+
+	setLoading(false);
+	return l_success;
 }
 
 int ResourcesViewModel::getSelectedResourceIndex() const
@@ -172,8 +200,32 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 
 	l_resourceMap["name"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
 	l_resourceMap["resourceUrl"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
+	l_resourceMap["tagList"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::TagListRole));
 
 	return l_resourceMap;
+}
+
+QList<QString> ResourcesViewModel::getAllResourceTags() const
+{
+	QList<QString> l_allTags;
+
+	if (m_resourceRegistry)
+	{
+		QList<ResourceRegistry::Resource> l_resourcesList{ m_resourceRegistry->getResourcesList() };
+
+		// Temporary set to avoid duplicates
+		QSet<QString> l_tagsSet;
+
+		for (const auto& l_resource : l_resourcesList)
+		{
+			l_tagsSet.unite(l_resource.m_tags);
+		}
+
+		l_allTags = l_tagsSet.values();
+		std::ranges::sort(l_allTags);
+	}
+
+	return l_allTags;
 }
 
 void ResourcesViewModel::updateResourceList()
@@ -191,6 +243,15 @@ void ResourcesViewModel::updateResourceList()
 
 	// Update selection in case the selected resource was modified/removed
 	emit selectedResourceIndexChanged();
+}
+
+void ResourcesViewModel::updateSingleResource(const ResourceRegistry::Resource& p_resource)
+{
+	m_resourcesListModel->updateFromSingleResource(p_resource);
+	if (p_resource.m_resourceUrl == m_selectedResourceUrl)
+	{
+		emit selectedResourceTagListChanged();
+	}
 }
 
 void ResourcesViewModel::setLoading(bool p_loading)

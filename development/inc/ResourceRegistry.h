@@ -37,6 +37,13 @@ namespace Asterindes
 			 * The URL of the resource, it is used to access the resource file and should be unique among the project resources.
 			 */
 			QUrl m_resourceUrl;
+
+			/**
+			 * The list of tags associated with the resource, it is used to categorize the resources and can be used for filtering.
+			 */
+			QSet<QString> m_tags;
+
+			// NOTE: This struct does not manage its construction. The ResourceRegistry class is responsible for converting it from and to JSON so it can manage errors.
 		};
 
 		/**
@@ -105,6 +112,15 @@ namespace Asterindes
 		QList<QUrl> addResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
+		 * Removes resources from the project by their URLs.
+		 *
+		 * @param p_resourceUrls The list of URLs of the resources to remove.
+		 *
+		 * @return the list of the urls of the removed resources.
+		 */
+		QList<QUrl> removeResources(const QList<QUrl>& p_resourceUrls);
+
+		/**
 		 * Rename a resource from the project from its URL.
 		 *
 		 * @param p_resourceUrl The URL of the resource to rename.
@@ -115,20 +131,45 @@ namespace Asterindes
 		bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
 
 		/**
-		 * Removes resources from the project by their URLs.
+		 * Adds a tag to a resource from the project from its URL.
 		 *
-		 * @param p_resourceUrls The list of URLs of the resources to remove.
+		 * @param p_resourceUrl The URL of the resource to add the tag to.
+		 * @param p_tag The tag to add to the resource.
 		 *
-		 * @return the list of the urls of the removed resources.
+		 * @return true if the tag was added successfully, false otherwise.
 		 */
-		QList<QUrl> removeResources(const QList<QUrl>& p_resourceUrls);
+		bool addTagToResource(const QUrl& p_resourceUrl, const QString& p_tag);
+
+		/**
+		 * Removes a tag from a resource from the project from its URL.
+		 *
+		 * @param p_resourceUrl The URL of the resource to remove the tag from.
+		 * @param p_tag The tag to remove from the resource.
+		 *
+		 * @return true if the tag was removed successfully, false otherwise.
+		 */
+		bool removeTagFromResource(const QUrl& p_resourceUrl, const QString& p_tag);
 
 	signals:
 
 		/**
-		 * Signal called when the resources of this manager are changed.
+		 * Signal called when someting in the resources of this manager is changed.
 		 */
 		void resourcesChanged();
+
+		/**
+		 * Signal called when the resource list of this manager is changed.
+		 */
+		void resourceListChanged();
+
+		/**
+		 * Signal called when a resource's tag is changed in the project.
+		 * 
+		 * @param p_resourceUrl The URL of the resource whose tag was changed.
+		 * @param p_tag The tag that was added or removed.
+		 * @param p_added true if the tag was added, false if it was removed.
+		 */
+		void resourceTagChanged(const QUrl& p_resourceUrl, const QString& p_tag, bool p_added);
 
 	private:
 

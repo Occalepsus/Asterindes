@@ -1,8 +1,5 @@
 #include "ResourceListModel.h"
 
-// STL
-#include <source_location>
-
 using namespace Asterindes::Ui;
 
 ResourceListModel::ResourceListModel(QObject* p_parent)
@@ -26,6 +23,14 @@ QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const
 		return l_resource.m_name;
 	case ResourceUrlRole:
 		return l_resource.m_resourceUrl;
+	case TagListRole:
+	{
+		QList l_tagsList(l_resource.m_tags.begin(), l_resource.m_tags.end());
+		std::ranges::sort(l_tagsList, [] (const QString& a, const QString& b) {
+			return QString::compare(a, b, Qt::CaseInsensitive) < 0;
+		});
+		return QVariant::fromValue(l_tagsList);
+	}
 	default:
 		return QVariant();
 	}
@@ -39,6 +44,29 @@ void ResourceListModel::updateFromResourcesList(const QList<ResourceRegistry::Re
 	m_displayedResources = p_resourceList;
 
 	endResetModel();
+}
+
+bool ResourceListModel::updateFromSingleResource(const ResourceRegistry::Resource& p_resource)
+{
+	auto it{ std::ranges::find_if(m_displayedResources, [&p_resource](const ResourceRegistry::Resource& p_existingResource)
+		{
+			return p_existingResource.m_resourceUrl == p_resource.m_resourceUrl;
+		}) };
+	if (it != m_displayedResources.end())
+	{
+		const int l_index{ static_cast<int>(std::distance(m_displayedResources.begin(), it)) };
+		m_displayedResources[l_index] = p_resource;
+		QModelIndex l_modelIndex = index(l_index, 0);
+		emit dataChanged(l_modelIndex, l_modelIndex);
+		return false;
+	}
+	else
+	{
+		beginInsertRows(QModelIndex(), static_cast<int>(m_displayedResources.size()), static_cast<int>(m_displayedResources.size()));
+		m_displayedResources.push_back(p_resource);
+		endInsertRows();
+		return true;
+	}
 }
 
 int ResourceListModel::getResourceIndex(const QUrl& p_resourceUrl) const

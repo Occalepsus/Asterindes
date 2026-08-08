@@ -69,6 +69,14 @@ namespace Asterindes::Ui
 		inline int getDisplayedResourceListCount() const { return m_resourcesListModel->rowCount(); }
 
 		/**
+		 * Checks if a resource exists using its URL.
+		 *
+		 * @param p_url The URL to check.
+		 * @return true if the resource exists, false otherwise.
+		 */
+		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
+
+		/**
 		 * Adds a list of resources, use the name of the file.
 		 *
 		 * @param p_resourceUrls The list of resource URLs.
@@ -76,16 +84,6 @@ namespace Asterindes::Ui
 		 * @return true if everything was successful, false otherwise.
 		 */
 		Q_INVOKABLE bool addResources(const QList<QUrl>& p_resourceUrls);
-
-		/**
-		 * Renames a resource by its URL.
-		 *
-		 * @param p_resourceUrl The URL of the resource to rename.
-		 * @param p_newName The new name for the resource.
-		 * 
-		 * @return true if successful, false otherwise.
-		 */
-		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
 
 		/**
 		 * Removes resources by their URLs.
@@ -97,12 +95,25 @@ namespace Asterindes::Ui
 		Q_INVOKABLE bool removeResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
-		 * Checks if a resource exists using its URL.
+		 * Renames a resource by its URL.
 		 *
-		 * @param p_url The URL to check.
-		 * @return true if the resource exists, false otherwise.
+		 * @param p_resourceUrl The URL of the resource to rename.
+		 * @param p_newName The new name for the resource.
+		 *
+		 * @return true if successful, false otherwise.
 		 */
-		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
+		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
+
+		/**
+		 * Adds or removes a tag to a resource by its URL.
+		 * 
+		 * @param p_resourceUrl The URL of the resource to add a tag to.
+		 * @param p_tag The tag to add.
+		 * @param p_add If true, adds the tag; if false, removes the tag.
+		 * 
+		 * @return true if successful, false otherwise.
+		 */
+		Q_INVOKABLE bool setResourceTag(const QUrl& p_resourceUrl, const QString& p_tag, bool p_add);
 
 		/**
 		 * Get the index of the selected resource in the currently displayed view.
@@ -119,13 +130,6 @@ namespace Asterindes::Ui
 		Q_INVOKABLE void setSelectedResourceIndex(int p_index);
 
 		/**
-		 * Get the loading state.
-		 * 
-		 * @return true if loading, false otherwise.
-		 */
-		inline bool isLoading() const { return m_isLoading; }
-
-		/**
 		 * Gets the resource at the given index in the model, it is used to get the resource data when an item in the list is clicked in the UI.
 		 *
 		 * @param p_index The index of the item in the model to get the resource from.
@@ -133,11 +137,30 @@ namespace Asterindes::Ui
 		 */
 		Q_INVOKABLE QVariantMap getResourceAtIndex(int p_index) const;
 
+		/**
+		 * Get the loading state.
+		 *
+		 * @return true if loading, false otherwise.
+		 */
+		inline bool isLoading() const { return m_isLoading; }
+
+		/**
+		 * Get all unique resource tags across all resources.
+		 *
+		 * @return A list of unique resource tags.
+		 */
+		Q_INVOKABLE QList<QString> getAllResourceTags() const;
+
 	signals:
 		/**
 		 * Signal emitted when the resource list changes.
 		 */
 		void displayedResourceListChanged();
+
+		/**
+		 * Signal emitted when a resource tag list changes.
+		 */
+		void selectedResourceTagListChanged();
 
 		/**
 		 * Signal emitted when the selected resource changes.
@@ -190,6 +213,13 @@ namespace Asterindes::Ui
 		 * Handles ResourceRegistry's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
 		 */
 		void updateResourceList();
+
+		/**
+		 * Updates a single resource in the model, adding it if it doesn't exist.
+		 *
+		 * @param p_resource The resource to update in the model.
+		 */
+		void updateSingleResource(const ResourceRegistry::Resource& p_resource);
 	};
 }
 

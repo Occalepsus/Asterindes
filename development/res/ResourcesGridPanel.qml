@@ -48,8 +48,12 @@ Item {
 					placeholderText: "Search resources..."
 					
 					// Bind to ViewModel's search filter
-					text: "aa"//projectWindow.resourcesViewModel.searchFilter
-					//onTextChanged: projectWindow.resourcesViewModel.searchFilter = text
+					text: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter : ""
+					onTextChanged: {
+						if (projectWindow.resourcesViewModel) {
+							projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter = text
+						}
+					}
 				}
 
 				ComboBox {
@@ -87,10 +91,48 @@ Item {
 					text: "Clear Filters"
 					enabled: searchField.text !== "" || sortComboBox.currentIndex !== 0
 					//onClicked: projectWindow.resourcesViewModel.clearFilters()
+
+					// TEMP: Tags selection
+					onClicked: tagListFilterPopup.open()
+
+					Popup {
+						id: tagListFilterPopup
+
+						x: 0
+						y: 0
+
+						width: 200
+						height: 300
+
+						TagSelectionList {
+							id: tagListFilter
+							allTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.getAllResourceTags() : []
+							selectedTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList : []
+							canCreateNewTag: false
+							onTagSelected: function(pTag, pIsSelected) {
+								if (projectWindow.resourcesViewModel) {
+									let newTagFilterList = projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList
+									const l_index = newTagFilterList.indexOf(pTag)
+									
+									if (pIsSelected) {
+										if (l_index < 0) {
+											newTagFilterList.push(pTag)
+										}
+									} else {
+										if (l_index >= 0) {
+											newTagFilterList.splice(l_index, 1)
+										}
+									}
+
+									projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList = newTagFilterList
+								}
+							}
+						}
+					}
 				}
 
 				Label {
-					text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + (projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListCount : 0)
+					text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + "0"
 					color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
 				}
 			}

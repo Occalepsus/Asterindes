@@ -23,6 +23,8 @@ QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const
 		return l_resource.m_name;
 	case ResourceUrlRole:
 		return l_resource.m_resourceUrl;
+	case CreationDateRole:
+		return l_resource.m_creationDate;
 	case TagListRole:
 	{
 		QList l_tagsList(l_resource.m_tags.begin(), l_resource.m_tags.end());

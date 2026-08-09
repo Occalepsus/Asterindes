@@ -26,18 +26,28 @@ bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArr
 		}
 
 		const auto& l_name = l_resourceJsonObject["name"].toString();
+		
+		// Get the URL and validate it
 		const auto& l_urlString = l_resourceJsonObject["url"].toString();
 		const QUrl l_url{ l_urlString };
 		if (!l_url.isValid())
 		{
+			// If the URL is invalid, log a warning and skip this resource
+			// It will not be serialized again when saving the resources to JSON, so it will be lost
 			qWarning("Invalid resource URL");
 			continue;
 		}
+
+		// Get the creation date, if it is not present use the current date and time
+		const auto& l_creationDateString = l_resourceJsonObject["creationDate"].toString(QDateTime::currentDateTime().toString(Qt::ISODate));
+		const QDateTime l_creationDate = QDateTime::fromString(l_creationDateString, Qt::ISODate);
+		
+		// Get the tags, create a QSet from the JSON array
 		const auto& l_tagsJsonArray = l_resourceJsonObject["tags"].toArray();
 		QSet<QString> l_tags;
 		std::ranges::transform(l_tagsJsonArray, std::inserter(l_tags, l_tags.end()), [](const QJsonValue& value) { return value.toString(); });
 
-		m_resources.try_emplace(l_url.toString(), Resource{ .m_name = l_name, .m_resourceUrl = l_url, .m_tags = l_tags });
+		m_resources.try_emplace(l_url.toString(), Resource{ .m_name = l_name, .m_resourceUrl = l_url, .m_creationDate = l_creationDate, .m_tags = l_tags });
 	}
 
 	return l_jsonValid;
@@ -54,10 +64,11 @@ QJsonArray ResourceRegistry::getResourcesAsJson() const
 		{
 			l_tagsJsonArray.append(l_tag);
 		}
-
+		 
 		l_resourceJsonArray.append(QJsonObject{
 			{ "name", l_resource.m_name },
 			{ "url", l_resource.m_resourceUrl.toString() },
+			{ "creationDate", l_resource.m_creationDate.toString(Qt::ISODate) },
 			{ "tags", l_tagsJsonArray }
 			});
 	}

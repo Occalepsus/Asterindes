@@ -39,6 +39,11 @@ namespace Asterindes
 			QUrl m_resourceUrl;
 
 			/**
+			 * The creation date of the resource, it is used to sort the resources by creation date.
+			 */
+			QDateTime m_creationDate;
+
+			/**
 			 * The list of tags associated with the resource, it is used to categorize the resources and can be used for filtering.
 			 */
 			QSet<QString> m_tags;

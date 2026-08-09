@@ -22,13 +22,15 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QOb
 			}
 		}
 	});
+
+	m_resourcesSortFilterProxyModel->setSourceModel(m_resourcesListModel);
+	QObject::connect(m_resourcesSortFilterProxyModel, &ResourceSortFilterProxyModel::nameSearchFilterChanged, this, &ResourcesViewModel::selectedResourceIndexChanged);
+	QObject::connect(m_resourcesSortFilterProxyModel, &ResourceSortFilterProxyModel::tagFilterListChanged, this, &ResourcesViewModel::selectedResourceIndexChanged);
+	QObject::connect(m_resourcesSortFilterProxyModel, &ResourceSortFilterProxyModel::sortRoleChanged, this, &ResourcesViewModel::selectedResourceIndexChanged);
+	QObject::connect(m_resourcesSortFilterProxyModel, &ResourceSortFilterProxyModel::sortOrderChanged, this, &ResourcesViewModel::selectedResourceIndexChanged);
 	
 	// Initialize model with current data
 	updateResourceList();
-}
-
-ResourcesViewModel::~ResourcesViewModel()
-{
 }
 
 // TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
@@ -158,10 +160,10 @@ int ResourcesViewModel::getSelectedResourceIndex() const
 
 	if (m_selectedResourceUrl.isValid() && !m_selectedResourceUrl.isEmpty())
 	{
-		for (int i = 0; i < getDisplayedResourceListCount(); ++i)
+		for (int i = 0; i < m_resourcesSortFilterProxyModel->rowCount(); ++i)
 		{
-			QModelIndex lModelIndex = m_resourcesListModel->index(i, 0);
-			QUrl l_resourceUrl = m_resourcesListModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl();
+			QModelIndex lModelIndex = m_resourcesSortFilterProxyModel->index(i, 0);
+			QUrl l_resourceUrl = m_resourcesSortFilterProxyModel->data(lModelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl();
 			if (l_resourceUrl == m_selectedResourceUrl)
 			{
 				l_index = i;
@@ -175,14 +177,14 @@ int ResourcesViewModel::getSelectedResourceIndex() const
 
 void ResourcesViewModel::setSelectedResourceIndex(int p_index)
 {
-	if (p_index < 0 || p_index >= getDisplayedResourceListCount())
+	if (p_index < 0 || p_index >= m_resourcesSortFilterProxyModel->rowCount())
 	{
 		p_index = -1; // Normalize empty selection
 	}
 
-	QModelIndex l_modelIndex = m_resourcesListModel->index(p_index, 0);
+	QModelIndex l_modelIndex = m_resourcesSortFilterProxyModel->index(p_index, 0);
 
-	QUrl l_newSelectedUrl{ m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl() };
+	QUrl l_newSelectedUrl{ m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole)).toUrl() };
 
 	if (m_selectedResourceUrl != l_newSelectedUrl)
 	{
@@ -196,11 +198,11 @@ QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 	// TODO: How to improve this?
 	QVariantMap l_resourceMap;
 
-	QModelIndex l_modelIndex = m_resourcesListModel->index(p_index, 0);
+	QModelIndex l_modelIndex = m_resourcesSortFilterProxyModel->index(p_index, 0);
 
-	l_resourceMap["name"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
-	l_resourceMap["resourceUrl"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
-	l_resourceMap["tagList"] = m_resourcesListModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::TagListRole));
+	l_resourceMap["name"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
+	l_resourceMap["resourceUrl"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
+	l_resourceMap["tagList"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::TagListRole));
 
 	return l_resourceMap;
 }

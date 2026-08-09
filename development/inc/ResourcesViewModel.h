@@ -4,6 +4,7 @@
 // Asterindes
 #include "ResourceRegistry.h"
 #include "ResourceListModel.h"
+#include "ResourceSortFilterProxyModel.h"
 
 // Qt
 #include <QObject>
@@ -23,13 +24,8 @@ namespace Asterindes::Ui
 		/**
 		 * The list model for GridView/ListView binding.
 		 */
-		Q_PROPERTY(ResourceListModel* displayedResourceListModel READ getDisplayedResourceListModel NOTIFY displayedResourceListChanged);
-		
-		/**
-		 * Number of resources (for display).
-		 */
-		Q_PROPERTY(int displayedResourceListCount READ getDisplayedResourceListCount NOTIFY displayedResourceListChanged);
-		
+		Q_PROPERTY(QAbstractItemModel* displayedResourceListModel READ getDisplayedResourceListModel NOTIFY displayedResourceListChanged);
+
 		/**
 		 * The index of the selected resource in the currently displayed view, used for selection management in the UI. -1 means no selection.
 		 */
@@ -52,21 +48,14 @@ namespace Asterindes::Ui
 		/**
 		 * Destructor.
 		 */
-		~ResourcesViewModel() override;
+		~ResourcesViewModel() override = default;
 
 		/**
 		 * Get the displayed resource list model.
 		 * 
 		 * @return Pointer to the ResourceListModel.
 		 */
-		inline ResourceListModel* getDisplayedResourceListModel() { return m_resourcesListModel; }
-
-		/**
-		 * Get the count of resources.
-		 * 
-		 * @return The number of resources.
-		 */
-		inline int getDisplayedResourceListCount() const { return m_resourcesListModel->rowCount(); }
+		inline QAbstractItemModel* getDisplayedResourceListModel() { return m_resourcesSortFilterProxyModel; }
 
 		/**
 		 * Checks if a resource exists using its URL.
@@ -187,6 +176,11 @@ namespace Asterindes::Ui
 		 * The presentation model for QML.
 		 */
 		ResourceListModel* m_resourcesListModel{ new ResourceListModel(this) };
+
+		/**
+		 * The proxy model for sorting and filtering the resources list model.
+		 */
+		ResourceSortFilterProxyModel* m_resourcesSortFilterProxyModel{ new ResourceSortFilterProxyModel(this) };
 
 		/**
 		 * The URL of the selected resource in the displayed, used for selection management in the UI. An empty URL means no selection.

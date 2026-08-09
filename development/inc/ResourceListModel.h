@@ -1,3 +1,6 @@
+#ifndef RESOURCELISTMODEL_H
+#define RESOURCELISTMODEL_H
+
 // Asterindes
 #include "ResourceRegistry.h"
 
@@ -20,8 +23,10 @@ namespace Asterindes::Ui
 		{
 			NameRole = Qt::UserRole + 1,
 			ResourceUrlRole,
+			CreationDateRole,
 			TagListRole
 		};
+		Q_ENUM(ResourceRoles)
 
 		/**
 		 * Default constructor.
@@ -88,6 +93,7 @@ namespace Asterindes::Ui
 		{
 			{ std::to_underlying(ResourceRoles::NameRole), "name" },
 			{ std::to_underlying(ResourceRoles::ResourceUrlRole), "resourceUrl" },
+			{ std::to_underlying(ResourceRoles::CreationDateRole), "creationDate" },
 			{ std::to_underlying(ResourceRoles::TagListRole), "tagList" }
 		};
 
@@ -97,3 +103,5 @@ namespace Asterindes::Ui
 		QList<ResourceRegistry::Resource> m_displayedResources{};
 	};
 }
+
+#endif // RESOURCELISTMODEL_H

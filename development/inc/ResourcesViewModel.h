@@ -32,6 +32,11 @@ namespace Asterindes::Ui
 		Q_PROPERTY(int selectedResourceIndex READ getSelectedResourceIndex WRITE setSelectedResourceIndex NOTIFY selectedResourceIndexChanged);
 
 		/**
+		 * The list of all unique resource tags across all resources, used for filtering and categorization in the UI.
+		 */
+		Q_PROPERTY(QStringList allResourceTags READ getAllResourceTags NOTIFY selectedResourceTagListChanged);
+
+		/**
 		 * Whether resources are currently being loaded (for loading indicators).
 		 */
 		Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged);

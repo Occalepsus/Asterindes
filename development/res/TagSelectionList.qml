@@ -106,28 +106,11 @@ Item {
 		anchors.fill: parent
 		
 		spacing: 6
-		
-		/*
-		TextField {
-			id: tagSearchInput
-			Layout.fillWidth: true
-			placeholderText: "Search or create tag"
-
-			onTextEdited: {
-				tagSelectionListRoot.mSearchText = text
-			}
-
-			onAccepted: {
-				if (tagSearchInput.text.length > 0 && tagSelectionListRoot.canCreateNewTag) {
-					tagSelectionListRoot.newTagCreated(tagSearchInput.text)
-				}
-			}
-		}*/
 
 		TextField {
 			id: tagSearchInput
 			Layout.fillWidth: true
-			placeholderText: "Search or create tag"
+			placeholderText: "Search" + (tagSelectionListRoot.canCreateNewTag ? " or create" : "") + " tag"
 			rightPadding: clearSearchButton.visible ? (clearSearchButton.implicitWidth + 10) : 6
 
 			onTextChanged: {

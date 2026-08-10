@@ -131,7 +131,7 @@ Item {
 
 						TagSelectionList {
 							id: tagListFilter
-							allTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.getAllResourceTags() : []
+							allTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.allResourceTags : []
 							selectedTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList : []
 							canCreateNewTag: false
 							onTagSelected: function(pTag, pIsSelected) {

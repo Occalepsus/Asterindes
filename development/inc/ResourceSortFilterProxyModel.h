@@ -79,6 +79,11 @@ namespace Asterindes::Ui
 		 */
 		void setSortOrder(Qt::SortOrder p_sortOrder);
 
+		/**
+		 * Clears all filters (name search filter and tag filter list).
+		 */
+		Q_INVOKABLE void clearFilters();
+
 	signals:
 		
 		/**

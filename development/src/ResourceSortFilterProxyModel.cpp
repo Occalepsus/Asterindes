@@ -56,6 +56,12 @@ void ResourceSortFilterProxyModel::setSortOrder(Qt::SortOrder p_sortOrder)
 	emit sortOrderChanged(p_sortOrder);
 }
 
+void ResourceSortFilterProxyModel::clearFilters()
+{
+	setNameSearchFilter("");
+	setTagFilterList({});
+}
+
 bool ResourceSortFilterProxyModel::filterAcceptsRow(int p_sourceRow, const QModelIndex& p_sourceParent) const
 {
 	const QModelIndex l_index{ sourceModel()->index(p_sourceRow, 0, p_sourceParent) };
@@ -91,16 +97,14 @@ bool ResourceSortFilterProxyModel::lessThan(const QModelIndex& p_left, const QMo
 		const QString l_leftName{ sourceModel()->data(p_left, l_nameRole).toString() };
 		const QString l_rightName{ sourceModel()->data(p_right, l_nameRole).toString() };
 
-		// Compare the names based on the sort order (this invert the result of the comparison if the sort order is descending => NXOR).
-		return (QString::compare(l_leftName, l_rightName, filterCaseSensitivity()) < 0) == (sortOrder() == Qt::AscendingOrder);
+		return QString::compare(l_leftName, l_rightName, filterCaseSensitivity()) < 0;
 	}
 	case ResourceListModel::ResourceRoles::CreationDateRole:
 	{
 		const QDateTime l_leftDate{ sourceModel()->data(p_left, l_creationDateRole).toDateTime() };
 		const QDateTime l_rightDate{ sourceModel()->data(p_right, l_creationDateRole).toDateTime() };
 		
-		// Compare the creation dates based on the sort order (this invert the result of the comparison if the sort order is descending => NXOR).
-		return (l_leftDate < l_rightDate) == (sortOrder() == Qt::AscendingOrder);
+		return l_leftDate < l_rightDate;
 	}
 	default:
 		qWarning() << "Unsupported sort role" << l_sortRole;

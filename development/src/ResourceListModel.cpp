@@ -5,6 +5,7 @@ using namespace Asterindes::Ui;
 ResourceListModel::ResourceListModel(QObject* p_parent)
 	: QAbstractListModel(p_parent)
 {
+	qmlRegisterType<ResourceListModel>("Asterindes", 1, 0, "ResourceListModel");
 }
 
 QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const

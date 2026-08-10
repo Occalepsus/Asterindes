@@ -15,6 +15,8 @@ namespace Asterindes::Ui
 	 */
 	class ResourceListModel : public QAbstractListModel
 	{
+		Q_OBJECT;
+
 	public:
 		/**
 		 * The enum that contains the roles for the resources list model, it is used to map the data in the model to the UI elements in the QML file.

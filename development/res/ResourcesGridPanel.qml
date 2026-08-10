@@ -1,3 +1,5 @@
+import Asterindes 1.0
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
@@ -57,44 +59,67 @@ Item {
 				}
 
 				ComboBox {
-					id: sortComboBox
+					id: sortRoleComboBox
 					Layout.preferredWidth: 150
 					
-					model: ["Name (A-Z)", "Name (Z-A)", "Date Added", "File Size"]
+					model: ["Name", "Creation date"]
 					
 					// Bind to ViewModel's sort order
-					//currentIndex: projectWindow.resourcesViewModel.sortOrder
+					currentIndex: {
+						let currentRoleIndex = 0;
+
+						if (projectWindow.resourcesViewModel) {
+							const currentRole = projectWindow.resourcesViewModel.displayedResourceListModel.sortRole
+							
+							switch (currentRole) {
+								case ResourceListModel.CreationDateRole:
+									currentRoleIndex = 1;
+									break;
+								default:
+									currentRoleIndex = 0;
+							}
+						}
+
+						return currentRoleIndex
+					}
 					onCurrentIndexChanged: {
-						//projectWindow.resourcesViewModel.sortOrder = currentIndex;
+						if (projectWindow.resourcesViewModel) {
+
+							switch (currentIndex) {
+								case 1:
+									projectWindow.resourcesViewModel.displayedResourceListModel.sortRole = ResourceListModel.CreationDateRole;
+									break;
+								default:
+									projectWindow.resourcesViewModel.displayedResourceListModel.sortRole = ResourceListModel.NameRole;
+							}
+						}
 					}
 				}
 
-				Label {
-					text: "Item per columns"
-				}
+				Button {
+					id: sortOrderButton
 
-				Slider {
-					id: gridSizeSlider
-					Layout.preferredWidth: 140
-					from: resourcesGridPanel.mMinColCount
-					to: resourcesGridPanel.mMaxColCount
-					stepSize: 1
-					value: resourcesGridPanel.prefColCount
-					onMoved: resourcesGridPanel.prefColCount = value
-				}
+					text: projectWindow.resourcesViewModel && projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder === Qt.DescendingOrder ? "↓" : "↑"
 
-				Label {
-					text: resourcesGridPanel.realColCount + " items"
+					onClicked: {
+						if (projectWindow.resourcesViewModel) {
+							const currentOrder = projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder
+							projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder = currentOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder
+						}
+					}
 				}
 
 				Button {
-					text: "Clear Filters"
-					enabled: searchField.text !== "" || sortComboBox.currentIndex !== 0
-					//onClicked: projectWindow.resourcesViewModel.clearFilters()
+					id: tagsFilterButton
 
-					// TEMP: Tags selection
-					onClicked: tagListFilterPopup.open()
+					text: "Tags " + (projectWindow.resourcesViewModel && projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList.length > 0
+						? "(" + projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList.length + ")"
+						: "")
 
+					onClicked: {
+						tagListFilterPopup.open()
+					}
+					
 					Popup {
 						id: tagListFilterPopup
 
@@ -132,9 +157,33 @@ Item {
 				}
 
 				Label {
-					text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + "0"
-					color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
+					text: "Item per columns"
 				}
+
+				Slider {
+					id: gridSizeSlider
+					Layout.preferredWidth: 140
+					from: resourcesGridPanel.mMinColCount
+					to: resourcesGridPanel.mMaxColCount
+					stepSize: 1
+					value: resourcesGridPanel.prefColCount
+					onMoved: resourcesGridPanel.prefColCount = value
+				}
+
+				Label {
+					text: resourcesGridPanel.realColCount + " items"
+				}
+
+				Button {
+					text: "Clear Filters"
+					enabled: searchField.text !== "" || sortRoleComboBox.currentIndex !== 0
+					onClicked: projectWindow.resourcesViewModel ?? projectWindow.resourcesViewModel.displayedResourceListModel.clearFilters()
+				}
+
+				//Label {
+				//	text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + "0"
+				//	color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
+				//}
 			}
 		}
 			

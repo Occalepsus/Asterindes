@@ -44,20 +44,6 @@ Item {
 				anchors.fill: parent
 				spacing: 10
 
-				TextField {
-					id: searchField
-					Layout.fillWidth: true
-					placeholderText: "Search resources..."
-					
-					// Bind to ViewModel's search filter
-					text: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter : ""
-					onTextChanged: {
-						if (projectWindow.resourcesViewModel) {
-							projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter = text
-						}
-					}
-				}
-
 				ComboBox {
 					id: sortRoleComboBox
 					Layout.preferredWidth: 150
@@ -108,6 +94,20 @@ Item {
 						}
 					}
 				}
+				
+				TextField {
+					id: searchField
+					Layout.fillWidth: true
+					placeholderText: "Search resources..."
+					
+					// Bind to ViewModel's search filter
+					text: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter : ""
+					onTextChanged: {
+						if (projectWindow.resourcesViewModel) {
+							projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter = text
+						}
+					}
+				}
 
 				Button {
 					id: tagsFilterButton
@@ -155,38 +155,42 @@ Item {
 						}
 					}
 				}
-
-				Label {
-					text: "Item per columns"
-				}
-
-				Slider {
-					id: gridSizeSlider
-					Layout.preferredWidth: 140
-					from: resourcesGridPanel.mMinColCount
-					to: resourcesGridPanel.mMaxColCount
-					stepSize: 1
-					value: resourcesGridPanel.prefColCount
-					onMoved: resourcesGridPanel.prefColCount = value
-				}
-
-				Label {
-					text: resourcesGridPanel.realColCount + " items"
-				}
-
+				
 				Button {
 					text: "Clear Filters"
 					enabled: searchField.text !== "" || sortRoleComboBox.currentIndex !== 0
 					onClicked: projectWindow.resourcesViewModel ?? projectWindow.resourcesViewModel.displayedResourceListModel.clearFilters()
 				}
 
-				//Label {
-				//	text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + "0"
-				//	color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
-				//}
+				Label {
+					text: "Item per columns"
+				}
+
+				ComboBox {
+					id: gridSizeComboBox
+
+					Layout.fillWidth: false
+					Layout.preferredWidth: implicitWidth
+					Layout.minimumWidth: implicitWidth
+					Layout.maximumWidth: implicitWidth
+
+					// Dynamically generate the model based on min and max column count
+					model: {
+						let model = []
+						for (let i = resourcesGridPanel.mMinColCount; i <= resourcesGridPanel.mMaxColCount; i++) {
+							model.push(i.toString() + " items")
+						}
+						return model;
+					}
+
+					currentIndex: resourcesGridPanel.prefColCount - resourcesGridPanel.mMinColCount
+					onCurrentIndexChanged: {
+						resourcesGridPanel.prefColCount = currentIndex + resourcesGridPanel.mMinColCount
+					}
+				}
 			}
 		}
-			
+
 		// ===== Grid view =====
 		DropArea {
 			Layout.fillWidth: true

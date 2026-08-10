@@ -248,6 +248,9 @@ Item {
 			GridView {
 				id: resourceGridView
 
+				// Property to avoid infinite loop when syncing selection between ViewModel and GridView
+				property bool l_syncingSelection: false
+
 				anchors.fill: parent
 				anchors.margins: 10
 
@@ -267,10 +270,23 @@ Item {
 				highlightMoveDuration: 0
 				focus: true
 								
-				currentIndex: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.selectedResourceIndex : -1
+				currentIndex: -1
 				onCurrentIndexChanged: {
-					if (projectWindow.resourcesViewModel && currentIndex !== projectWindow.resourcesViewModel.selectedResourceIndex) {
-						projectWindow.resourcesViewModel.setSelectedResourceIndex(currentIndex)
+					if (l_syncingSelection || !projectWindow.resourcesViewModel) {
+						return
+					}
+					projectWindow.resourcesViewModel.setSelectedResourceIndex(currentIndex)
+				}
+
+				Connections {
+					target: projectWindow.resourcesViewModel
+					function onSelectedResourceIndexChanged() {
+						if (!projectWindow.resourcesViewModel) return
+						const l_newIndex = projectWindow.resourcesViewModel.selectedResourceIndex
+						if (resourceGridView.currentIndex === l_newIndex) return
+						resourceGridView.l_syncingSelection = true
+						resourceGridView.currentIndex = l_newIndex
+						resourceGridView.l_syncingSelection = false
 					}
 				}
 

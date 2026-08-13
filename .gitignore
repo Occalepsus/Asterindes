@@ -53,7 +53,8 @@ compile_commands.json
 
 *_qmlcache.qrc
 
-# Code
+# Visual
+.vs
 .vscode
 
 # Generated

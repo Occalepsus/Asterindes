@@ -30,14 +30,14 @@ ApplicationWindow {
 			uiSettings.height = mainWindow.height;
 		}
 	}
-
+	
 	Timer {
 		id: saveGeometryTimer
 		interval: 200
 		repeat: false
-		onTriggered: saveWindowGeometry()
+		onTriggered: mainWindow.saveWindowGeometry()
 	}
-
+	
 	function posOrSizeChanged() {
 		saveGeometryTimer.restart();
 	}

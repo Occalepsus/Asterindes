@@ -4,6 +4,7 @@
 // Asterindes
 #include "ResourceRegistry.h"
 #include "ResourceListModel.h"
+#include "ResourceSortFilterProxyModel.h"
 
 // Qt
 #include <QObject>
@@ -23,17 +24,17 @@ namespace Asterindes::Ui
 		/**
 		 * The list model for GridView/ListView binding.
 		 */
-		Q_PROPERTY(ResourceListModel* displayedResourceListModel READ getDisplayedResourceListModel NOTIFY displayedResourceListChanged);
-		
-		/**
-		 * Number of resources (for display).
-		 */
-		Q_PROPERTY(int displayedResourceListCount READ getDisplayedResourceListCount NOTIFY displayedResourceListChanged);
-		
+		Q_PROPERTY(QAbstractItemModel* displayedResourceListModel READ getDisplayedResourceListModel NOTIFY displayedResourceListChanged);
+
 		/**
 		 * The index of the selected resource in the currently displayed view, used for selection management in the UI. -1 means no selection.
 		 */
 		Q_PROPERTY(int selectedResourceIndex READ getSelectedResourceIndex WRITE setSelectedResourceIndex NOTIFY selectedResourceIndexChanged);
+
+		/**
+		 * The list of all unique resource tags across all resources, used for filtering and categorization in the UI.
+		 */
+		Q_PROPERTY(QStringList allResourceTags READ getAllResourceTags NOTIFY selectedResourceTagListChanged);
 
 		/**
 		 * Whether resources are currently being loaded (for loading indicators).
@@ -52,21 +53,22 @@ namespace Asterindes::Ui
 		/**
 		 * Destructor.
 		 */
-		~ResourcesViewModel() override;
+		~ResourcesViewModel() override = default;
 
 		/**
 		 * Get the displayed resource list model.
 		 * 
 		 * @return Pointer to the ResourceListModel.
 		 */
-		inline ResourceListModel* getDisplayedResourceListModel() { return m_resourcesListModel; }
+		inline QAbstractItemModel* getDisplayedResourceListModel() { return m_resourcesSortFilterProxyModel; }
 
 		/**
-		 * Get the count of resources.
-		 * 
-		 * @return The number of resources.
+		 * Checks if a resource exists using its URL.
+		 *
+		 * @param p_url The URL to check.
+		 * @return true if the resource exists, false otherwise.
 		 */
-		inline int getDisplayedResourceListCount() const { return m_resourcesListModel->rowCount(); }
+		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
 
 		/**
 		 * Adds a list of resources, use the name of the file.
@@ -78,16 +80,6 @@ namespace Asterindes::Ui
 		Q_INVOKABLE bool addResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
-		 * Renames a resource by its URL.
-		 *
-		 * @param p_resourceUrl The URL of the resource to rename.
-		 * @param p_newName The new name for the resource.
-		 * 
-		 * @return true if successful, false otherwise.
-		 */
-		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
-
-		/**
 		 * Removes resources by their URLs.
 		 *
 		 * @param p_resourceUrls The list of resource URLs.
@@ -97,12 +89,25 @@ namespace Asterindes::Ui
 		Q_INVOKABLE bool removeResources(const QList<QUrl>& p_resourceUrls);
 
 		/**
-		 * Checks if a resource exists using its URL.
+		 * Renames a resource by its URL.
 		 *
-		 * @param p_url The URL to check.
-		 * @return true if the resource exists, false otherwise.
+		 * @param p_resourceUrl The URL of the resource to rename.
+		 * @param p_newName The new name for the resource.
+		 *
+		 * @return true if successful, false otherwise.
 		 */
-		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
+		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
+
+		/**
+		 * Adds or removes a tag to a resource by its URL.
+		 * 
+		 * @param p_resourceUrl The URL of the resource to add a tag to.
+		 * @param p_tag The tag to add.
+		 * @param p_add If true, adds the tag; if false, removes the tag.
+		 * 
+		 * @return true if successful, false otherwise.
+		 */
+		Q_INVOKABLE bool setResourceTag(const QUrl& p_resourceUrl, const QString& p_tag, bool p_add);
 
 		/**
 		 * Get the index of the selected resource in the currently displayed view.
@@ -119,13 +124,6 @@ namespace Asterindes::Ui
 		Q_INVOKABLE void setSelectedResourceIndex(int p_index);
 
 		/**
-		 * Get the loading state.
-		 * 
-		 * @return true if loading, false otherwise.
-		 */
-		inline bool isLoading() const { return m_isLoading; }
-
-		/**
 		 * Gets the resource at the given index in the model, it is used to get the resource data when an item in the list is clicked in the UI.
 		 *
 		 * @param p_index The index of the item in the model to get the resource from.
@@ -133,11 +131,30 @@ namespace Asterindes::Ui
 		 */
 		Q_INVOKABLE QVariantMap getResourceAtIndex(int p_index) const;
 
+		/**
+		 * Get the loading state.
+		 *
+		 * @return true if loading, false otherwise.
+		 */
+		inline bool isLoading() const { return m_isLoading; }
+
+		/**
+		 * Get all unique resource tags across all resources.
+		 *
+		 * @return A list of unique resource tags.
+		 */
+		Q_INVOKABLE QList<QString> getAllResourceTags() const;
+
 	signals:
 		/**
 		 * Signal emitted when the resource list changes.
 		 */
 		void displayedResourceListChanged();
+
+		/**
+		 * Signal emitted when a resource tag list changes.
+		 */
+		void selectedResourceTagListChanged();
 
 		/**
 		 * Signal emitted when the selected resource changes.
@@ -166,6 +183,11 @@ namespace Asterindes::Ui
 		ResourceListModel* m_resourcesListModel{ new ResourceListModel(this) };
 
 		/**
+		 * The proxy model for sorting and filtering the resources list model.
+		 */
+		ResourceSortFilterProxyModel* m_resourcesSortFilterProxyModel{ new ResourceSortFilterProxyModel(this) };
+
+		/**
 		 * The URL of the selected resource in the displayed, used for selection management in the UI. An empty URL means no selection.
 		 */
 		QUrl m_selectedResourceUrl{};
@@ -190,6 +212,13 @@ namespace Asterindes::Ui
 		 * Handles ResourceRegistry's resourcesChanged signal. This will update the displayed resources list and emit the displayedResourceListChanged signal to update the UI.
 		 */
 		void updateResourceList();
+
+		/**
+		 * Updates a single resource in the model, adding it if it doesn't exist.
+		 *
+		 * @param p_resource The resource to update in the model.
+		 */
+		void updateSingleResource(const ResourceRegistry::Resource& p_resource);
 	};
 }
 

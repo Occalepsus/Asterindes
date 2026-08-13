@@ -1,3 +1,6 @@
+#ifndef RESOURCELISTMODEL_H
+#define RESOURCELISTMODEL_H
+
 // Asterindes
 #include "ResourceRegistry.h"
 
@@ -12,6 +15,8 @@ namespace Asterindes::Ui
 	 */
 	class ResourceListModel : public QAbstractListModel
 	{
+		Q_OBJECT;
+
 	public:
 		/**
 		 * The enum that contains the roles for the resources list model, it is used to map the data in the model to the UI elements in the QML file.
@@ -19,8 +24,11 @@ namespace Asterindes::Ui
 		enum class ResourceRoles
 		{
 			NameRole = Qt::UserRole + 1,
-			ResourceUrlRole
+			ResourceUrlRole,
+			CreationDateRole,
+			TagListRole
 		};
+		Q_ENUM(ResourceRoles)
 
 		/**
 		 * Default constructor.
@@ -62,6 +70,15 @@ namespace Asterindes::Ui
 		void updateFromResourcesList(const QList<ResourceRegistry::Resource>& p_resourceList);
 
 		/**
+		 * Updates the model with a single resource instead of the whole list, adding it if it doesn't exist.
+		 *
+		 * @param p_resource the resource to update in the model.
+		 *
+		 * @return true if the resource was added, false otherwise.
+		 */
+		bool updateFromSingleResource(const ResourceRegistry::Resource& p_resource);
+
+		/**
 		 * Gets the index of the resource with the given URL in the model, it is used to get the index of a resource when it is selected in the UI.
 		 * 
 		 * @param p_resourceUrl The URL of the resource to get the index of.
@@ -77,7 +94,9 @@ namespace Asterindes::Ui
 		const QHash<int, QByteArray> m_roleNames
 		{
 			{ std::to_underlying(ResourceRoles::NameRole), "name" },
-			{ std::to_underlying(ResourceRoles::ResourceUrlRole), "resourceUrl" }
+			{ std::to_underlying(ResourceRoles::ResourceUrlRole), "resourceUrl" },
+			{ std::to_underlying(ResourceRoles::CreationDateRole), "creationDate" },
+			{ std::to_underlying(ResourceRoles::TagListRole), "tagList" }
 		};
 
 		/**
@@ -86,3 +105,5 @@ namespace Asterindes::Ui
 		QList<ResourceRegistry::Resource> m_displayedResources{};
 	};
 }
+
+#endif // RESOURCELISTMODEL_H

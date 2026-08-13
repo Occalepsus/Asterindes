@@ -1,3 +1,5 @@
+import Asterindes 1.0
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
@@ -42,60 +44,153 @@ Item {
 				anchors.fill: parent
 				spacing: 10
 
+				ComboBox {
+					id: sortRoleComboBox
+					Layout.preferredWidth: 150
+					
+					model: ["Name", "Creation date"]
+					
+					// Bind to ViewModel's sort order
+					currentIndex: {
+						let currentRoleIndex = 0;
+
+						if (projectWindow.resourcesViewModel) {
+							const currentRole = projectWindow.resourcesViewModel.displayedResourceListModel.sortRole
+							
+							switch (currentRole) {
+								case ResourceListModel.CreationDateRole:
+									currentRoleIndex = 1;
+									break;
+								default:
+									currentRoleIndex = 0;
+							}
+						}
+
+						return currentRoleIndex
+					}
+					onCurrentIndexChanged: {
+						if (projectWindow.resourcesViewModel) {
+
+							switch (currentIndex) {
+								case 1:
+									projectWindow.resourcesViewModel.displayedResourceListModel.sortRole = ResourceListModel.CreationDateRole;
+									break;
+								default:
+									projectWindow.resourcesViewModel.displayedResourceListModel.sortRole = ResourceListModel.NameRole;
+							}
+						}
+					}
+				}
+
+				Button {
+					id: sortOrderButton
+
+					text: projectWindow.resourcesViewModel && projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder === Qt.DescendingOrder ? "↓" : "↑"
+
+					onClicked: {
+						if (projectWindow.resourcesViewModel) {
+							const currentOrder = projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder
+							projectWindow.resourcesViewModel.displayedResourceListModel.sortOrder = currentOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder
+						}
+					}
+				}
+				
 				TextField {
 					id: searchField
 					Layout.fillWidth: true
 					placeholderText: "Search resources..."
 					
 					// Bind to ViewModel's search filter
-					text: "aa"//projectWindow.resourcesViewModel.searchFilter
-					//onTextChanged: projectWindow.resourcesViewModel.searchFilter = text
+					text: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter : ""
+					onTextChanged: {
+						if (projectWindow.resourcesViewModel) {
+							projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter = text
+						}
+					}
 				}
 
-				ComboBox {
-					id: sortComboBox
-					Layout.preferredWidth: 150
-					
-					model: ["Name (A-Z)", "Name (Z-A)", "Date Added", "File Size"]
-					
-					// Bind to ViewModel's sort order
-					//currentIndex: projectWindow.resourcesViewModel.sortOrder
-					onCurrentIndexChanged: {
-						//projectWindow.resourcesViewModel.sortOrder = currentIndex;
+				Button {
+					id: tagsFilterButton
+
+					text: "Tags " + (projectWindow.resourcesViewModel && projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList.length > 0
+						? "(" + projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList.length + ")"
+						: "")
+
+					onClicked: {
+						tagListFilterPopup.open()
 					}
+					
+					Popup {
+						id: tagListFilterPopup
+
+						x: 0
+						y: 0
+
+						width: 200
+						height: 300
+
+						TagSelectionList {
+							id: tagListFilter
+							allTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.allResourceTags : []
+							selectedTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList : []
+							canCreateNewTag: false
+							onTagSelected: function(pTag, pIsSelected) {
+								if (projectWindow.resourcesViewModel) {
+									let newTagFilterList = projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList
+									const l_index = newTagFilterList.indexOf(pTag)
+									
+									if (pIsSelected) {
+										if (l_index < 0) {
+											newTagFilterList.push(pTag)
+										}
+									} else {
+										if (l_index >= 0) {
+											newTagFilterList.splice(l_index, 1)
+										}
+									}
+
+									projectWindow.resourcesViewModel.displayedResourceListModel.tagFilterList = newTagFilterList
+								}
+							}
+						}
+					}
+				}
+				
+				Button {
+					text: "Clear Filters"
+					enabled: searchField.text !== "" || sortRoleComboBox.currentIndex !== 0
+					onClicked: projectWindow.resourcesViewModel ?? projectWindow.resourcesViewModel.displayedResourceListModel.clearFilters()
 				}
 
 				Label {
 					text: "Item per columns"
 				}
 
-				Slider {
-					id: gridSizeSlider
-					Layout.preferredWidth: 140
-					from: resourcesGridPanel.mMinColCount
-					to: resourcesGridPanel.mMaxColCount
-					stepSize: 1
-					value: resourcesGridPanel.prefColCount
-					onMoved: resourcesGridPanel.prefColCount = value
-				}
+				ComboBox {
+					id: gridSizeComboBox
 
-				Label {
-					text: resourcesGridPanel.realColCount + " items"
-				}
+					Layout.fillWidth: false
+					Layout.preferredWidth: implicitWidth
+					Layout.minimumWidth: implicitWidth
+					Layout.maximumWidth: implicitWidth
 
-				Button {
-					text: "Clear Filters"
-					enabled: searchField.text !== "" || sortComboBox.currentIndex !== 0
-					//onClicked: projectWindow.resourcesViewModel.clearFilters()
-				}
+					// Dynamically generate the model based on min and max column count
+					model: {
+						let model = []
+						for (let i = resourcesGridPanel.mMinColCount; i <= resourcesGridPanel.mMaxColCount; i++) {
+							model.push(i.toString() + " items")
+						}
+						return model;
+					}
 
-				Label {
-					text: "bb"/*projectWindow.resourcesViewModel.filteredCount */+ " / " + (projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListCount : 0)
-					color: "blue"//projectWindow.resourcesViewModel.filteredCount < projectWindow.resourcesViewModel.displayedResourceListCount ? "blue" : "black"
+					currentIndex: resourcesGridPanel.prefColCount - resourcesGridPanel.mMinColCount
+					onCurrentIndexChanged: {
+						resourcesGridPanel.prefColCount = currentIndex + resourcesGridPanel.mMinColCount
+					}
 				}
 			}
 		}
-			
+
 		// ===== Grid view =====
 		DropArea {
 			Layout.fillWidth: true
@@ -157,6 +252,9 @@ Item {
 			GridView {
 				id: resourceGridView
 
+				// Property to avoid infinite loop when syncing selection between ViewModel and GridView
+				property bool l_syncingSelection: false
+
 				anchors.fill: parent
 				anchors.margins: 10
 
@@ -176,10 +274,23 @@ Item {
 				highlightMoveDuration: 0
 				focus: true
 								
-				currentIndex: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.selectedResourceIndex : -1
+				currentIndex: -1
 				onCurrentIndexChanged: {
-					if (projectWindow.resourcesViewModel && currentIndex !== projectWindow.resourcesViewModel.selectedResourceIndex) {
-						projectWindow.resourcesViewModel.setSelectedResourceIndex(currentIndex)
+					if (l_syncingSelection || !projectWindow.resourcesViewModel) {
+						return
+					}
+					projectWindow.resourcesViewModel.setSelectedResourceIndex(currentIndex)
+				}
+
+				Connections {
+					target: projectWindow.resourcesViewModel
+					function onSelectedResourceIndexChanged() {
+						if (!projectWindow.resourcesViewModel) return
+						const l_newIndex = projectWindow.resourcesViewModel.selectedResourceIndex
+						if (resourceGridView.currentIndex === l_newIndex) return
+						resourceGridView.l_syncingSelection = true
+						resourceGridView.currentIndex = l_newIndex
+						resourceGridView.l_syncingSelection = false
 					}
 				}
 

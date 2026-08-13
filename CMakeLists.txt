@@ -22,6 +22,7 @@ set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceBroadcastManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceListModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceRegistry.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceSortFilterProxyModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourcesViewModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/SingleInstanceGuard.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/StartupWindow.h
@@ -38,6 +39,7 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceBroadcastManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceListModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceRegistry.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceSortFilterProxyModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourcesViewModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/SingleInstanceGuard.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/StartupWindow.cpp
@@ -50,6 +52,7 @@ set(ASTERINDES_QML_FILES
 	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
 	"development/res/StartupWindow.qml"
+	"development/res/TagSelectionList.qml"
 )
 
 set(ASTERINDES_HTML_RESOURCES

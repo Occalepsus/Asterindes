@@ -99,7 +99,7 @@ Item {
 					id: searchField
 					Layout.fillWidth: true
 					placeholderText: "Search resources..."
-					
+
 					// Bind to ViewModel's search filter
 					text: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter : ""
 					onTextChanged: {
@@ -129,6 +129,7 @@ Item {
 						width: 200
 						height: 300
 
+						// TODO: Add a "no tag" option
 						TagSelectionList {
 							id: tagListFilter
 							allTagList: projectWindow.resourcesViewModel ? projectWindow.resourcesViewModel.allResourceTags : []

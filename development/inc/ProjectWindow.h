@@ -4,6 +4,7 @@
 // Asterindes UI
 #include "ProjectViewModel.h"
 #include "ResourcesViewModel.h"
+#include "QmlDynamicLoader.h"
 
 // Qt
 #include <QQmlApplicationEngine>
@@ -68,6 +69,7 @@ namespace Asterindes::Ui
 		inline ResourcesViewModel* resourcesViewModel() const { return m_resourcesViewModel; }
 
 	private:
+
 		/**
 		 * Project ViewModel
 		 */
@@ -85,12 +87,10 @@ namespace Asterindes::Ui
 		QQmlApplicationEngine* m_appQmlEngine{ new QQmlApplicationEngine() };
 
 		/**
-		 * Sets up the QML context by exposing necessary ViewModels and properties to QML.
+		 * The QmlDynamicLoader is responsible for loading QML components and handling hot reloading (only for debug builds).
+		 * It is initialized with the QML engine and the ProjectWindow as its parent.
 		 */
-		void setupQmlContext();
-
-	private slots:
-		void onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url);
+		QmlDynamicLoader* m_qmlDynamicLoader{ new QmlDynamicLoader(m_appQmlEngine, this) };
 	};
 }
 

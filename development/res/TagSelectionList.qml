@@ -107,6 +107,7 @@ Item {
 		
 		spacing: 6
 
+		// TODO: Add a "Select all" / "Deselect all" button
 		TextField {
 			id: tagSearchInput
 			Layout.fillWidth: true

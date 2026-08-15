@@ -6,7 +6,9 @@
 
 // Qt
 #include <QQmlContext>
-#include <QTimer>
+#include <QFileSystemWatcher>
+
+#include <QDirIterator>
 
 using namespace Asterindes;
 using namespace Asterindes::Ui;
@@ -17,7 +19,6 @@ ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_cor
 	, m_projectViewModel(new ProjectViewModel(p_project, this))
 	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourceRegistry(), this))
 {
-	//QObject::connect(&p_project, &AsterindesProject::projectLoaded, this, &ProjectWindow::openProjectWindow);
 }
 
 ProjectWindow::~ProjectWindow()
@@ -31,25 +32,13 @@ void ProjectWindow::openProjectWindow()
 {
 	// Setup QML context BEFORE loading QML
 	m_appQmlEngine->setInitialProperties({
-		{ "projectWindow", QVariant::fromValue(this) }
+		{ "projectWindow", QVariant::fromValue(this) },
+		{ "qmlLoader", QVariant::fromValue(m_qmlDynamicLoader) }
 	});
 
-	//QObject::connect(&m_appQmlEngine, &QQmlApplicationEngine::objectCreated, this, &ProjectWindow::onQmlFileLoaded);
-
-	m_appQmlEngine->loadFromModule("Asterindes", "Main");
-
-	if (m_appQmlEngine->rootObjects().isEmpty()) {
-		qFatal("Cannot load QML component 'Asterindes/Main'.");
-	}
-}
-
-void ProjectWindow::setupQmlContext()
-{
-	// Expose the resources ViewModel to QML
-	//m_appQmlEngine->rootContext()->setContextProperty("projectViewModel", m_projectViewModel);
-	//m_appQmlEngine->rootContext()->setContextProperty("resourcesViewModel", m_resourcesViewModel);
-}
-
-void ProjectWindow::onQmlFileLoaded(QObject* p_qmlObject, const QUrl& p_url)
-{
+#ifdef QT_DEBUG
+	m_qmlDynamicLoader->loadQmlFile(QUrl::fromLocalFile("../development/res/ProjectWindow.qml"));
+#else
+	m_appQmlEngine->loadFromModule("Asterindes", "ProjectWindow");
+#endif // QT_DEBUG
 }

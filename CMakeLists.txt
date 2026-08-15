@@ -19,6 +19,7 @@ set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectManagerService.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectViewModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ProjectWindow.h
+	${ASTERINDES_DEVELOPMENT_DIR}/inc/QmlDynamicLoader.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceBroadcastManager.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceListModel.h
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/ResourceRegistry.h
@@ -36,6 +37,7 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectManagerService.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectViewModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ProjectWindow.cpp
+	${ASTERINDES_DEVELOPMENT_DIR}/src/QmlDynamicLoader.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceBroadcastManager.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceListModel.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/ResourceRegistry.cpp
@@ -47,7 +49,7 @@ set(ASTERINDES_SOURCES
 
 set(ASTERINDES_QML_FILES
 	"development/res/AsterindesMenuBar.qml"
-	"development/res/Main.qml"
+	"development/res/ProjectWindow.qml"
 	"development/res/ResourceBroadcastPanel.qml"
 	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
@@ -73,7 +75,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${ASTERINDES_DEVELOPMENT_DIR}
 qt_add_qml_module(${PROJECT_NAME}
 	URI ${PROJECT_NAME}
 	VERSION 0.1
-	RESOURCE_PREFIX /qt/qml
+	RESOURCE_PREFIX /qt/qml # Necessary to use loadFromModule()
 	QML_FILES
 		${ASTERINDES_QML_FILES}
 )

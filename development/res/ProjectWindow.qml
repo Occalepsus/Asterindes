@@ -1,15 +1,17 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import QtCore
 
 ApplicationWindow {
 	id: mainWindow
 	required property var projectWindow
-	
-	visible: true
+	property var qmlLoader
 
+// PATATEaaa
+	
 	Settings {
 		id: uiSettings
 		category: "MainWindow"
@@ -61,6 +63,41 @@ ApplicationWindow {
 		else if (visibility === Window.Windowed)
 		{
 			uiSettings.fullscreenMode = "windowed";
+		}
+	}
+	
+	Dialog {
+		id: qmlLoadErrorDialog
+		property string errorString: "unknown error"
+		
+		title: "Hot reload failed"
+		//popupType: Popup.Window
+
+		ColumnLayout {
+			Text {
+				text: "The following QML errors happened:"
+			}
+
+			Text {
+				id: errorText
+				text: ""
+				color: "darkred"
+
+			}
+		}
+		
+		onErrorStringChanged: {
+			errorText.text = "- " + errorString.replace("\n", "\n- ")
+		}
+	}
+	
+	Connections {
+		target: mainWindow.qmlLoader
+		
+		function onQmlLoadError(errorString) {
+			console.log(errorString)
+			qmlLoadErrorDialog.errorString = errorString
+			qmlLoadErrorDialog.open()
 		}
 	}
 	

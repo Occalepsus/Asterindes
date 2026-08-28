@@ -8,9 +8,8 @@ import QtCore
 ApplicationWindow {
 	id: mainWindow
 	required property var projectWindow
+	required property var projectManagerService
 	property var qmlLoader
-
-// PATATEaaa
 	
 	Settings {
 		id: uiSettings
@@ -71,7 +70,6 @@ ApplicationWindow {
 		property string errorString: "unknown error"
 		
 		title: "Hot reload failed"
-		//popupType: Popup.Window
 
 		ColumnLayout {
 			Text {
@@ -101,7 +99,7 @@ ApplicationWindow {
 		}
 	}
 	
-	menuBar: AsterindesMenuBar {}
+	//menuBar: AsterindesMenuBar {}
 
 	RowLayout {
 		anchors.fill: parent
@@ -129,4 +127,6 @@ ApplicationWindow {
 			}
 		}
 	}
+
+	footer: AsterindesMenuBar {}
 }

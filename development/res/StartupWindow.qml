@@ -11,6 +11,7 @@ pragma ComponentBehavior: Bound
 Window {
 	id: startupWindow
 	required property var startupWindowData
+	required property var projectManagerService
 
 	readonly property url defaultProjectPath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation) + "/AsterindesProjects"
 
@@ -40,10 +41,10 @@ Window {
 			id: mainStartupLayout
 			
 			function openProject(file) {
-				if (startupWindow.startupWindowData) {
-					const res = startupWindow.startupWindowData.openProject(file)
+				if (startupWindow.projectManagerService) {
+					const res = startupWindow.projectManagerService.openProject(file)
 					if (!res) {
-						errorText.text = startupWindow.startupWindowData.errorString;
+						errorText.text = startupWindow.projectManagerService.errorString;
 						errorText.visible = true;
 					}
 				}
@@ -80,7 +81,7 @@ Window {
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 
-				model: startupWindow.startupWindowData ? startupWindow.startupWindowData.recentProjectList : []
+				model: startupWindow.projectManagerService ? startupWindow.projectManagerService.recentProjectList : []
 
 				delegate: Item {
 					id: recentProjectItem
@@ -188,10 +189,10 @@ Window {
 				Button {
 					text: "Create Project"
 					onClicked: {
-						if (startupWindow.startupWindowData) {
-							const res = startupWindow.startupWindowData.createProject(newProjectLayout.projectPath + "/" + newProjectLayout.projectName + ".asterindesproj")
+						if (startupWindow.projectManagerService) {
+							const res = startupWindow.projectManagerService.createProject(newProjectLayout.projectPath + "/" + newProjectLayout.projectName + ".asterindesproj")
 							if (!res) {
-								errorText.text = startupWindow.startupWindowData.errorString;
+								errorText.text = startupWindow.projectManagerService.errorString;
 								errorText.visible = true;
 							}
 						}

@@ -46,7 +46,7 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 	if (l_project->loadProject())
 	{
 		m_openedProjects.insert(p_projectPath, l_project);
-		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this)).value()->openProjectWindow();
+		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this, m_projectManagerService)).value()->openProjectWindow();
 		return true;
 	}
 	else

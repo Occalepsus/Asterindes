@@ -13,6 +13,7 @@ namespace Asterindes
 {
 	class AsterindesCore;
 	class AsterindesProject;
+	class ProjectManagerService;
 }
 
 namespace Asterindes::Ui
@@ -41,8 +42,9 @@ namespace Asterindes::Ui
 		 *
 		 * @param p_project Reference to the project this window is associated with.
 		 * @param p_coreApp Reference to the core application, used as the parent QObject.
+		 * @param p_projectManagerService Reference to the ProjectManagerService instance.
 		 */
-		explicit ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_coreApp);
+		explicit ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_coreApp, ProjectManagerService* p_projectManagerService);
 
 		/**
 		 * Destructor, it is responsible for cleaning up the QML engine and any resources used by the window.
@@ -79,6 +81,11 @@ namespace Asterindes::Ui
 		 * Resource ViewModel exposed to QML for data binding and UI interaction.
 		 */
 		ResourcesViewModel* m_resourcesViewModel;
+
+		/**
+		 * The ProjectManagerService instance used to manage the projects of the application.
+		 */
+		QPointer<ProjectManagerService> m_projectManagerService;
 
 		/**
 		 * The QML engine for loading and managing QML components.

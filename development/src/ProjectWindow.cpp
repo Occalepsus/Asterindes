@@ -13,11 +13,12 @@
 using namespace Asterindes;
 using namespace Asterindes::Ui;
 
-ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_coreApp)
+ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_coreApp, ProjectManagerService* p_projectManagerService)
 	: QObject(p_coreApp)
 	// Create ViewModels which connects to their respective models internally
 	, m_projectViewModel(new ProjectViewModel(p_project, this))
 	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourceRegistry(), this))
+	, m_projectManagerService(p_projectManagerService)
 {
 }
 
@@ -33,6 +34,7 @@ void ProjectWindow::openProjectWindow()
 	// Setup QML context BEFORE loading QML
 	m_appQmlEngine->setInitialProperties({
 		{ "projectWindow", QVariant::fromValue(this) },
+		{ "projectManagerService", QVariant::fromValue(m_projectManagerService.data()) },
 		{ "qmlLoader", QVariant::fromValue(m_qmlDynamicLoader) }
 	});
 

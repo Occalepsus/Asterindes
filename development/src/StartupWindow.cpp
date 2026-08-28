@@ -6,12 +6,11 @@ StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QOb
 	: QObject(p_parent)
 	, m_projectManagerService(p_projectManagerService)
 {
-	if (m_projectManagerService) {
-		QObject::connect(m_projectManagerService, &ProjectManagerService::recentProjectListChanged, this, &StartupWindow::recentProjectListChanged);
-	}
+	QObject::connect(m_projectManagerService, &ProjectManagerService::projectOpened, this, &StartupWindow::onProjectOpened);
 
 	m_startupQmlEngine->setInitialProperties({
-		{ "startupWindowData", QVariant::fromValue(this) }
+		{ "startupWindowData", QVariant::fromValue(this) },
+		{ "projectManagerService", QVariant::fromValue(m_projectManagerService.data()) }
 	});
 
 	// Load the QML file for the startup window
@@ -34,44 +33,7 @@ void StartupWindow::setWindowVisible(bool visible)
 	}
 }
 
-bool StartupWindow::createProject(const QUrl& p_projectPath)
+void StartupWindow::onProjectOpened(const QUrl&)
 {
-	bool l_result{ false };
-
-	if (m_projectManagerService)
-	{
-		l_result = m_projectManagerService->createProject(p_projectPath);
-	}
-
-	if (l_result)
-	{
-		setWindowVisible(false);
-	}
-	else
-	{
-		emit errorStringChanged(m_projectManagerService->getErrorString());
-	}
-
-	return l_result;
-}
-
-bool StartupWindow::openProject(const QUrl& p_projectPath)
-{
-	bool l_result{ false };
-
-	if (m_projectManagerService)
-	{
-		l_result = m_projectManagerService->loadProject(p_projectPath);
-	}
-
-	if (l_result)
-	{
-		setWindowVisible(false);
-	}
-	else
-	{
-		emit errorStringChanged(m_projectManagerService->getErrorString());
-	}
-
-	return l_result;
+	setWindowVisible(false);
 }

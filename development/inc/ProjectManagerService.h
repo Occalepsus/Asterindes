@@ -20,6 +20,16 @@ namespace Asterindes
 		Q_OBJECT;
 		Q_DISABLE_COPY_MOVE(ProjectManagerService);
 
+		/**
+		 * The list of recent projects that will be updated and saved into registers
+		 */
+		Q_PROPERTY(QList<QUrl> recentProjectList READ getRecentProjectList NOTIFY recentProjectListChanged);
+
+		/**
+		 * The errorString containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
+		 */
+		Q_PROPERTY(QString errorString READ getErrorString NOTIFY errorStringChanged);
+
 	public:
 
 		/**
@@ -43,7 +53,7 @@ namespace Asterindes
 		 * 
 		 * @return true if the project was created successfully, false otherwise.
 		 */
-		bool createProject(const QUrl& p_fileName);
+		Q_INVOKABLE bool createProject(const QUrl& p_fileName);
 
 		/**
 		 * Loads a project from the given file path, if the project is already open it will just focus the project window.
@@ -52,7 +62,7 @@ namespace Asterindes
 		 * 
 		 * @return true if the project was loaded successfully, false otherwise.
 		 */
-		bool loadProject(const QUrl& p_projectPath);
+		Q_INVOKABLE bool openProject(const QUrl& p_projectPath);
 
 		/**
 		 * Gets the list of recent projects
@@ -72,10 +82,24 @@ namespace Asterindes
 
 		/**
 		 * Emitted when the list of recent projects changes.
-		 * 
+		 *
 		 * @param p_recentProjectList The new list of recent projects.
 		 */
 		void recentProjectListChanged(const QList<QUrl>& p_recentProjectList);
+
+		/**
+		 * Emitted when the error string changes.
+		 *
+		 * @param p_errorString The new error string.
+		 */
+		void errorStringChanged(const QString& p_errorString);
+
+		/**
+		 * Emitted when a project is opened, it can be used to notify the application that a project has been opened and the startup window can be closed.
+		 *
+		 * @param p_projectPath The path of the project that was opened.
+		 */
+		void projectOpened(const QUrl& p_projectPath);
 
 	private:
 		

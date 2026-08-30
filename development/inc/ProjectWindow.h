@@ -75,7 +75,28 @@ namespace Asterindes::Ui
 		 */
 		Q_INVOKABLE void showStartupWindow() const;
 
+	signals:
+
+		/**
+		 * Signal emitted when the project window is closed, it can be used to notify the application that the project window is closed and the startup window can be shown.
+		 * 
+		 * @param p_project The project that was associated with the closed window.
+		 */
+		void projectWindowClosed(AsterindesProject* p_project);
+
+	public slots:
+
+		/**
+		 * Slot called when the project window is closed, it will emit the projectWindowClosed signal to notify the application that the project window is closed and the startup window can be shown.
+		 */
+		inline void onProjectWindowClosed() { emit projectWindowClosed(m_project); }
+
 	private:
+
+		/**
+		 * The project this window is associated with.
+		 */
+		QPointer<AsterindesProject> m_project;
 
 		/**
 		 * Project ViewModel

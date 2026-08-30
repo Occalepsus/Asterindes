@@ -25,6 +25,11 @@ StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QOb
 
 StartupWindow::~StartupWindow()
 {
+	// Close the startup window if it is still open
+	//if (QQuickWindow* l_window = qobject_cast<QQuickWindow*>(m_startupQmlEngine->rootObjects().first()); l_window) {
+	//	l_window->close();
+	//}
+
 	m_startupQmlEngine->deleteLater();
 }
 

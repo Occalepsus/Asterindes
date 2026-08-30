@@ -26,6 +26,13 @@ Window {
 	}
 
 	onClosing: (close) => {
+		// If the window is not visible, it means the window is being closed by the application, so we don't need to hide it again.
+		if (!visible)
+		{
+			close.accepted = true
+			return
+		}
+
 		console.log("StartupWindow closing, hide instead of close")
 		if (startupWindowData)
 		{

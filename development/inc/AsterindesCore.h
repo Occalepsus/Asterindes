@@ -60,12 +60,6 @@ namespace Asterindes
 		 */
 		bool openProject(const QUrl& p_projectPath);
 
-	public slots:
-		/**
-		 * Slot called by a project when it requests to be closed, it will destroy the project and exit the application if there are no more projects open.
-		 */
-		void onProjectCloseResquested(AsterindesProject* p_project);
-
 	private:
 
 		/**
@@ -108,6 +102,13 @@ namespace Asterindes
 		 * Checks if the application should close, it will close the application if there are no more projects open and the startup window is not visible.
 		 */
 		void applicationShouldExit();
+
+	private slots:
+
+		/**
+		 * Slot called by a project when it requests to be closed, it will destroy the project and exit the application if there are no more projects open.
+		 */
+		void onProjectCloseRequested(AsterindesProject* p_project);
 	};
 }
 

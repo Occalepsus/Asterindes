@@ -55,6 +55,8 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 	{
 		m_openedProjects.insert(p_projectPath, l_project);
 		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this, m_projectManagerService)).value()->openProjectWindow();
+
+		QObject::connect(m_openedProjectWindows.value(p_projectPath), &Ui::ProjectWindow::projectWindowClosed, this, &AsterindesCore::onProjectCloseRequested);
 		return true;
 	}
 	else
@@ -65,20 +67,23 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 	}
 }
 
-void AsterindesCore::onProjectCloseResquested(AsterindesProject* p_project)
-{
-	m_openedProjects.remove(p_project->getProjectPath());
-	m_openedProjectWindows.remove(p_project->getProjectPath());
-
-	p_project->deleteLater();
-
-	applicationShouldExit();
-}
-
 void AsterindesCore::applicationShouldExit()
 {
 	if (m_openedProjects.isEmpty() && !m_startupWindow->isVisible())
 	{
 		QGuiApplication::quit();
 	}
+}
+
+void AsterindesCore::onProjectCloseRequested(AsterindesProject* p_project)
+{
+	QPointer<Ui::ProjectWindow> l_projectWindow{ m_openedProjectWindows.value(p_project->getProjectPath()) };
+	QObject::disconnect(l_projectWindow, &Ui::ProjectWindow::projectWindowClosed, this, &AsterindesCore::onProjectCloseRequested);
+	l_projectWindow->deleteLater();
+	m_openedProjectWindows.remove(p_project->getProjectPath());
+
+	m_openedProjects.remove(p_project->getProjectPath());
+	p_project->deleteLater();
+
+	applicationShouldExit();
 }

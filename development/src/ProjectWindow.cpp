@@ -15,6 +15,7 @@ using namespace Asterindes::Ui;
 
 ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_coreApp, ProjectManagerService* p_projectManagerService)
 	: QObject(p_coreApp)
+	, m_project(p_project)
 	// Create ViewModels which connects to their respective models internally
 	, m_projectViewModel(new ProjectViewModel(p_project, this))
 	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourceRegistry(), this))
@@ -43,6 +44,15 @@ void ProjectWindow::openProjectWindow()
 #else
 	m_appQmlEngine->loadFromModule("Asterindes", "ProjectWindow");
 #endif // QT_DEBUG
+
+	if (const QQuickWindow* l_window{ qobject_cast<QQuickWindow*>(m_appQmlEngine->rootObjects().first()) }; l_window)
+	{
+		QObject::connect(l_window, &QQuickWindow::closing, this, &ProjectWindow::onProjectWindowClosed);
+	}
+	else
+	{
+		qFatal("Cannot load QML component 'Asterindes/ProjectWindow'.");
+	}
 }
 
 void ProjectWindow::showStartupWindow() const

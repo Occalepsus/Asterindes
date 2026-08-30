@@ -32,26 +32,38 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::openProjectWindow()
 {
-	// Setup QML context BEFORE loading QML
-	m_appQmlEngine->setInitialProperties({
-		{ "projectWindow", QVariant::fromValue(this) },
-		{ "projectManagerService", QVariant::fromValue(m_projectManagerService.data()) },
-		{ "qmlLoader", QVariant::fromValue(m_qmlDynamicLoader) }
-	});
+	// If the window is not already open, open it and load the QML after setting up the context properties
+	if (m_appQmlEngine->rootObjects().isEmpty())
+	{
+		// Setup QML context BEFORE loading QML
+		m_appQmlEngine->setInitialProperties({
+			{ "projectWindow", QVariant::fromValue(this) },
+			{ "projectManagerService", QVariant::fromValue(m_projectManagerService.data()) },
+			{ "qmlLoader", QVariant::fromValue(m_qmlDynamicLoader) }
+		});
 
 #ifdef QT_DEBUG
-	m_qmlDynamicLoader->loadQmlFile(QUrl::fromLocalFile("../development/res/ProjectWindow.qml"));
+		m_qmlDynamicLoader->loadQmlFile(QUrl::fromLocalFile("../development/res/ProjectWindow.qml"));
 #else
-	m_appQmlEngine->loadFromModule("Asterindes", "ProjectWindow");
+		m_appQmlEngine->loadFromModule("Asterindes", "ProjectWindow");
 #endif // QT_DEBUG
 
-	if (const QQuickWindow* l_window{ qobject_cast<QQuickWindow*>(m_appQmlEngine->rootObjects().first()) }; l_window)
-	{
-		QObject::connect(l_window, &QQuickWindow::closing, this, &ProjectWindow::onProjectWindowClosed);
+		if (const QQuickWindow* l_window{ qobject_cast<QQuickWindow*>(m_appQmlEngine->rootObjects().first()) }; l_window)
+		{
+			QObject::connect(l_window, &QQuickWindow::closing, this, &ProjectWindow::onProjectWindowClosed);
+		}
+		else
+		{
+			qFatal("Cannot load QML component 'Asterindes/ProjectWindow'.");
+		}
 	}
+	// Else if the window is already open, just focus it instead of opening a new one
 	else
 	{
-		qFatal("Cannot load QML component 'Asterindes/ProjectWindow'.");
+		QQuickWindow* l_projectQmlWindow = qobject_cast<QQuickWindow*>(m_appQmlEngine->rootObjects().first());
+		Q_ASSERT(l_projectQmlWindow);
+		l_projectQmlWindow->raise();
+		l_projectQmlWindow->requestActivate();
 	}
 }
 

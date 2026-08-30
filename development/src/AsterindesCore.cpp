@@ -49,6 +49,14 @@ bool AsterindesCore::start()
 
 bool AsterindesCore::openProject(const QUrl& p_projectPath)
 {
+	// Prevent opening the same project multiple times, if the project is already open, just focus the project window.
+	if (m_openedProjects.contains(p_projectPath))
+	{
+		m_openedProjectWindows.value(p_projectPath)->openProjectWindow();
+
+		return true;
+	}
+	
 	AsterindesProject* l_project{ new AsterindesProject(p_projectPath, this) };
 
 	if (l_project->loadProject())

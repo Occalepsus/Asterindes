@@ -53,10 +53,11 @@ namespace Asterindes
 		/**
 		 * Opens a project from the given file path, if the project is already open it will just focus the project window.
 		 * Creates a new file if if does not exist, and loads the project data into the project managers.
+		 * NOTE: If the project is already open, it will not be reloaded, and the existing project window will be focused instead.
 		 * 
 		 * @param p_projectPath The path of the project to open, it should be a local file path pointing to a valid project file.
 		 * 
-		 * @return true if the project was loaded successfully, false otherwise.
+		 * @return true if the project was loaded successfully, or if the project was already open, false otherwise.
 		 */
 		bool openProject(const QUrl& p_projectPath);
 

@@ -52,7 +52,8 @@ namespace Asterindes::Ui
 		~ProjectWindow() override;
 
 		/**
-		 * Opens the project window, it should be called after the project is loaded and ready to be displayed. It will show the window and make it active.
+		 * Opens and focus the project window, it should be called after the project is loaded and ready to be displayed. It will show the window and make it active.
+		 * If the window is already open, it will just focus the existing window instead of opening a new one.
 		 */
 		void openProjectWindow();
 

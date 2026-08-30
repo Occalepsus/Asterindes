@@ -70,6 +70,11 @@ namespace Asterindes::Ui
 		 */
 		inline ResourcesViewModel* resourcesViewModel() const { return m_resourcesViewModel; }
 
+		/**
+		 * Shows the startup window, it is used to display the startup window when no project is opened or when the user wants to return to the startup window.
+		 */
+		Q_INVOKABLE void showStartupWindow() const;
+
 	private:
 
 		/**

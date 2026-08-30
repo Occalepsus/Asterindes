@@ -44,3 +44,12 @@ void ProjectWindow::openProjectWindow()
 	m_appQmlEngine->loadFromModule("Asterindes", "ProjectWindow");
 #endif // QT_DEBUG
 }
+
+void ProjectWindow::showStartupWindow() const
+{
+	AsterindesCore* l_coreApp = qobject_cast<AsterindesCore*>(parent());
+	if (l_coreApp)
+	{
+		l_coreApp->showStartupWindow();
+	}
+}

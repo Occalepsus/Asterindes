@@ -18,7 +18,7 @@ Item {
 				id: startupWindowButton
 				text: "🏠"
 				onClicked: {
-					// TODO: Implement navigation to the startup window
+					projectWindow.showStartupWindow()
 				}
 			}
 		}

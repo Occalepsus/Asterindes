@@ -25,6 +25,16 @@ Window {
 		windowStack.push(mainStartupView)
 	}
 
+	onClosing: (close) => {
+		console.log("StartupWindow closing, hide instead of close")
+		if (startupWindowData)
+		{
+			// Calls the C++ function to hide the window instead of closing it, so that it can be reopened later. Set the close.accepted to false to prevent the window from closing.
+			startupWindowData.hideStartupWindow()
+			close.accepted = false
+		}
+	}
+
 	StackView {
 		id: windowStack
 		anchors.fill: parent

@@ -1,5 +1,8 @@
 #include "StartupWindow.h"
 
+// Qt
+#include <QQuickWindow>
+
 using namespace Asterindes::Ui;
 
 StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QObject* p_parent)
@@ -25,15 +28,30 @@ StartupWindow::~StartupWindow()
 	m_startupQmlEngine->deleteLater();
 }
 
-void StartupWindow::setWindowVisible(bool visible)
+void StartupWindow::showStartupWindow()
 {
-	if (m_isVisible != visible) {
-		m_isVisible = visible;
+	if (!m_isVisible) {
+		m_isVisible = true;
+
+		emit isVisibleChanged(m_isVisible);
+	}
+
+	// Raise the startup window to the front and request focus
+	if (QQuickWindow* l_window = qobject_cast<QQuickWindow*>(m_startupQmlEngine->rootObjects().first()); l_window) {
+		l_window->raise();
+		l_window->requestActivate();
+	}
+}
+
+void StartupWindow::hideStartupWindow()
+{
+	if (m_isVisible) {
+		m_isVisible = false;
 		emit isVisibleChanged(m_isVisible);
 	}
 }
 
 void StartupWindow::onProjectOpened(const QUrl&)
 {
-	setWindowVisible(false);
+	hideStartupWindow();
 }

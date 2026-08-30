@@ -47,11 +47,14 @@ namespace Asterindes::Ui
 		bool isVisible() const { return m_isVisible; };
 
 		/**
-		 * Sets the visibility of the startup window.
-		 * 
-		 * @param p_visible True to show the startup window, false to hide it.
+		 * Shows the startup window, it will load the QML file and display the window.
 		 */
-		void setWindowVisible(bool p_visible);
+		void showStartupWindow();
+
+		/**
+		 * Hides the startup window.
+		 */
+		Q_INVOKABLE void hideStartupWindow();
 
 	public slots:
 

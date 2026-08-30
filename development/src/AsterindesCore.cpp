@@ -26,6 +26,14 @@ bool AsterindesCore::start()
 	{
 		m_singleInstanceGuard->startListeningForConnections();
 
+		// If the startup window is closed, check if the application should exit (if there are no open projects).
+		QObject::connect(m_startupWindow, &Ui::StartupWindow::isVisibleChanged, this, [this](bool p_visible) {
+			if (!p_visible)
+			{
+				applicationShouldExit();
+			}
+		});
+
 		// If a project path is provided, open the project directly, otherwise show the startup window
 		if (!m_startupProject.isEmpty())
 		{
@@ -33,7 +41,7 @@ bool AsterindesCore::start()
 		}
 		else
 		{
-			openStartupWindow();
+			showStartupWindow();
 		}
 		return true;
 	}
@@ -60,24 +68,17 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 void AsterindesCore::onProjectCloseResquested(AsterindesProject* p_project)
 {
 	m_openedProjects.remove(p_project->getProjectPath());
+	m_openedProjectWindows.remove(p_project->getProjectPath());
 
 	p_project->deleteLater();
 
-	if (m_openedProjects.isEmpty())
+	applicationShouldExit();
+}
+
+void AsterindesCore::applicationShouldExit()
+{
+	if (m_openedProjects.isEmpty() && !m_startupWindow->isVisible())
 	{
-		saveProjectLocation(p_project->getProjectPath().toLocalFile());
-		quit();
+		QGuiApplication::quit();
 	}
-}
-
-void AsterindesCore::saveProjectLocation(const QString& pProjectPath) const
-{
-	QSettings l_settings;
-	l_settings.setValue("projectLocation", pProjectPath);
-}
-
-QString AsterindesCore::getLastProjectLocation() const
-{
-	QSettings l_settings;
-	return l_settings.value("projectLocation", "").toString();
 }

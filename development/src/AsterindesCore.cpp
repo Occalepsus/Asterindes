@@ -26,6 +26,14 @@ bool AsterindesCore::start()
 	{
 		m_singleInstanceGuard->startListeningForConnections();
 
+		// If the startup window is closed, check if the application should exit (if there are no open projects).
+		QObject::connect(m_startupWindow, &Ui::StartupWindow::isVisibleChanged, this, [this](bool p_visible) {
+			if (!p_visible)
+			{
+				applicationShouldExit();
+			}
+		});
+
 		// If a project path is provided, open the project directly, otherwise show the startup window
 		if (!m_startupProject.isEmpty())
 		{
@@ -33,7 +41,7 @@ bool AsterindesCore::start()
 		}
 		else
 		{
-			openStartupWindow();
+			showStartupWindow();
 		}
 		return true;
 	}
@@ -41,12 +49,22 @@ bool AsterindesCore::start()
 
 bool AsterindesCore::openProject(const QUrl& p_projectPath)
 {
+	// Prevent opening the same project multiple times, if the project is already open, just focus the project window.
+	if (m_openedProjects.contains(p_projectPath))
+	{
+		m_openedProjectWindows.value(p_projectPath)->openProjectWindow();
+
+		return true;
+	}
+	
 	AsterindesProject* l_project{ new AsterindesProject(p_projectPath, this) };
 
 	if (l_project->loadProject())
 	{
 		m_openedProjects.insert(p_projectPath, l_project);
-		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this)).value()->openProjectWindow();
+		m_openedProjectWindows.insert(p_projectPath, new Ui::ProjectWindow(l_project, this, m_projectManagerService)).value()->openProjectWindow();
+
+		QObject::connect(m_openedProjectWindows.value(p_projectPath), &Ui::ProjectWindow::projectWindowClosed, this, &AsterindesCore::onProjectCloseRequested);
 		return true;
 	}
 	else
@@ -57,27 +75,23 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 	}
 }
 
-void AsterindesCore::onProjectCloseResquested(AsterindesProject* p_project)
+void AsterindesCore::applicationShouldExit()
 {
-	m_openedProjects.remove(p_project->getProjectPath());
-
-	p_project->deleteLater();
-
-	if (m_openedProjects.isEmpty())
+	if (m_openedProjects.isEmpty() && !m_startupWindow->isVisible())
 	{
-		saveProjectLocation(p_project->getProjectPath().toLocalFile());
-		quit();
+		QGuiApplication::quit();
 	}
 }
 
-void AsterindesCore::saveProjectLocation(const QString& pProjectPath) const
+void AsterindesCore::onProjectCloseRequested(AsterindesProject* p_project)
 {
-	QSettings l_settings;
-	l_settings.setValue("projectLocation", pProjectPath);
-}
+	QPointer<Ui::ProjectWindow> l_projectWindow{ m_openedProjectWindows.value(p_project->getProjectPath()) };
+	QObject::disconnect(l_projectWindow, &Ui::ProjectWindow::projectWindowClosed, this, &AsterindesCore::onProjectCloseRequested);
+	l_projectWindow->deleteLater();
+	m_openedProjectWindows.remove(p_project->getProjectPath());
 
-QString AsterindesCore::getLastProjectLocation() const
-{
-	QSettings l_settings;
-	return l_settings.value("projectLocation", "").toString();
+	m_openedProjects.remove(p_project->getProjectPath());
+	p_project->deleteLater();
+
+	applicationShouldExit();
 }

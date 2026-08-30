@@ -1,24 +1,26 @@
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Controls
 
-MenuBar {
-    Menu {
-        title: qsTr("&File")
-        Action { text: qsTr("&New...") }
-        Action { text: qsTr("&Open...") }
-        Action { text: qsTr("&Save") }
-        Action { text: qsTr("Save &As...") }
-        MenuSeparator { }
-        Action { text: qsTr("&Quit") }
-    }
-    Menu {
-        title: qsTr("&Edit")
-        Action { text: qsTr("Cu&t") }
-        Action { text: qsTr("&Copy") }
-        Action { text: qsTr("&Paste") }
-    }
-    Menu {
-        title: qsTr("&Help")
-        Action { text: qsTr("&About") }
-    }
+Item {
+	id: menuBar
+
+	implicitHeight: barLayout.implicitHeight
+
+	Rectangle {
+		anchors.fill: parent
+
+		color: "grey"
+
+		RowLayout {
+			id: barLayout
+			Button {
+				id: startupWindowButton
+				text: "🏠"
+				onClicked: {
+					projectWindow.showStartupWindow()
+				}
+			}
+		}
+	}
 }

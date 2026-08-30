@@ -21,22 +21,6 @@ ProjectManagerService::ProjectManagerService(AsterindesCore* p_coreApp, QObject*
 	loadRecentProjectList();
 }
 
-bool ProjectManagerService::loadProject(const QUrl& p_projectPath)
-{
-	bool l_result{ m_coreApp->openProject(p_projectPath) };
-
-	if (l_result)
-	{
-		updateRecentProjectList(p_projectPath);
-	}
-	else
-	{
-		m_errorString = QString("Failed to load project: %1").arg(p_projectPath.toString());
-	}
-
-	return l_result;
-}
-
 bool ProjectManagerService::createProject(const QUrl& p_fileName)
 {
 	QFile l_newProjectFile(p_fileName.toLocalFile());
@@ -46,24 +30,43 @@ bool ProjectManagerService::createProject(const QUrl& p_fileName)
 		m_errorString = QString("Project file already exists: %1").arg(p_fileName.toString());
 		return false;
 	}
-	
+
 	if (l_newProjectFile.open(QIODevice::NewOnly | QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
 	{
 		QJsonObject l_projectData;
 		l_projectData["resources"] = QJsonArray(); // Initialize with an empty resources array
-	
+
 		QJsonDocument l_jsonDoc(l_projectData);
 		l_newProjectFile.write(l_jsonDoc.toJson());
 	}
 	else
 	{
 		m_errorString = QString("Failed to create project file: %1").arg(p_fileName.toString());
+		emit errorStringChanged(m_errorString);
 		return false;
 	}
 
 	// Close the file and load the created project
 	l_newProjectFile.close();
-	return loadProject(p_fileName);
+	return openProject(p_fileName);
+}
+
+bool ProjectManagerService::openProject(const QUrl& p_projectPath)
+{
+	bool l_result{ m_coreApp->openProject(p_projectPath) };
+
+	if (l_result)
+	{
+		updateRecentProjectList(p_projectPath);
+		emit projectOpened(p_projectPath);
+	}
+	else
+	{
+		m_errorString = QString("Failed to open project: %1").arg(p_projectPath.toString());
+		emit errorStringChanged(m_errorString);
+	}
+
+	return l_result;
 }
 
 void ProjectManagerService::loadRecentProjectList()

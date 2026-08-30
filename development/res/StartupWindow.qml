@@ -11,6 +11,7 @@ pragma ComponentBehavior: Bound
 Window {
 	id: startupWindow
 	required property var startupWindowData
+	required property var projectManagerService
 
 	readonly property url defaultProjectPath: StandardPaths.writableLocation(StandardPaths.DocumentsLocation) + "/AsterindesProjects"
 
@@ -22,6 +23,23 @@ Window {
 	onVisibilityChanged: {
 		windowStack.clear()
 		windowStack.push(mainStartupView)
+	}
+
+	onClosing: (close) => {
+		// If the window is not visible, it means the window is being closed by the application, so we don't need to hide it again.
+		if (!visible)
+		{
+			close.accepted = true
+			return
+		}
+
+		console.log("StartupWindow closing, hide instead of close")
+		if (startupWindowData)
+		{
+			// Calls the C++ function to hide the window instead of closing it, so that it can be reopened later. Set the close.accepted to false to prevent the window from closing.
+			startupWindowData.hideStartupWindow()
+			close.accepted = false
+		}
 	}
 
 	StackView {
@@ -40,10 +58,10 @@ Window {
 			id: mainStartupLayout
 			
 			function openProject(file) {
-				if (startupWindow.startupWindowData) {
-					const res = startupWindow.startupWindowData.openProject(file)
+				if (startupWindow.projectManagerService) {
+					const res = startupWindow.projectManagerService.openProject(file)
 					if (!res) {
-						errorText.text = startupWindow.startupWindowData.errorString;
+						errorText.text = startupWindow.projectManagerService.errorString;
 						errorText.visible = true;
 					}
 				}
@@ -80,7 +98,7 @@ Window {
 				Layout.fillWidth: true
 				Layout.fillHeight: true
 
-				model: startupWindow.startupWindowData ? startupWindow.startupWindowData.recentProjectList : []
+				model: startupWindow.projectManagerService ? startupWindow.projectManagerService.recentProjectList : []
 
 				delegate: Item {
 					id: recentProjectItem
@@ -188,10 +206,10 @@ Window {
 				Button {
 					text: "Create Project"
 					onClicked: {
-						if (startupWindow.startupWindowData) {
-							const res = startupWindow.startupWindowData.createProject(newProjectLayout.projectPath + "/" + newProjectLayout.projectName + ".asterindesproj")
+						if (startupWindow.projectManagerService) {
+							const res = startupWindow.projectManagerService.createProject(newProjectLayout.projectPath + "/" + newProjectLayout.projectName + ".asterindesproj")
 							if (!res) {
-								errorText.text = startupWindow.startupWindowData.errorString;
+								errorText.text = startupWindow.projectManagerService.errorString;
 								errorText.visible = true;
 							}
 						}

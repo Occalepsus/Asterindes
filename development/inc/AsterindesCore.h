@@ -21,6 +21,8 @@ namespace Asterindes
 	 */
 	class AsterindesCore : public QGuiApplication
 	{
+		Q_OBJECT;
+
 	public:
 
 		/**
@@ -44,27 +46,20 @@ namespace Asterindes
 		bool start();
 
 		/**
-		 * Opens the startup window.
-		 *
-		 * @return true if the startup window was opened successfully, false otherwise.
+		 * Opens and shows the startup window.
 		 */
-		inline bool openStartupWindow() { m_startupWindow->setWindowVisible(true); return true; }
+		inline void showStartupWindow() { m_startupWindow->showStartupWindow(); }
 
 		/**
 		 * Opens a project from the given file path, if the project is already open it will just focus the project window.
 		 * Creates a new file if if does not exist, and loads the project data into the project managers.
+		 * NOTE: If the project is already open, it will not be reloaded, and the existing project window will be focused instead.
 		 * 
 		 * @param p_projectPath The path of the project to open, it should be a local file path pointing to a valid project file.
 		 * 
-		 * @return true if the project was loaded successfully, false otherwise.
+		 * @return true if the project was loaded successfully, or if the project was already open, false otherwise.
 		 */
 		bool openProject(const QUrl& p_projectPath);
-
-	public slots:
-		/**
-		 * Slot called by a project when it requests to be closed, it will destroy the project and exit the application if there are no more projects open.
-		 */
-		void onProjectCloseResquested(AsterindesProject* p_project);
 
 	private:
 
@@ -87,16 +82,16 @@ namespace Asterindes
 		ProjectManagerService* m_projectManagerService{ new ProjectManagerService(this) };
 
 		/**
+		 * The startup window instance, used to display the initial UI when no projects are open. It is created when the application starts and destroyed when the first project is opened.
+		 */
+		Ui::StartupWindow* m_startupWindow{ new Ui::StartupWindow(m_projectManagerService, this) };
+
+		/**
 		 * The map of project manager instances, each responsible for managing their project and its data. We ensure each project is only loaded once, so we can use the project file URL as the key to identify each project manager instance.
 		 * The key is the URL of the project file, and the value is a pointer to the corresponding AsterindesProject instance.
 		 */
 		// TODO: move to ProjectManagerService
 		QHash<QUrl, QPointer<AsterindesProject>> m_openedProjects;
-
-		/**
-		 * The startup window instance, used to display the initial UI when no projects are open. It is created when the application starts and destroyed when the first project is opened.
-		 */
-		Ui::StartupWindow* m_startupWindow{ new Ui::StartupWindow(m_projectManagerService, this) };
 
 		/**
 		 * The map of project window instances, each responsible for managing the UI and communicating with the other classes of the project. This mirrors the m_openedProjects map, ensuring each project has a corresponding window instance.
@@ -105,18 +100,16 @@ namespace Asterindes
 		QHash<QUrl, QPointer<Ui::ProjectWindow>> m_openedProjectWindows;
 
 		/**
-		 * Saves the project location to the application settings.
-		 * 
-		 * @param pProjectPath The path of the project to save, it should be a local file path pointing to a valid project file.
+		 * Checks if the application should close, it will close the application if there are no more projects open and the startup window is not visible.
 		 */
-		void saveProjectLocation(const QString& pProjectPath) const;
+		void applicationShouldExit();
+
+	private slots:
 
 		/**
-		 * Loads the project location from the application settings.
-		 * 
-		 * @return The path of the last opened project, it should be a local file path pointing to a valid project file.
+		 * Slot called by a project when it requests to be closed, it will destroy the project and exit the application if there are no more projects open.
 		 */
-		QString getLastProjectLocation() const;
+		void onProjectCloseRequested(AsterindesProject* p_project);
 	};
 }
 

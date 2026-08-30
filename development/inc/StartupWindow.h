@@ -24,10 +24,6 @@ namespace Asterindes::Ui
 
 		Q_PROPERTY(bool visible READ isVisible NOTIFY isVisibleChanged);
 
-		Q_PROPERTY(QString errorString READ getErrorString NOTIFY errorStringChanged);
-
-		Q_PROPERTY(QList<QUrl> recentProjectList READ getRecentProjectList NOTIFY recentProjectListChanged);
-
 	public:
 
 		/**
@@ -51,41 +47,23 @@ namespace Asterindes::Ui
 		bool isVisible() const { return m_isVisible; };
 
 		/**
-		 * Sets the visibility of the startup window.
-		 * 
-		 * @param p_visible True to show the startup window, false to hide it.
+		 * Shows the startup window, it will load the QML file and display the window.
 		 */
-		void setWindowVisible(bool p_visible);
+		void showStartupWindow();
 
 		/**
-		 * Returns the error string containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
+		 * Hides the startup window.
 		 */
-		QString getErrorString() const { return m_projectManagerService ? m_projectManagerService->getErrorString() : QString(); };
+		Q_INVOKABLE void hideStartupWindow();
+
+	public slots:
 
 		/**
-		 * Returns the list of recent projects.
+		 * Slot called when a project is opened.
 		 *
-		 * @return The list of recent projects.
+		 * @param p_projectPath The path of the opened project.
 		 */
-		QList<QUrl> getRecentProjectList() const { return m_projectManagerService ? m_projectManagerService->getRecentProjectList() : QList<QUrl>(); };
-
-		/**
-		 * Creates a new project given its path, if the project already exists it will not be overwritten and the method will return false.
-		 * 
-		 * @param p_projectPath The path of the project to create, it should be a local file path where the project file will be created.
-		 * 
-		 * @param return true if the project was created successfully, false otherwise.
-		 */
-		Q_INVOKABLE bool createProject(const QUrl& p_projectPath);
-
-		/**
-		 * Opens a project given its path, if the project is already open it will just focus the project window.
-		 *
-		 * @param p_projectPath The path of the project to open, it should be a local file path pointing to a valid project file.
-		 * 
-		 * @return true if the project was opened successfully, false otherwise.
-		 */
-		Q_INVOKABLE bool openProject(const QUrl& p_projectPath);
+		void onProjectOpened(const QUrl& p_projectPath);
 
 	signals:
 
@@ -95,20 +73,6 @@ namespace Asterindes::Ui
 		 * @param p_visible the new visibility
 		 */
 		void isVisibleChanged(bool p_visible);
-
-		/**
-		 * Emitted when the error string changes.
-		 *
-		 * @param p_errorString The new error string.
-		 */
-		void errorStringChanged(const QString& p_errorString);
-
-		/**
-		 * Emitted when the list of recent projects changes.
-		 * 
-		 * @param p_recentProjectList The new list of recent projects.
-		 */
-		void recentProjectListChanged(const QList<QUrl>& p_recentProjectList);
 
 	private:
 

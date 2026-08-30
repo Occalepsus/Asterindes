@@ -33,7 +33,7 @@ bool SingleInstanceGuard::checkAndSendIfRunning(const QString& p_projectPath)
 	}
 	else
 	{
-		qInfo() << "Failed to connect to another instance: " << l_clientSocket.errorString() << ". Starting normally.";
+		qInfo() << "Could not connect to another instance: " << l_clientSocket.errorString() << ". Starting normally.";
 		return false;
 	}
 }
@@ -66,21 +66,21 @@ void SingleInstanceGuard::onNewConnection()
 		{
 			QString l_receivedProjectPath{ QString::fromUtf8(m_connectedSocket->readAll()) };
 		
-			// TODO: Multiple instances are not supported yet.
-			//if (l_receivedProjectPath == "none")
-			//{
-			//	if (m_coreApp)
-			//	{
-			//		m_coreApp->openStartupWindow();
-			//	}
-			//}
-			//else
-			//{
-			//	if (m_coreApp)
-			//	{
-			//		m_coreApp->openProject(QUrl::fromUserInput(l_receivedProjectPath));
-			//	}
-			//}
+			// If the received project path is "none", it means the other instance did not provide a project path, so we open the startup window.
+			if (l_receivedProjectPath == "none")
+			{
+				if (m_coreApp)
+				{
+					m_coreApp->showStartupWindow();
+				}
+			}
+			else
+			{
+				if (m_coreApp)
+				{
+					m_coreApp->openProject(QUrl::fromUserInput(l_receivedProjectPath));
+				}
+			}
 		}
 	);
 }

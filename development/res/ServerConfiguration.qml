@@ -80,7 +80,6 @@ Item {
 						background: Item {}
 
 						onClicked: {
-							console.log(projectWindow.serverConfiguration.getUsableIpAddress() + ":" + projectWindow.serverConfiguration.serverPort)
 							projectWindow.serverConfiguration.copyTextToClipboard(projectWindow.serverConfiguration.getUsableIpAddress() + ":" + projectWindow.serverConfiguration.serverPort)
 							statusArea.addressCopied = true
 						}

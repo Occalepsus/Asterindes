@@ -95,7 +95,7 @@ namespace Asterindes
 		 *
 		 * @return The last error string from the TCP server.
 		 */
-		QString getLastErrorString() const { return m_tcpServer->errorString(); }
+		QString getLastErrorString() const { return m_lastErrorString.isEmpty() ? m_tcpServer->errorString() : m_lastErrorString; }
 
 		/**
 		 * Gets the broadcasted resource url, empty means no resource is being broadcasted.
@@ -155,6 +155,11 @@ namespace Asterindes
 		 * The current state of the server.
 		 */
 		ServerState m_serverState{ ServerState::Stopped };
+
+		/**
+		 * The last startup error string.
+		 */
+		QString m_lastErrorString{};
 
 		/**
 		 * The TcpServer used to handle incoming HTTP connections.

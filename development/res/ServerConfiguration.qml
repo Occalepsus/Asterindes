@@ -5,6 +5,8 @@ import QtQuick.Controls
 Item {
 	id: serverConfigurationRoot
 	
+	property bool isServerRunning: projectWindow ? projectWindow.serverConfiguration.serverState.startsWith("Running") : false
+
 	MouseArea {
 		anchors.fill: parent
 
@@ -68,6 +70,7 @@ Item {
 					? projectWindow.serverConfiguration.getAvailableIpAddresses()
 					: ({})
 
+				enabled: !serverConfigurationRoot.isServerRunning
 				model: ["Unavailable"]
 
 				onIpAddressesChanged: {
@@ -101,6 +104,7 @@ Item {
 				text: projectWindow ? projectWindow.serverConfiguration.serverPort : "0"
 				color: acceptableInput ? "black" : "red"
 
+				enabled: !serverConfigurationRoot.isServerRunning
 				validator: IntValidator { bottom: 1; top: 65535; }
 
 				onEditingFinished: {
@@ -116,25 +120,21 @@ Item {
 				Layout.fillHeight: true
 			}
 
-			Button {
-				text: "Stop"
-			
-				onClicked: {
-					if (projectWindow) {
-						projectWindow.serverConfiguration.stopServer()
-					}
-				}
-			}
-
-			// Start server
+			// Start / Stop server
 			Button {
 				id: startServerButton
 
-				text: "start server"
+				Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+
+				text: serverConfigurationRoot.isServerRunning ? "⏹ Stop server" : "▶️ Start server"
 
 				onClicked: {
 					if (projectWindow) {
-						projectWindow.serverConfiguration.startServer()
+						if (serverConfigurationRoot.isServerRunning) {
+							projectWindow.serverConfiguration.stopServer()
+						} else {
+							projectWindow.serverConfiguration.startServer()
+						}
 					}
 				}
 			}

@@ -108,11 +108,6 @@ namespace Asterindes
 	signals:
 
 		/**
-		 * Signal emitted when the server host address has changed.
-		 */
-		void serverAddressChanged(const QHostAddress& p_hostAddress);
-
-		/**
 		 * Signal emitted when the server port has changed.
 		 */
 		void serverPortChanged(quint16 p_serverPort);

@@ -15,14 +15,12 @@ ServerConfigurationViewModel::ServerConfigurationViewModel(BroadcastServer* p_br
 	: QObject(p_parent)
 	, m_broadcastServer(p_broadcastServer)
 {
-	QObject::connect(m_broadcastServer, &BroadcastServer::serverAddressChanged, this, [this](const QHostAddress& p_hostAddress) { emit serverAddressChanged(p_hostAddress); });
 	QObject::connect(m_broadcastServer, &BroadcastServer::serverPortChanged, this, [this](quint16 p_serverPort) { emit serverPortChanged(p_serverPort); });
 	QObject::connect(m_broadcastServer, &BroadcastServer::serverStateChanged, this, [this](BroadcastServer::ServerState) { emit serverStateChanged(getServerState()); });
 }
 
 ServerConfigurationViewModel::~ServerConfigurationViewModel()
 {
-	QObject::disconnect(m_broadcastServer, &BroadcastServer::serverAddressChanged, this, nullptr);
 	QObject::disconnect(m_broadcastServer, &BroadcastServer::serverPortChanged, this, nullptr);
 	QObject::disconnect(m_broadcastServer, &BroadcastServer::serverStateChanged, this, nullptr);
 }

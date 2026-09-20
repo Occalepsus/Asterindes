@@ -128,8 +128,9 @@ namespace Asterindes
 
 		/**
 		 * The port number the HTTP and WebSocket servers will listen on.
+		 * Defaulting to 0, which is a bad port to force the application to set it before starting the server.
 		 */
-		quint16 m_serverPort{ msc_defaultServerPort };
+		quint16 m_serverPort{ 0 };
 
 		/**
 		 * The current state of the server.

@@ -68,6 +68,7 @@ bool AsterindesProject::loadProject()
 	if (!l_projectData.contains("server_port") || !l_projectData["server_port"].isDouble())
 	{
 		qWarning("Invalid project file format: missing 'server_port' value, using default port");
+		m_broadcastServer->setServerPort(BroadcastServer::msc_defaultServerPort);
 	}
 	else
 	{

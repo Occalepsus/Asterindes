@@ -5,6 +5,7 @@
 #include "ProjectViewModel.h"
 #include "ResourcesViewModel.h"
 #include "QmlDynamicLoader.h"
+#include "ServerConfigurationViewModel.h"
 
 // Qt
 #include <QQmlApplicationEngine>
@@ -29,12 +30,17 @@ namespace Asterindes::Ui
 		/**
 		 * Exposes the project ViewModel to QML for data binding and UI interaction.
 		 */
-		Q_PROPERTY(ProjectViewModel* projectViewModel READ projectViewModel CONSTANT)
+		Q_PROPERTY(ProjectViewModel* projectViewModel READ projectViewModel CONSTANT);
 
 		/**
 		 * Exposes the resources ViewModel to QML for data binding and UI interaction.
 		 */
-		Q_PROPERTY(ResourcesViewModel* resourcesViewModel READ resourcesViewModel CONSTANT)
+		Q_PROPERTY(ResourcesViewModel* resourcesViewModel READ resourcesViewModel CONSTANT);
+
+		/**
+		 * Exposes the server configuration ViewModel to QML for data binding and UI interaction.
+		 */
+		Q_PROPERTY(ServerConfigurationViewModel* serverConfiguration READ serverConfiguration CONSTANT);
 
 	public:
 		/**
@@ -70,6 +76,13 @@ namespace Asterindes::Ui
 		 * @return Pointer to the ResourcesViewModel.
 		 */
 		inline ResourcesViewModel* resourcesViewModel() const { return m_resourcesViewModel; }
+		
+		/**
+		 * Gets the server configuration ViewModel, it is used to access the server configuration data and operations from QML.
+		 *
+		 * @return Pointer to the ServerConfigurationViewModel.
+		 */
+		inline ServerConfigurationViewModel* serverConfiguration() const { return m_serverConfigurationViewModel; }
 
 		/**
 		 * Shows the startup window, it is used to display the startup window when no project is opened or when the user wants to return to the startup window.
@@ -108,6 +121,11 @@ namespace Asterindes::Ui
 		 * Resource ViewModel exposed to QML for data binding and UI interaction.
 		 */
 		ResourcesViewModel* m_resourcesViewModel;
+
+		/**
+		 * The server configuration Viewmodel
+		 */
+		ServerConfigurationViewModel* m_serverConfigurationViewModel;
 
 		/**
 		 * The ProjectManagerService instance used to manage the projects of the application.

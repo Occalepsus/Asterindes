@@ -128,5 +128,24 @@ ApplicationWindow {
 		}
 	}
 
-	footer: AsterindesMenuBar {}
+	Window {
+		id: serverConfigurationDialog
+
+		minimumWidth: 300
+		minimumHeight: 300
+
+		title: "Server Configuration"
+		modality: Qt.WindowModal
+		flags: Qt.Dialog
+
+		ServerConfiguration {
+			anchors.fill: parent
+		}
+	}
+
+	footer: AsterindesMenuBar {
+		onServerConfigurationClicked: {
+			serverConfigurationDialog.show()
+		}
+	}
 }

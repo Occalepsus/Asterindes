@@ -19,6 +19,7 @@ ProjectWindow::ProjectWindow(AsterindesProject* p_project, AsterindesCore* p_cor
 	// Create ViewModels which connects to their respective models internally
 	, m_projectViewModel(new ProjectViewModel(p_project, this))
 	, m_resourcesViewModel(new ResourcesViewModel(p_project->getResourceRegistry(), this))
+	, m_serverConfigurationViewModel(new ServerConfigurationViewModel(p_project->getBroadcastServer(), this))
 	, m_projectManagerService(p_projectManagerService)
 {
 }

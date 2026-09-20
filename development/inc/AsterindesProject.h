@@ -4,6 +4,7 @@
 // Asterindes
 #include "ResourceRegistry.h"
 #include "ResourceBroadcastManager.h"
+#include "BroadcastServer.h"
 
 // Qt
 #include <QObject>
@@ -45,6 +46,12 @@ namespace Asterindes
 		 * This reference is valid as long as the AsterindesProject instance is alive.
 		 */
 		inline ResourceRegistry* getResourceRegistry() { return m_resourcesRegistry; }
+
+		/**
+		 * Gets the BroadcastServer instance responsible for handling the HTTP server and sending resources updates to the clients via websockets.
+		 * This reference is valid as long as the AsterindesProject instance is alive.
+		 */
+		inline BroadcastServer* getBroadcastServer() { return m_broadcastServer; }
 
 		/**
 		 * Gets the resource broadcast manager of the project, it is responsible for managing the resources and broadcasting them to the clients via the BroadcastServer.
@@ -98,6 +105,11 @@ namespace Asterindes
 		 * The resources registry of the project, it keeps track of all the resources in the project and provides methods to manage them.
 		 */
 		ResourceRegistry* m_resourcesRegistry{ new ResourceRegistry(this) };
+
+		/**
+		 * The BroadcastServer instance responsible for handling the HTTP server and sending resources updates to the clients via websockets.
+		 */
+		BroadcastServer* m_broadcastServer{ new BroadcastServer(this) };
 
 		/**
 		 * The resource broadcast manager of the project, it is responsible for managing the resources and broadcasting them to the clients via the BroadcastServer.

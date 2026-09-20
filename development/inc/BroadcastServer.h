@@ -20,6 +20,21 @@ namespace Asterindes
 	public:
 
 		/**
+		 * The state of the server.
+		 */
+		enum class ServerState : char
+		{
+			Stopped,
+			Running,
+			Error
+		};
+
+		/**
+		 * The default port number the HTTP and WebSocket servers will listen on.
+		 */
+		static constexpr quint16 msc_defaultServerPort{ 8080 };
+
+		/**
 		 * Default constructor.
 		 * 
 		 * @param p_parent Parent QObject.
@@ -32,26 +47,11 @@ namespace Asterindes
 		~BroadcastServer() final;
 
 		/**
-		 * Gets the host address the HTTP and WebSocket servers will bind to.
-		 *
-		 * @return The host address the HTTP and WebSocket servers will bind to.
-		 */
-		QHostAddress getHostAddress() const { return m_hostAddress; }
-
-		/**
-		 * Sets the host address the HTTP and WebSocket servers will bind to.
-		 * Note: The server must be restarted for the changes to take effect.
-		 *
-		 * @param p_hostAddress The host address the HTTP and WebSocket servers will bind to.
-		 */
-		void setHostAddress(const QHostAddress& p_hostAddress);
-
-		/**
 		 * Gets the port number the HTTP and WebSocket servers will listen on.
 		 *
 		 * @return The port number the HTTP and WebSocket servers will listen on.
 		 */
-		qint16 getServerPort() const { return m_serverPort; }
+		quint16 getServerPort() const { return m_serverPort; }
 
 		/**
 		 * Sets the port number the HTTP and WebSocket servers will listen on.
@@ -59,7 +59,7 @@ namespace Asterindes
 		 *
 		 * @param p_serverPort The port number the HTTP and WebSocket servers will listen on.
 		 */
-		void setServerPort(qint16 p_serverPort);
+		void setServerPort(quint16 p_serverPort);
 
 		/**
 		 * Starts the HTTP and WebSocket servers, if they are not already running.
@@ -72,6 +72,20 @@ namespace Asterindes
 		 * Stops the HTTP and WebSocket servers, if they are running.
 		 */
 		void stop();
+
+		/**
+		 * Gets the current state of the server.
+		 *
+		 * @return The current state of the server.
+		 */
+		ServerState getServerState() const { return m_serverState; }
+		
+		/**
+		 * Gets the last error string from the TCP server.
+		 *
+		 * @return The last error string from the TCP server.
+		 */
+		QString getLastErrorString() const { return m_lastErrorString.isEmpty() ? m_tcpServer->errorString() : m_lastErrorString; }
 
 		/**
 		 * Gets the broadcasted resource url, empty means no resource is being broadcasted.
@@ -96,17 +110,37 @@ namespace Asterindes
 		 */
 		QHttpServerResponse getBroadcastResourceResponse(bool p_withoutContent) const;
 
-	private:
-		
+	signals:
+
 		/**
-		 * The host address the HTTP and WebSocket servers will bind to. QHostAddress::Any for all interfaces.
+		 * Signal emitted when the server port has changed.
 		 */
-		QHostAddress m_hostAddress{ QHostAddress::Any };
+		void serverPortChanged(quint16 p_serverPort);
+
+		/**
+		 * Signal emitted when the server state has changed.
+		 * 
+		 * @param p_serverState The new server state
+		 */
+		void serverStateChanged(ServerState p_serverState);
+
+	private:
 
 		/**
 		 * The port number the HTTP and WebSocket servers will listen on.
+		 * Defaulting to 0, which is a bad port to force the application to set it before starting the server.
 		 */
-		qint16 m_serverPort{ 8080 };
+		quint16 m_serverPort{ 0 };
+
+		/**
+		 * The current state of the server.
+		 */
+		ServerState m_serverState{ ServerState::Stopped };
+
+		/**
+		 * The last startup error string.
+		 */
+		QString m_lastErrorString{};
 
 		/**
 		 * The TcpServer used to handle incoming HTTP connections.
@@ -127,6 +161,13 @@ namespace Asterindes
 		 * The broadcasted resource url, empty means no resource is being broadcasted.
 		 */
 		QUrl m_broadcastResourceUrl{};
+
+		/**
+		 * Sets the current state of the server.
+		 *
+		 * @param p_serverState The new state of the server.
+		 */
+		void setServerState(ServerState p_serverState);
 
 		/**
 		 * Notifies all connected clients that the broadcast resource has changed.

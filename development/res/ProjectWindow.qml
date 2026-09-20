@@ -128,5 +128,25 @@ ApplicationWindow {
 		}
 	}
 
-	footer: AsterindesMenuBar {}
+	// Popup to configure the server port
+	Window {
+		id: serverConfigurationDialog
+
+		minimumWidth: 250
+		minimumHeight: 100
+
+		title: "Server Configuration"
+		modality: Qt.WindowModal
+		flags: Qt.Dialog
+
+		ServerConfiguration {
+			anchors.fill: parent
+		}
+	}
+
+	footer: AsterindesMenuBar {
+		onServerConfigurationClicked: {
+			serverConfigurationDialog.show()
+		}
+	}
 }

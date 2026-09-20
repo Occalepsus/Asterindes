@@ -2,14 +2,17 @@
 
 // Asterindes
 #include "AsterindesProject.h"
+#include "BroadcastServer.h"
 
 using namespace Asterindes;
 
 ResourceBroadcastManager::ResourceBroadcastManager(AsterindesProject* p_parent)
 	: QObject(p_parent)
 	, m_resourceRegistry(p_parent ? p_parent->getResourceRegistry() : nullptr)
+	, m_broadcastServer(p_parent ? p_parent->getBroadcastServer() : nullptr)
 {
-	m_broadcastServer->start();
+	Q_ASSERT(m_resourceRegistry);
+	Q_ASSERT(m_broadcastServer);
 }
 
 void ResourceBroadcastManager::setBroadcastedResource(const ResourceRegistry::Resource& p_resource)

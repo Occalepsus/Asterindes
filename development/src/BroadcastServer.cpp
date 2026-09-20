@@ -68,7 +68,7 @@ void BroadcastServer::setHostAddress(const QHostAddress& p_hostAddress)
 	}
 }
 
-void BroadcastServer::setServerPort(qint16 p_serverPort)
+void BroadcastServer::setServerPort(quint16 p_serverPort)
 {
 	if (p_serverPort != m_serverPort)
 	{
@@ -78,12 +78,18 @@ void BroadcastServer::setServerPort(qint16 p_serverPort)
 
 bool BroadcastServer::start()
 {
+	if (m_serverState == ServerState::Running)
+	{
+		stop();
+	}
+
 	bool l_success{
 		m_tcpServer->listen(m_hostAddress, m_serverPort)
 	&&	m_httpServer->bind(m_tcpServer) };
 
 	qInfo("Broadcast server started on %s:%d", qPrintable(m_hostAddress.toString()), m_serverPort);
-
+	
+	setServerState(l_success ? ServerState::Running : ServerState::Error);
 	return l_success;
 }
 
@@ -99,6 +105,8 @@ void BroadcastServer::stop()
 	{
 		m_tcpServer->close();
 	}
+
+	setServerState(ServerState::Stopped);
 }
 
 void BroadcastServer::setBroadcastResourceUrl(const QUrl& p_broadcastResourceUrl)
@@ -144,6 +152,22 @@ QHttpServerResponse BroadcastServer::getBroadcastResourceResponse(bool p_without
 		l_response.setHeaders(l_headers);
 
 		return l_response;
+	}
+}
+
+void BroadcastServer::setServerState(ServerState p_serverState)
+{
+	if (p_serverState != m_serverState)
+	{
+		m_serverState = p_serverState;
+
+		emit serverStateChanged(m_serverState);
+	}
+
+	// Always emit the signal when the server is in error state, even if the state has not changed.
+	else if (p_serverState == ServerState::Error)
+	{
+		emit serverStateChanged(m_serverState);
 	}
 }
 

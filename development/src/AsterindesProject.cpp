@@ -2,6 +2,7 @@
 
 // Asterindes
 #include "AsterindesCore.h"
+#include "BroadcastServer.h"
 
 // Qt
 #include <QFile> // Used for file reading

@@ -3,7 +3,6 @@
 
 // Asterindes
 #include "ResourceRegistry.h"
-#include "BroadcastServer.h"
 
 // Qt
 #include <QPointer>
@@ -11,6 +10,7 @@
 namespace Asterindes
 {
 	class AsterindesProject;
+	class BroadcastServer;
 
 	/**
 	 * The ResourceBroadcastManager class is responsible for managing the resources that are broadcasted to the clients via the BroadcastServer.
@@ -70,7 +70,7 @@ namespace Asterindes
 		/**
 		 * A pointer to the resource registry, used to look for resources by their URL when setting the broadcasted resource.
 		 */
-		QPointer<ResourceRegistry> m_resourceRegistry;
+		QPointer<ResourceRegistry> m_resourceRegistry{ nullptr };
 
 		/**
 		 * The resource that is currently being broadcasted, empty means nothing is being broadcasted.
@@ -80,7 +80,7 @@ namespace Asterindes
 		/**
 		 * The BroadcastServer instance responsible for handling the HTTP server and sending resources updates to the clients via websockets.
 		 */
-		BroadcastServer* m_broadcastServer{ new BroadcastServer(this) };
+		QPointer<BroadcastServer> m_broadcastServer{ nullptr };
 	};
 }
 

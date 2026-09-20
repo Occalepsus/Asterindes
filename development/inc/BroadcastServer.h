@@ -30,6 +30,11 @@ namespace Asterindes
 		};
 
 		/**
+		 * The default port number the HTTP and WebSocket servers will listen on.
+		 */
+		static constexpr quint16 msc_defaultServerPort{ 8080 };
+
+		/**
 		 * Default constructor.
 		 * 
 		 * @param p_parent Parent QObject.
@@ -124,7 +129,7 @@ namespace Asterindes
 		/**
 		 * The port number the HTTP and WebSocket servers will listen on.
 		 */
-		quint16 m_serverPort{ 8080 };
+		quint16 m_serverPort{ msc_defaultServerPort };
 
 		/**
 		 * The current state of the server.

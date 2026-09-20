@@ -140,6 +140,7 @@ void BroadcastServer::setServerPort(quint16 p_serverPort)
 	if (p_serverPort != m_serverPort)
 	{
 		m_serverPort = p_serverPort;
+		emit serverPortChanged(m_serverPort);
 	}
 }
 

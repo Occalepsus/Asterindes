@@ -24,6 +24,7 @@ Item {
 				id: statusArea
 
 				readonly property int margins: 5
+				property bool addressCopied: false
 
 				Layout.fillWidth: true
 				implicitHeight: statusText.implicitHeight + 2 * margins
@@ -31,6 +32,9 @@ Item {
 				Layout.margins: 3
 
 				function getStatusColor(p_lightColor) {
+					// Dirty but easy to do: since this is called whenever serverState is changed, that means that the copied text status is not anymore true
+					addressCopied = false
+
 					const state = projectWindow ? projectWindow.serverConfiguration.serverState : "Error";
 					
 					if (state.startsWith("Stopped")) {
@@ -49,69 +53,73 @@ Item {
 				border.color: getStatusColor(false)
 				radius: margins
 
-				Text {
-					id: statusText
-			
+				Item {
 					anchors.fill: parent
-					anchors.margins: statusArea.margins
+
+					Text {
+						id: statusText
+			
+						anchors.left: parent.left
+						anchors.margins: statusArea.margins
+						anchors.verticalCenter: parent.verticalCenter
 					
-					text: projectWindow ? projectWindow.serverConfiguration.serverState : "Error: no server"
-					elide: Qt.ElideRight
+						text: projectWindow ? projectWindow.serverConfiguration.serverState : "Error: no server"
+						elide: Qt.ElideRight
+					}
+
+					Button {
+						id: copyAddressButton
+						
+						anchors.left: statusText.right
+						anchors.margins: statusArea.margins
+
+						visible: serverConfigurationRoot.isServerRunning
+						hoverEnabled: true
+
+						text: statusArea.addressCopied ? "✅" : "📑"
+						background: Item {}
+
+						onClicked: {
+							console.log(projectWindow.serverConfiguration.getUsableIpAddress() + ":" + projectWindow.serverConfiguration.serverPort)
+							projectWindow.serverConfiguration.copyTextToClipboard(projectWindow.serverConfiguration.getUsableIpAddress() + ":" + projectWindow.serverConfiguration.serverPort)
+							statusArea.addressCopied = true
+						}
+
+						ToolTip.text: statusArea.addressCopied ? "Address copied!" : "Click to copy address"
+						ToolTip.visible: hovered
+						ToolTip.delay: 0
+					}
 				}
 			}
-
-			// Configuration : ip address
-			ComboBox {
-				id: ipAddressInput
-
+			
+			// Configuration : port
+			RowLayout {
 				Layout.fillWidth: true
 
-				readonly property var ipAddresses: projectWindow
-					? projectWindow.serverConfiguration.getAvailableIpAddresses()
-					: ({})
+				Layout.margins: 3
 
-				enabled: !serverConfigurationRoot.isServerRunning
-				model: ["Unavailable"]
-
-				onIpAddressesChanged: {
-					const l_keys = Object.keys(ipAddresses || {})
-					l_keys.sort()
-					ipAddressInput.model = l_keys.length > 0 ? l_keys : ["Unavailable"]
-					
-					if (projectWindow) {
-						const l_address = projectWindow.serverConfiguration.serverAddress
-						l_keys.forEach((key) => {
-							if (key.includes(l_address)) {
-								currentValue = key;
-							}
-						})
-					}
+				Label {
+					text: "Port:"
 				}
 
-				onActivated: {
-					if (projectWindow && ipAddresses[currentText] !== undefined) {
-						projectWindow.serverConfiguration.serverAddress = ipAddresses[currentText]
+				// Port input
+				TextField {
+					id: portInput
+
+					placeholderText: "8080"
+
+					text: projectWindow ? projectWindow.serverConfiguration.serverPort : "0"
+					color: acceptableInput ? "black" : "red"
+
+					enabled: !serverConfigurationRoot.isServerRunning
+					validator: IntValidator { bottom: 1; top: 65535; }
+
+					onEditingFinished: {
+						if (projectWindow) {
+							projectWindow.serverConfiguration.serverPort = text
+						}
+						parent.forceActiveFocus()
 					}
-				}
-			}
-
-			// Configuration : port
-			TextField {
-				id: portInput
-
-				placeholderText: "8080"
-
-				text: projectWindow ? projectWindow.serverConfiguration.serverPort : "0"
-				color: acceptableInput ? "black" : "red"
-
-				enabled: !serverConfigurationRoot.isServerRunning
-				validator: IntValidator { bottom: 1; top: 65535; }
-
-				onEditingFinished: {
-					if (projectWindow) {
-						projectWindow.serverConfiguration.serverPort = text
-					}
-					parent.forceActiveFocus()
 				}
 			}
 
@@ -125,6 +133,8 @@ Item {
 				id: startServerButton
 
 				Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+
+				Layout.margins: 3
 
 				text: serverConfigurationRoot.isServerRunning ? "⏹ Stop server" : "▶️ Start server"
 

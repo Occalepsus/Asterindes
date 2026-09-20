@@ -42,21 +42,6 @@ namespace Asterindes
 		~BroadcastServer() final;
 
 		/**
-		 * Gets the host address the HTTP and WebSocket servers will bind to.
-		 *
-		 * @return The host address the HTTP and WebSocket servers will bind to.
-		 */
-		QHostAddress getHostAddress() const { return m_hostAddress; }
-
-		/**
-		 * Sets the host address the HTTP and WebSocket servers will bind to.
-		 * Note: The server must be restarted for the changes to take effect.
-		 *
-		 * @param p_hostAddress The host address the HTTP and WebSocket servers will bind to.
-		 */
-		void setHostAddress(const QHostAddress& p_hostAddress);
-
-		/**
 		 * Gets the port number the HTTP and WebSocket servers will listen on.
 		 *
 		 * @return The port number the HTTP and WebSocket servers will listen on.
@@ -140,11 +125,6 @@ namespace Asterindes
 		void serverStateChanged(ServerState p_serverState);
 
 	private:
-
-		/**
-		 * The host address the HTTP and WebSocket servers will bind to. QHostAddress::Any for all interfaces.
-		 */
-		QHostAddress m_hostAddress{ QHostAddress::Any };
 
 		/**
 		 * The port number the HTTP and WebSocket servers will listen on.

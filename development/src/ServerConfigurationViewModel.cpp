@@ -4,6 +4,8 @@
 #include "BroadcastServer.h"
 
 // Qt
+#include <QClipboard>
+#include <QGuiApplication>
 #include <QNetworkInterface>
 
 using namespace Asterindes;
@@ -25,22 +27,46 @@ ServerConfigurationViewModel::~ServerConfigurationViewModel()
 	QObject::disconnect(m_broadcastServer, &BroadcastServer::serverStateChanged, this, nullptr);
 }
 
-QHash<QString, QVariant> ServerConfigurationViewModel::getAvailableIpAddresses() const
+QString ServerConfigurationViewModel::getUsableIpAddress() const
 {
-	QHash<QString, QVariant> l_ipAddresses{ {"All interfaces (0.0.0.0)", QVariant("0.0.0.0")}};
+	QHostAddress l_usableIpAddress{ QHostAddress::AnyIPv4 };
 
 	for (const QNetworkInterface& l_interface : QNetworkInterface::allInterfaces())
 	{
+		// Break the loop if a usable IP address has been found
+		if (l_usableIpAddress != QHostAddress::AnyIPv4)
+		{
+			break;
+		}
+
+		if (l_interface.flags().testFlag(QNetworkInterface::IsLoopBack)
+			|| !l_interface.flags().testFlag(QNetworkInterface::IsUp))
+		{
+			continue;
+		}
+
 		for (const QNetworkAddressEntry& l_entry : l_interface.addressEntries())
 		{
-			if (l_entry.ip().protocol() == QAbstractSocket::IPv4Protocol)
+			if (QHostAddress l_ipAddress{ l_entry.ip() };
+				l_ipAddress.protocol() == QAbstractSocket::IPv4Protocol && l_ipAddress != QHostAddress::AnyIPv4 && l_ipAddress != QHostAddress::LocalHost)
 			{
-				l_ipAddresses.insert(QString("%1 (%2)").arg(l_interface.humanReadableName()).arg(l_entry.ip().toString()), l_entry.ip().toString());
+				l_usableIpAddress = l_ipAddress;
 			}
 		}
 	}
 
-	return l_ipAddresses;
+	// If no usable IP address was found, use the localhost address
+	if (l_usableIpAddress == QHostAddress::AnyIPv4)
+	{
+		l_usableIpAddress = QHostAddress::LocalHost;
+	}
+
+	return l_usableIpAddress.toString();
+}
+
+void ServerConfigurationViewModel::copyTextToClipboard(const QString& p_text) const
+{
+	QGuiApplication::clipboard()->setText(p_text);
 }
 
 QString ServerConfigurationViewModel::getServerState() const
@@ -52,7 +78,7 @@ QString ServerConfigurationViewModel::getServerState() const
 		switch (m_broadcastServer->getServerState())
 		{
 		case BroadcastServer::ServerState::Running:
-			l_stateString = QString("Running on %1:%2").arg(m_broadcastServer->getHostAddress().toString()).arg(m_broadcastServer->getServerPort());
+			l_stateString = QString("Running on %1:%2").arg(getUsableIpAddress()).arg(m_broadcastServer->getServerPort());
 			break;
 		case BroadcastServer::ServerState::Stopped:
 			l_stateString = "Stopped";

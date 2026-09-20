@@ -19,11 +19,6 @@ namespace Asterindes::Ui
 		Q_DISABLE_COPY_MOVE(ServerConfigurationViewModel);
 
 		/**
-		 * The host address the Broadcast server will bind to. QHostAddress::Any for all interfaces.
-		 */
-		Q_PROPERTY(QString serverAddress READ getServerAddress WRITE setServerAddress NOTIFY serverAddressChanged);
-
-		/**
 		 * The port number the Broadcast server will listen on.
 		 */
 		Q_PROPERTY(quint16 serverPort READ getServerPort WRITE setServerPort NOTIFY serverPortChanged);
@@ -49,27 +44,18 @@ namespace Asterindes::Ui
 		~ServerConfigurationViewModel() override;
 
 		/**
-		 * Gets the available IP addresses on the host machine.
+		 * Gets a usable IP address on the host machine, such as the WiFi interface IP address, or localhost if none is found.
 		 *
-		 * @return A QHash of available IP addresses, where the key is the interface name and the value is the IP address.
+		 * @return A usable IP address as a QString.
 		 */
-		Q_INVOKABLE QHash<QString, QVariant> getAvailableIpAddresses() const;
+		Q_INVOKABLE QString getUsableIpAddress() const;
 
 		/**
-		 * Sets the host address the Broadcast server will bind to.
-		 * Note: The server must be restarted for the changes to take effect.
+		 * Copies text to the system clipboard.
 		 *
-		 * @param p_hostAddress The host address the Broadcast server will bind to.
+		 * @param p_text The text to copy.
 		 */
-		inline QString getServerAddress() const { return m_broadcastServer ? m_broadcastServer->getHostAddress().toString() : "Unknown"; }
-
-		/**
-		 * Sets the host address the Broadcast server will bind to.
-		 * Note: The server must be restarted for the changes to take effect.
-		 *
-		 * @param p_hostAddress The host address the Broadcast server will bind to.
-		 */
-		inline void setServerAddress(const QString& p_hostAddress) { if (m_broadcastServer) m_broadcastServer->setHostAddress(QHostAddress(p_hostAddress)); }
+		Q_INVOKABLE void copyTextToClipboard(const QString& p_text) const;
 
 		/**
 		 * Sets the server port the Broadcast server will listen on.

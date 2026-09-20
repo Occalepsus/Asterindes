@@ -128,11 +128,12 @@ ApplicationWindow {
 		}
 	}
 
+	// Popup to configure the server port
 	Window {
 		id: serverConfigurationDialog
 
-		minimumWidth: 300
-		minimumHeight: 300
+		minimumWidth: 250
+		minimumHeight: 100
 
 		title: "Server Configuration"
 		modality: Qt.WindowModal

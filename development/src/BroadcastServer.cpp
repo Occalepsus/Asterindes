@@ -135,14 +135,6 @@ BroadcastServer::~BroadcastServer()
 	stop();
 }
 
-void BroadcastServer::setHostAddress(const QHostAddress& p_hostAddress)
-{
-	if (p_hostAddress != m_hostAddress)
-	{
-		m_hostAddress = p_hostAddress;
-	}
-}
-
 void BroadcastServer::setServerPort(quint16 p_serverPort)
 {
 	if (p_serverPort != m_serverPort)
@@ -162,13 +154,13 @@ bool BroadcastServer::start()
 
 	bool l_success{ true };
 
-	if (isTcpPortAlreadyInUse(m_hostAddress, m_serverPort))
+	if (isTcpPortAlreadyInUse(QHostAddress::Any, m_serverPort))
 	{
 		l_success = false;
-		m_lastErrorString = QString("Port %1 is already in use on %2.").arg(m_serverPort).arg(m_hostAddress.toString());
+		m_lastErrorString = QString("Port %1 is already in use.").arg(m_serverPort);
 	}
 
-	if (l_success && !m_tcpServer->listen(m_hostAddress, m_serverPort))
+	if (l_success && !m_tcpServer->listen(QHostAddress::AnyIPv4, m_serverPort))
 	{
 		l_success = false;
 		m_lastErrorString = m_tcpServer->errorString();
@@ -188,13 +180,13 @@ bool BroadcastServer::start()
 
 	if (l_success)
 	{
-		qInfo("Broadcast server started on %s:%d", qPrintable(m_hostAddress.toString()), m_serverPort);
+		qInfo("Broadcast server started on port %d", m_serverPort);
 		setServerState(ServerState::Running);
 	}
 	else
 	{
-		qCritical("Broadcast server failed to start on %s:%d - Error: %s",
-			qPrintable(m_hostAddress.toString()), m_serverPort,
+		qCritical("Broadcast server failed to start on port %d - Error: %s",
+			m_serverPort,
 			qPrintable(m_lastErrorString));
 		setServerState(ServerState::Error);
 		m_tcpServer->close();

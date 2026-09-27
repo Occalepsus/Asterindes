@@ -7,7 +7,7 @@
 // Qt
 #include <QQmlContext>
 #include <QFileSystemWatcher>
-
+#include <QQuickWindow>
 #include <QDirIterator>
 
 using namespace Asterindes;

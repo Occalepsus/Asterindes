@@ -9,6 +9,7 @@
 // Qt
 #include <QObject>
 #include <QUrl>
+#include <QPointer>
 
 namespace Asterindes::Ui
 {

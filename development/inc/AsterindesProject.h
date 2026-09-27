@@ -7,9 +7,9 @@
 #include "BroadcastServer.h"
 
 // Qt
-#include <QObject>
-#include <QVariant>
-#include <QQmlEngine>
+class QObject;
+class QUrl;
+
 
 namespace Asterindes
 {

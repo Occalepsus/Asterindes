@@ -6,7 +6,6 @@
 
 // Qt
 #include <QAbstractListModel>
-#include <QQuickWindow>
 
 namespace Asterindes::Ui
 {

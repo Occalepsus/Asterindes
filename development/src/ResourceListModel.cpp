@@ -1,5 +1,8 @@
 #include "ResourceListModel.h"
 
+// Qt
+#include <qqml.h>
+
 using namespace Asterindes::Ui;
 
 ResourceListModel::ResourceListModel(QObject* p_parent)
@@ -44,7 +47,7 @@ void ResourceListModel::updateFromResourcesList(const QList<ResourceRegistry::Re
 	// Notify QML that we're about to insert new elements
 	beginResetModel();
 
-	m_displayedResources = p_resourceList;
+	m_displayedResources = p_resourceList; 
 
 	endResetModel();
 }

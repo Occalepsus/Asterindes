@@ -2,11 +2,9 @@
 #define RESOURCEREGISTRY_H
 
 // Qt
-#include <QAbstractListModel>
 #include <QString>
 #include <QUrl>
 #include <QJsonArray>
-#include <QJsonObject>
 
 // STL
 #include <utility>

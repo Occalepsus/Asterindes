@@ -4,10 +4,8 @@
 // Asterindes
 #include "SingleInstanceGuard.h"
 #include "ProjectManagerService.h"
-#include "AsterindesProject.h"
 
 // Asterindes UI
-#include "ProjectWindow.h"
 #include "StartupWindow.h"
 
 // Qt
@@ -15,6 +13,13 @@
 
 namespace Asterindes
 {
+	class AsterindesProject;
+
+	namespace Ui
+	{
+		class ProjectWindow;
+	}
+
 	/**
 	 * AsterindesCore is the main class of the Asterindes application.
 	 * It is responsible for initializing the application, managing global resources, and providing access to core functionalities.
@@ -102,7 +107,7 @@ namespace Asterindes
 		/**
 		 * Checks if the application should close, it will close the application if there are no more projects open and the startup window is not visible.
 		 */
-		void applicationShouldExit();
+		void applicationShouldExit() const;
 
 	private slots:
 

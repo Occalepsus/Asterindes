@@ -2,7 +2,6 @@
 #define STARTUPWINDOW_H
 
 // Asterindes
-#include "ProjectManagerService.h"
 
 // Asterindes UI
 
@@ -10,6 +9,10 @@
 #include <QObject>
 #include <QQmlApplicationEngine>
 
+namespace Asterindes
+{
+	class ProjectManagerService;
+}
 
 namespace Asterindes::Ui
 {

@@ -5,8 +5,11 @@
 
 // Qt
 #include <QObject>
-#include <QUrl>
 #include <QPointer>
+
+class QUrl;
+class QString;
+template<typename T> class QList;
 
 namespace Asterindes
 {

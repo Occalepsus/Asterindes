@@ -1,5 +1,8 @@
 #include "StartupWindow.h"
 
+// Asterindes
+#include "ProjectManagerService.h"
+
 // Qt
 #include <QQuickWindow>
 

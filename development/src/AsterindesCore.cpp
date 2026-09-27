@@ -1,5 +1,11 @@
 #include "AsterindesCore.h"
 
+// Asterindes
+#include "AsterindesProject.h"
+
+// Asterindes UI
+#include "ProjectWindow.h"
+
 // Qt
 #include <QSettings>
 #include <QDir>
@@ -75,7 +81,7 @@ bool AsterindesCore::openProject(const QUrl& p_projectPath)
 	}
 }
 
-void AsterindesCore::applicationShouldExit()
+void AsterindesCore::applicationShouldExit() const
 {
 	if (m_openedProjects.isEmpty() && !m_startupWindow->isVisible())
 	{

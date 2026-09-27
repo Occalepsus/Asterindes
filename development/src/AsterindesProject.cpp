@@ -8,6 +8,7 @@
 #include <QFile> // Used for file reading
 #include <QSaveFile> // Used for safe file writing
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QTimer>
 
 using namespace Asterindes;

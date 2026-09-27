@@ -5,6 +5,9 @@
 
 // Qt
 #include <QSettings>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QFile>
 
 using namespace Asterindes;

@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+import QtCore
 
 Item {
 	id: resourcesGridPanel
@@ -26,11 +27,20 @@ Item {
 
 	onPrefColCountChanged: {
 		realColCount = prefColCount
+		uiSettings.colCount = prefColCount
+		console.log(prefColCount)
 	}
 
 	onRealColCountChanged: {
 		if (realColCount < 1) realColCount = 1
 		updateGridItemSize()
+	}
+	
+	Settings {
+		id: uiSettings
+		category: "ResourceGridPanel"
+
+		property alias colCount: resourcesGridPanel.prefColCount
 	}
 
 	ColumnLayout {

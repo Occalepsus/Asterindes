@@ -4,8 +4,8 @@
 // Asterindes UI
 #include "ProjectViewModel.h"
 #include "ResourcesViewModel.h"
-#include "QmlDynamicLoader.h"
 #include "ServerConfigurationViewModel.h"
+#include "QmlDynamicLoader.h"
 
 // Qt
 #include <QQmlApplicationEngine>

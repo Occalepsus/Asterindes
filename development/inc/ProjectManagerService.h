@@ -5,8 +5,11 @@
 
 // Qt
 #include <QObject>
-#include <QUrl>
 #include <QPointer>
+
+class QUrl;
+class QString;
+template<typename T> class QList;
 
 namespace Asterindes
 {
@@ -28,7 +31,7 @@ namespace Asterindes
 		/**
 		 * The errorString containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
 		 */
-		Q_PROPERTY(QString errorString READ getErrorString NOTIFY errorStringChanged);
+		Q_PROPERTY(QString errorString READ getErrorString NOTIFY projectOpenError);
 
 	public:
 
@@ -88,11 +91,11 @@ namespace Asterindes
 		void recentProjectListChanged(const QList<QUrl>& p_recentProjectList);
 
 		/**
-		 * Emitted when the error string changes.
+		 * Emitted when a project is opening, it can be used to notify the application that a project is in the process of being opened.
 		 *
-		 * @param p_errorString The new error string.
+		 * @param p_projectPath The path of the project that is being opened.
 		 */
-		void errorStringChanged(const QString& p_errorString);
+		void projectOpening(const QUrl& p_projectPath);
 
 		/**
 		 * Emitted when a project is opened, it can be used to notify the application that a project has been opened and the startup window can be closed.
@@ -100,6 +103,13 @@ namespace Asterindes
 		 * @param p_projectPath The path of the project that was opened.
 		 */
 		void projectOpened(const QUrl& p_projectPath);
+
+		/**
+		 * Emitted when the project fails to open, it can be used to notify the application that a project failed to open and display an error message.
+		 *
+		 * @param p_errorString The new error string.
+		 */
+		void projectOpenError(const QString& p_errorString);
 
 	private:
 		
@@ -117,6 +127,17 @@ namespace Asterindes
 		 * The list of recent projects that will be updated and saved into registers
 		 */
 		QList<QUrl> m_recentProjectList{};
+
+		/**
+		 * Sets the error string containing the last encountered error, it is set when a method fails and can be used to get more information about the error.
+		 *
+		 * @param p_errorString The new error string.
+		 */
+		inline void setProjectOpenError(const QString& p_errorString)
+		{
+			m_errorString = p_errorString;
+			emit projectOpenError(m_errorString);
+		}
 
 		/**
 		 * Loads the list of recent projects, it reads the recent projects from the application settings.

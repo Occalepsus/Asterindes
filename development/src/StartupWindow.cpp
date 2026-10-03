@@ -1,5 +1,8 @@
 #include "StartupWindow.h"
 
+// Asterindes
+#include "ProjectManagerService.h"
+
 // Qt
 #include <QQuickWindow>
 
@@ -9,7 +12,9 @@ StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QOb
 	: QObject(p_parent)
 	, m_projectManagerService(p_projectManagerService)
 {
+	QObject::connect(m_projectManagerService, &ProjectManagerService::projectOpening, this, &StartupWindow::onProjectOpening);
 	QObject::connect(m_projectManagerService, &ProjectManagerService::projectOpened, this, &StartupWindow::onProjectOpened);
+	QObject::connect(m_projectManagerService, &ProjectManagerService::projectOpenError, this, &StartupWindow::onProjectOpenError);
 
 	m_startupQmlEngine->setInitialProperties({
 		{ "startupWindowData", QVariant::fromValue(this) },
@@ -25,11 +30,6 @@ StartupWindow::StartupWindow(ProjectManagerService* p_projectManagerService, QOb
 
 StartupWindow::~StartupWindow()
 {
-	// Close the startup window if it is still open
-	//if (QQuickWindow* l_window = qobject_cast<QQuickWindow*>(m_startupQmlEngine->rootObjects().first()); l_window) {
-	//	l_window->close();
-	//}
-
 	m_startupQmlEngine->deleteLater();
 }
 
@@ -56,7 +56,30 @@ void StartupWindow::hideStartupWindow()
 	}
 }
 
+QString StartupWindow::getProjectOpenErrorString() const
+{
+	if (m_projectManagerService)
+	{
+		return m_projectManagerService->getErrorString();
+	}
+	return QString();
+}
+
+void StartupWindow::onProjectOpening(const QUrl&)
+{
+	m_isLoading = true;
+	emit isLoadingChanged(m_isLoading);
+}
+
 void StartupWindow::onProjectOpened(const QUrl&)
 {
+	m_isLoading = false;
+	emit isLoadingChanged(m_isLoading);
 	hideStartupWindow();
+}
+
+void StartupWindow::onProjectOpenError(const QString& p_errorString)
+{
+	emit projectOpenErrorStringChanged(p_errorString);
+	showStartupWindow();
 }

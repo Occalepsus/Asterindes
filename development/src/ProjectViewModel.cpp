@@ -1,5 +1,13 @@
 #include "ProjectViewModel.h"
 
+// Asterindes
+#include "AsterindesProject.h"
+#include "ResourceBroadcastManager.h"
+
+// Qt
+#include <QUrl>
+#include <QPointer>
+
 using namespace Asterindes::Ui;
 
 ProjectViewModel::ProjectViewModel(QPointer<AsterindesProject> p_projectManager, QObject* p_parent)

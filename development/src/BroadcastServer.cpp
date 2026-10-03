@@ -5,79 +5,6 @@
 #include <QNetworkInterface>
 #include <QTcpSocket>
 
-namespace
-{
-	constexpr int s_portCheckTimeoutMs{ 100 };
-
-	QList<QHostAddress> getPortProbeAddresses(const QHostAddress& p_hostAddress)
-	{
-		QList<QHostAddress> l_addresses;
-
-		const auto l_appendAddress{ [&l_addresses](const QHostAddress& p_address)
-		{
-			if (!l_addresses.contains(p_address))
-			{
-				l_addresses.append(p_address);
-			}
-		} };
-
-		if (p_hostAddress == QHostAddress::Any || p_hostAddress == QHostAddress::AnyIPv4 || p_hostAddress == QHostAddress::AnyIPv6)
-		{
-			if (p_hostAddress != QHostAddress::AnyIPv6)
-			{
-				l_appendAddress(QHostAddress::LocalHost);
-			}
-
-			if (p_hostAddress != QHostAddress::AnyIPv4)
-			{
-				l_appendAddress(QHostAddress::LocalHostIPv6);
-			}
-
-			for (const QNetworkInterface& l_interface : QNetworkInterface::allInterfaces())
-			{
-				if (!l_interface.flags().testFlag(QNetworkInterface::IsUp))
-				{
-					continue;
-				}
-
-				for (const QNetworkAddressEntry& l_entry : l_interface.addressEntries())
-				{
-					const QHostAddress& l_address{ l_entry.ip() };
-
-					if ((p_hostAddress != QHostAddress::AnyIPv6 && l_address.protocol() == QAbstractSocket::IPv4Protocol)
-						|| (p_hostAddress != QHostAddress::AnyIPv4 && l_address.protocol() == QAbstractSocket::IPv6Protocol))
-					{
-						l_appendAddress(l_address);
-					}
-				}
-			}
-		}
-		else
-		{
-			l_appendAddress(p_hostAddress);
-		}
-
-		return l_addresses;
-	}
-
-	bool isTcpPortAlreadyInUse(const QHostAddress& p_hostAddress, quint16 p_serverPort)
-	{
-		for (const QHostAddress& l_address : getPortProbeAddresses(p_hostAddress))
-		{
-			QTcpSocket l_socket;
-			l_socket.connectToHost(l_address, p_serverPort);
-
-			if (l_socket.waitForConnected(s_portCheckTimeoutMs))
-			{
-				l_socket.disconnectFromHost();
-				return true;
-			}
-		}
-
-		return false;
-	}
-}
-
 using namespace Asterindes;
 
 BroadcastServer::BroadcastServer(QObject* p_parent)
@@ -154,12 +81,6 @@ bool BroadcastServer::start()
 	m_lastErrorString.clear();
 
 	bool l_success{ true };
-
-	if (isTcpPortAlreadyInUse(QHostAddress::Any, m_serverPort))
-	{
-		l_success = false;
-		m_lastErrorString = QString("Port %1 is already in use.").arg(m_serverPort);
-	}
 
 	if (l_success && !m_tcpServer->listen(QHostAddress::AnyIPv4, m_serverPort))
 	{

@@ -163,11 +163,11 @@ if(WIN32)
 		set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
 		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 			COMMAND_EXPAND_LISTS
-			COMMAND $<$<CONFIG:Release>:${WINDEPLOYQT}>
-					$<$<CONFIG:Release>:--no-translations>
-					$<$<CONFIG:Release>:--qmldir>
-					$<$<CONFIG:Release>:${ASTERINDES_QML_DIR}>
-					$<$<CONFIG:Release>:$<TARGET_FILE:${PROJECT_NAME}>>
+			COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${WINDEPLOYQT}>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--no-translations>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--qmldir>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${ASTERINDES_QML_DIR}>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:$<TARGET_FILE:${PROJECT_NAME}>>
 			COMMENT "Deploying Qt DLLs with windeployqt (Release only)"
 		)
 	endif()

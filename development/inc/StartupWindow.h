@@ -33,7 +33,7 @@ namespace Asterindes::Ui
 		/**
 		 * True if the startup window is loading a project, false otherwise.
 		 */
-		Q_PROPERTY(bool loading READ isLoading NOTIFY isLoadingChanged);
+		Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged);
 
 		/**
 		 * The errorString containing the last encountered error, it is set when a method fails and can be used to get more information about the error.

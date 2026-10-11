@@ -5,6 +5,7 @@
 
 // Qt
 #include <QQuickWindow>
+#include <QTimer>
 
 using namespace Asterindes::Ui;
 

@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QTimer>
 
 using namespace Asterindes;
 
@@ -57,19 +58,24 @@ bool ProjectManagerService::openProject(const QUrl& p_projectPath)
 {
 	emit projectOpening(p_projectPath);
 
-	bool l_result{ m_coreApp->openProject(p_projectPath) };
-
-	if (l_result)
+	// TODO: Change this to a proper project loading mechanism that does not block the UI thread, and shows a loading state in the UI while the project is being loaded.
+	// Delay the project opening to allow the UI to update and show the loading state before opening the project
+	QTimer::singleShot(50, this, [this, p_projectPath]()
 	{
-		updateRecentProjectList(p_projectPath);
-		emit projectOpened(p_projectPath);
-	}
-	else
-	{
-		setProjectOpenError(QString("Failed to open project: %1").arg(p_projectPath.toString()));
-	}
+		bool l_result{ m_coreApp->openProject(p_projectPath) };
 
-	return l_result;
+		if (l_result)
+		{
+			updateRecentProjectList(p_projectPath);
+			emit projectOpened(p_projectPath);
+		}
+		else
+		{
+			setProjectOpenError(QString("Failed to open project: %1").arg(p_projectPath.toString()));
+		}
+	});
+
+	return true;
 }
 
 void ProjectManagerService::loadRecentProjectList()

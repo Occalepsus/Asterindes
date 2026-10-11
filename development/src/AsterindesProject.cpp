@@ -82,8 +82,8 @@ bool AsterindesProject::loadProject()
 	{
 		quint16 l_serverPort{ static_cast<quint16>(l_projectData["server_port"].toInt(BroadcastServer::msc_defaultServerPort)) };
 		m_broadcastServer->setServerPort(l_serverPort);
-		m_broadcastServer->start();
 	}
+	m_broadcastServer->start();
 
 	m_isLoaded = l_resourcesLoaded;
 

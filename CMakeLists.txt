@@ -2,15 +2,23 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Asterindes VERSION 0.1.0 LANGUAGES CXX)
 
+# ============================================================================
+# 1. CMake Configuration
+# ============================================================================
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_AUTOGEN_BUILD_DIR "${CMAKE_BINARY_DIR}/autogen")
 
-# Set Asterindes as the default startup project in Visual Studio
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+# ============================================================================
+# 2. Project Directories
+# ============================================================================
 
 set(ASTERINDES_DEVELOPMENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/development)
+
+# ============================================================================
+# 3. Source Files Declaration
+# ============================================================================
 
 set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/AsterindesCore.h
@@ -30,6 +38,7 @@ set(ASTERINDES_HEADERS
 	${ASTERINDES_DEVELOPMENT_DIR}/inc/StartupWindow.h
 )
 
+# Source files (.cpp)
 set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesApp.cpp
 	${ASTERINDES_DEVELOPMENT_DIR}/src/AsterindesCore.cpp
@@ -49,6 +58,7 @@ set(ASTERINDES_SOURCES
 	${ASTERINDES_DEVELOPMENT_DIR}/src/StartupWindow.cpp
 )
 
+# QML files
 set(ASTERINDES_QML_FILES
 	"development/res/AsterindesMenuBar.qml"
 	"development/res/ProjectWindow.qml"
@@ -60,34 +70,65 @@ set(ASTERINDES_QML_FILES
 	"development/res/TagSelectionList.qml"
 )
 
+# HTML resources
 set(ASTERINDES_HTML_RESOURCES
 	"development/res/ClientPage.html"
 )
 
+# ============================================================================
+# 4. Dependencies (Find external packages)
+# ============================================================================
+
 find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick HttpServer WebSockets)
 
+# ============================================================================
+# 5. CMake & Qt Initialization
+# ============================================================================
+
 qt_standard_project_setup()
+
+# Set Asterindes as the default startup project in Visual Studio
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+
+# ============================================================================
+# 6. Executable Target Creation
+# ============================================================================
 
 qt_add_executable(${PROJECT_NAME}
 	${ASTERINDES_SOURCES}
 	${ASTERINDES_HEADERS}
 )
 
+# ============================================================================
+# 7. Target Configuration
+# ============================================================================
+
+# Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE ${ASTERINDES_DEVELOPMENT_DIR}/inc)
 
+# Enable precompiled headers for faster compilation
+target_precompile_headers(${PROJECT_NAME} PRIVATE
+	"${ASTERINDES_DEVELOPMENT_DIR}/inc/pch.h"
+)
+
+# ============================================================================
+# 8. QML Module & Resources
+# ============================================================================
+
+# Add QML module
 qt_add_qml_module(${PROJECT_NAME}
 	URI ${PROJECT_NAME}
 	VERSION 0.1
-	RESOURCE_PREFIX /qt/qml # Necessary to use loadFromModule()
+	RESOURCE_PREFIX /qt/qml
 	QML_FILES
 		${ASTERINDES_QML_FILES}
 )
 
+# Process HTML resources
 foreach(resource IN LISTS ASTERINDES_HTML_RESOURCES)
 	get_filename_component(resourceName "${resource}" NAME)
 	set_source_files_properties("${resource}" PROPERTIES QT_RESOURCE_ALIAS "${resourceName}")
 endforeach()
-
 
 qt_add_resources(${PROJECT_NAME} "HTML"
 	PREFIX "/html"
@@ -95,26 +136,49 @@ qt_add_resources(${PROJECT_NAME} "HTML"
 		${ASTERINDES_HTML_RESOURCES}
 )
 
+# ============================================================================
+# 9. Link Libraries
+# ============================================================================
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets)
 
+# ============================================================================
+# 10. Target Properties
+# ============================================================================
+
+# Set the application to be a Windows application only in Release mode
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	WIN32_EXECUTABLE $<$<CONFIG:Release>:ON>
+)
+
+# ============================================================================
+# 11. Post-Build Steps & Deployment
+# ============================================================================
+
+
+# Platform-specific deployment (Windows)
 if(WIN32)
 	find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
 	if(WINDEPLOYQT)
 		set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
 		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND ${WINDEPLOYQT} --no-translations --qmldir "${ASTERINDES_QML_DIR}" $<TARGET_FILE:${PROJECT_NAME}>
-			COMMENT "Deploying Qt DLLs with windeployqt"
+			COMMAND_EXPAND_LISTS
+			COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${WINDEPLOYQT}>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--no-translations>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--qmldir>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${ASTERINDES_QML_DIR}>
+					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:$<TARGET_FILE:${PROJECT_NAME}>>
+			COMMENT "Deploying Qt DLLs with windeployqt (Release only)"
 		)
 	endif()
 endif()
+
+# ============================================================================
+# 12. IDE Organization (Visual Studio)
+# ============================================================================
 
 # Organize the project files in Visual Studio in folders
 source_group("Source Files" FILES ${ASTERINDES_SOURCES})
 source_group("Header Files" FILES ${ASTERINDES_HEADERS})
 source_group("Resources/qml" FILES ${ASTERINDES_QML_FILES})
 source_group("Resources/html" FILES ${ASTERINDES_HTML_RESOURCES})
-
-# Set the application to be a Windows application only in Release mode
-set_target_properties(${PROJECT_NAME} PROPERTIES
-	WIN32_EXECUTABLE $<$<CONFIG:Release>:ON>
-)

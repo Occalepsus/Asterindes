@@ -42,12 +42,58 @@ Window {
 		}
 	}
 
-	StackView {
-		id: windowStack
-		anchors.fill: parent
+	Item {
+    anchors.fill: parent
 
-		// Not used, the initialItem is set in the onVisibilityChanged
-		initialItem: mainStartupView
+		// Main layout
+		StackView {
+			id: windowStack
+			anchors.fill: parent
+		}
+
+		// Loading overlay
+		MouseArea {
+			anchors.fill: parent
+			z: 1000
+			
+			visible: startupWindow.startupWindowData.isLoading
+
+			onVisibleChanged: {
+				if (visible) {
+					console.log("Loading overlay visible")
+				} else {
+					console.log("Loading overlay hidden")
+				}
+			}
+
+			// blocks interactions underneath
+			enabled: true
+			hoverEnabled: true
+
+			Rectangle {
+				anchors.fill: parent
+
+				color: "#80000000"
+			}
+
+			Column {
+				anchors.centerIn: parent
+				spacing: 12
+
+				BusyIndicator {
+					running: true
+					visible: true
+				}
+
+				Text {
+					anchors.horizontalCenter: parent.horizontalCenter
+
+					text: "Loading..."
+					color: "white"
+					font.pixelSize: 24
+				}
+			}
+		}
 	}
 
 

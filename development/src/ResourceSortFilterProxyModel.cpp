@@ -1,5 +1,8 @@
 #include "ResourceSortFilterProxyModel.h"
 
+// Asterindes UI
+#include "ResourceListModel.h"
+
 // Qt
 #include <QFileInfo>
 #include <QDateTime>

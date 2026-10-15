@@ -1,5 +1,8 @@
 #include "ResourceRegistry.h"
 
+// Qt
+#include <QJsonObject>
+
 using namespace Asterindes;
 
 bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArray)

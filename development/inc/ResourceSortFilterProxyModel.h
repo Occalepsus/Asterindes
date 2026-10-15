@@ -2,8 +2,6 @@
 #define RESOURCESORTFILTERPROXYMODEL_H
 
 // Asterindes
-#include "ResourceRegistry.h"
-#include "ResourceListModel.h"
 
 // Qt
 #include <QSortFilterProxyModel>

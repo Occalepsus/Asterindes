@@ -8,6 +8,7 @@
 #include <QFile> // Used for file reading
 #include <QSaveFile> // Used for safe file writing
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QTimer>
 
 using namespace Asterindes;
@@ -19,7 +20,14 @@ AsterindesProject::AsterindesProject(const QUrl& p_projectPath, AsterindesCore* 
 {
 	QObject::connect(m_resourcesRegistry, &ResourceRegistry::resourcesChanged, this, &AsterindesProject::saveProject);
 
-	QObject::connect(m_broadcastServer, &BroadcastServer::serverPortChanged, this, [this](quint16) { this->saveProject(); });
+	QObject::connect(m_broadcastServer, &BroadcastServer::serverPortChanged, this,
+		[this](quint16)
+		{
+			if (m_isLoaded)
+			{
+				this->saveProject();
+			}
+		});
 }
 
 AsterindesProject::~AsterindesProject()
@@ -74,8 +82,8 @@ bool AsterindesProject::loadProject()
 	{
 		quint16 l_serverPort{ static_cast<quint16>(l_projectData["server_port"].toInt(BroadcastServer::msc_defaultServerPort)) };
 		m_broadcastServer->setServerPort(l_serverPort);
-		m_broadcastServer->start();
 	}
+	m_broadcastServer->start();
 
 	m_isLoaded = l_resourcesLoaded;
 
@@ -86,6 +94,8 @@ bool AsterindesProject::saveProject() const
 {
 	if (!m_isLoaded)
 	{
+		Q_ASSERT(false);
+
 		qWarning("Project is not loaded, cannot save: %s", qUtf8Printable(m_projectPath.toString()));
 		return false;
 	}

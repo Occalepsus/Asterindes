@@ -69,15 +69,16 @@ Item {
 
 					Button {
 						id: copyAddressButton
-						
+	
 						anchors.left: statusText.right
 						anchors.margins: statusArea.margins
+						anchors.verticalCenter: parent.verticalCenter
 
 						visible: serverConfigurationRoot.isServerRunning
 						hoverEnabled: true
+						flat: true
 
 						text: statusArea.addressCopied ? "✅" : "📑"
-						background: Item {}
 
 						onClicked: {
 							projectWindow.serverConfiguration.copyTextToClipboard(projectWindow.serverConfiguration.getUsableIpAddress() + ":" + projectWindow.serverConfiguration.serverPort)

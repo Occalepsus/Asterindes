@@ -2,11 +2,17 @@
 #define PROJECTVIEWMODEL_H
 
 // Asterindes
-#include "AsterindesProject.h"
+#include "ResourceBroadcastManager.h"
 
 // Qt
 #include <QObject>
 #include <QUrl>
+#include <QPointer>
+
+namespace Asterindes
+{
+	class AsterindesProject;
+}
 
 namespace Asterindes::Ui
 {

@@ -99,8 +99,6 @@ ApplicationWindow {
 		}
 	}
 	
-	//menuBar: AsterindesMenuBar {}
-
 	RowLayout {
 		anchors.fill: parent
 

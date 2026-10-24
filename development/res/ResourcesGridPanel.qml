@@ -117,6 +117,9 @@ Item {
 							projectWindow.resourcesViewModel.displayedResourceListModel.nameSearchFilter = text
 						}
 					}
+					onAccepted: {
+						parent.forceActiveFocus();
+					}
 				}
 
 				Button {
@@ -231,37 +234,44 @@ Item {
 				}
 			}
 
+			// GridView Item Delegate
 			Component {
 				id: resourceGridDelegate
 
-				Column {
+				Item {
 					width: resourceGridView.cellWidth
 					height: resourceGridView.cellHeight
+					
+					Column {
+						anchors.fill: parent
+						anchors.margins: 8
 
-					Image {
-						width: parent.width
-						height: parent.height - resourcesGridPanel.mGridTextHeight
-						anchors.horizontalCenter: parent.horizontalCenter
+						Image {
+							width: parent.width
+							height: parent.height - resourcesGridPanel.mGridTextHeight
+							anchors.horizontalCenter: parent.horizontalCenter
 
-						fillMode: Image.PreserveAspectFit
+							fillMode: Image.PreserveAspectFit
 
-						source: resourceUrl
-					}
+							source: resourceUrl
+						}
 
-					Text {
-						width: parent.width
-						height: resourcesGridPanel.mGridTextHeight
-						anchors.horizontalCenter: parent.horizontalCenter
+						Text {
+							width: parent.width
+							height: resourcesGridPanel.mGridTextHeight
+							anchors.horizontalCenter: parent.horizontalCenter
 				
-						text: name
-						horizontalAlignment: Text.AlignHCenter
-						elide: Text.ElideRight
+							text: name
+							horizontalAlignment: Text.AlignHCenter
+							elide: Text.ElideRight
+						}
 					}
 				}
 			}
-	
+
 			GridView {
 				id: resourceGridView
+				clip: true
 
 				// Property to avoid infinite loop when syncing selection between ViewModel and GridView
 				property bool l_syncingSelection: false
@@ -401,7 +411,10 @@ Item {
 					placeholderText: "http://exemple.com/image.png"
 					selectByMouse: true
 
-					onAccepted: addWebResourceButton.clicked()
+					onAccepted: {
+						addWebResourceButton.clicked()
+						parent.forceActiveFocus();
+					}
 				}
 
 				Button {

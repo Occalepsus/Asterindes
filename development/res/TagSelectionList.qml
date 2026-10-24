@@ -122,6 +122,7 @@ Item {
 				if (tagSearchInput.text.length > 0 && tagSelectionListRoot.canCreateNewTag) {
 					tagSelectionListRoot.newTagCreated(tagSearchInput.text)
 				}
+				parent.forceActiveFocus();
 			}
 
 			ToolButton {

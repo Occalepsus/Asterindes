@@ -52,6 +52,7 @@ Item {
 				if (projectWindow.resourcesViewModel && resourcePreviewPanelRoot.previewResource) {
 					projectWindow.resourcesViewModel.renameResource(resourcePreviewPanelRoot.previewResource.resourceUrl, text)
 				}
+				parent.forceActiveFocus();
 			}
 		}
 		

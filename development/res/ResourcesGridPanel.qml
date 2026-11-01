@@ -231,7 +231,22 @@ Item {
 
 			onDropped: (drag) => {
 				if (projectWindow.resourcesViewModel && drag.hasUrls) {
-					projectWindow.resourcesViewModel.addResources(drag.urls);
+					let sources = Array()
+					for (let i = 0; i < drag.urls.length; i++) {
+						let source = drag.urls[i]
+
+						// For drags from the web browser, urls[i] returns a temp file.
+						// This is to extract the resource source web url.
+						if (drag.hasHtml) {
+							const urlStart = drag.html.indexOf('src="') + String('src="').length
+							const urlEnd = drag.html.indexOf('"', urlStart)
+
+							source = drag.html.substring(urlStart, urlEnd)
+						}
+						sources.push(source)
+					}
+
+					projectWindow.resourcesViewModel.addResources(sources);
 				}
 			}
 

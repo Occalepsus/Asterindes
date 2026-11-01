@@ -78,16 +78,16 @@ namespace Asterindes::Ui
 		 * @param p_url The URL to check.
 		 * @return true if the resource exists, false otherwise.
 		 */
-		Q_INVOKABLE bool canAddResource(const QUrl& p_url) const;
+		Q_INVOKABLE inline bool canAddResource(const QString& p_urlString) const { return m_resourceRegistry && m_resourceRegistry->canAddResource(QUrl::fromUserInput(p_urlString)); }
 
 		/**
 		 * Adds a list of resources, use the name of the file.
 		 *
-		 * @param p_resourceUrls The list of resource URLs.
+		 * @param p_resourceUrls The list of resource URLs as string.
 		 * 
 		 * @return true if everything was successful, false otherwise.
 		 */
-		Q_INVOKABLE bool addResources(const QList<QUrl>& p_resourceUrls);
+		Q_INVOKABLE bool addResources(const QList<QString>& p_resourceUrls);
 
 		/**
 		 * Removes resources by their URLs.
@@ -96,7 +96,7 @@ namespace Asterindes::Ui
 		 * 
 		 * @return true if everything was successful, false otherwise.
 		 */
-		Q_INVOKABLE bool removeResources(const QList<QUrl>& p_resourceUrls);
+		Q_INVOKABLE bool removeResources(const QList<QString>& p_resourceUrls);
 
 		/**
 		 * Renames a resource by its URL.
@@ -106,7 +106,7 @@ namespace Asterindes::Ui
 		 *
 		 * @return true if successful, false otherwise.
 		 */
-		Q_INVOKABLE bool renameResource(const QUrl& p_resourceUrl, const QString& p_newName);
+		Q_INVOKABLE bool renameResource(const QString& p_resourceUrl, const QString& p_newName);
 
 		/**
 		 * Adds or removes a tag to a resource by its URL.
@@ -117,7 +117,7 @@ namespace Asterindes::Ui
 		 * 
 		 * @return true if successful, false otherwise.
 		 */
-		Q_INVOKABLE bool setResourceTag(const QUrl& p_resourceUrl, const QString& p_tag, bool p_add);
+		Q_INVOKABLE bool setResourceTag(const QString& p_resourceUrl, const QString& p_tag, bool p_add);
 
 		/**
 		 * Get the index of the selected resource in the currently displayed view.

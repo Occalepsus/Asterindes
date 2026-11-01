@@ -116,20 +116,42 @@ std::pair<bool, ResourceRegistry::Resource> ResourceRegistry::getResourceByUrl(c
 	}
 }
 
+bool ResourceRegistry::canAddResource(const QUrl& p_resourceUrl) const
+{
+	bool l_canBeAdded{ !p_resourceUrl.isEmpty() && p_resourceUrl.isValid() };
+	
+	// Check if the already exists in the project
+	l_canBeAdded &= !m_resources.contains(p_resourceUrl.toString());
+
+	// Check the mime type of the resource, only allow images and videos
+	const ResourceType l_type{ getResourceTypeFromUrl(p_resourceUrl) };
+	l_canBeAdded &= l_type != ResourceType::Unknown;
+
+	return l_canBeAdded;
+}
+
 QList<QUrl> ResourceRegistry::addResources(const QList<QUrl>& p_resourceUrls)
 {
 	QList<QUrl> l_added{};
 
 	for (const auto& l_resourceUrl : p_resourceUrls)
 	{
-		const ResourceType l_type{ getResourceTypeFromUrl(l_resourceUrl) };
-		const QDateTime l_creationDate{ QDateTime::currentDateTime() };
-
-		// Try to emplace the new resource, and if it works add it to the list of added urls
-		auto [_, l_inserted] { m_resources.try_emplace(l_resourceUrl.toString(), Resource{ .m_name = l_resourceUrl.fileName(), .m_resourceUrl = l_resourceUrl, .m_type = l_type, .m_creationDate = l_creationDate }) };
-		if (l_inserted)
+		if (canAddResource(l_resourceUrl))
 		{
-			l_added.append(l_resourceUrl);
+			const QString l_cleanName{ l_resourceUrl.fileName().trimmed().split('.').first() };
+			const ResourceType l_type{ getResourceTypeFromUrl(l_resourceUrl) };
+			const QDateTime l_creationDate{ QDateTime::currentDateTime() };
+
+			// Try to emplace the new resource, and if it works add it to the list of added urls
+			auto [_, l_inserted] { m_resources.try_emplace(l_resourceUrl.toString(), Resource{ .m_name = l_cleanName, .m_resourceUrl = l_resourceUrl, .m_type = l_type, .m_creationDate = l_creationDate }) };
+			if (l_inserted)
+			{
+				l_added.append(l_resourceUrl);
+			}
+		}
+		else
+		{
+			qWarning() << "Could not add resource" << l_resourceUrl;
 		}
 	}
 
@@ -239,7 +261,7 @@ ResourceRegistry::ResourceType ResourceRegistry::getResourceTypeFromUrl(const QU
 	// Default to Unknown if the type is not recognized
 	ResourceType l_type{ ResourceType::Unknown };
 	
-	if (QMimeType l_mime = m_mimeDatabase.mimeTypeForFile(p_url.toString(), QMimeDatabase::MatchDefault); 
+	if (QMimeType l_mime = m_mimeDatabase.mimeTypeForFile(p_url.toString(), QMimeDatabase::MatchDefault);
 		l_mime.name().startsWith("image/"))
 	{
 		l_type = ResourceType::Image;

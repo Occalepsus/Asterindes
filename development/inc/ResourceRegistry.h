@@ -116,13 +116,13 @@ namespace Asterindes
 		std::pair<bool, Resource> getResourceByUrl(const QUrl& p_resourceUrl) const;
 
 		/**
-		 * Checks if a resource with the given URL already exists in the project.
+		 * Checks if a resource with the given URL can be added.
 		 *
 		 * @param p_resourceUrl The URL of the resource to check.
 		 * 
-		 * @return true if the resource exists, false otherwise.
+		 * @return true if the resource can be added, false otherwise.
 		 */
-		inline bool containsResource(const QUrl& p_resourceUrl) const { return m_resources.contains(p_resourceUrl.toString()); }
+		bool canAddResource(const QUrl& p_resourceUrl) const;
 
 		/**
 		 * Adds new resources to the project from the given file path list.

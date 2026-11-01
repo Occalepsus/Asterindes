@@ -397,13 +397,7 @@ Item {
 					enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading : false
 					onClicked: resourceFileDialog.open()
 				}
-
-				Button {
-					text: "Clear All"
-					enabled: false//!projectWindow.resourcesViewModel.isLoading && projectWindow.resourcesViewModel.displayedResourceListCount > 0
-					//onClicked: confirmClearDialog.open()
-				}
-
+				
 				TextField {
 					id: resourceUrlField
 					Layout.preferredWidth: 280
@@ -411,7 +405,7 @@ Item {
 					selectByMouse: true
 
 					onAccepted: {
-						addWebResourceButton.clicked()
+						addResourceUrlButton.clicked()
 						parent.forceActiveFocus();
 					}
 				}
@@ -419,7 +413,7 @@ Item {
 				Button {
 					id: addResourceUrlButton
 					text: "Add Resource"
-					enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading && resourceUrlField.text !== "" : false
+					enabled: projectWindow.resourcesViewModel ? !projectWindow.resourcesViewModel.isLoading && projectWindow.resourcesViewModel.canAddResource(resourceUrlField.text) : false
 
 					onClicked: {
 						if (projectWindow.resourcesViewModel) {

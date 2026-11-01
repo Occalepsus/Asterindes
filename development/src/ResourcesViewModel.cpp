@@ -49,21 +49,7 @@ QVariantMap ResourcesViewModel::resourceToVariantMap(const ResourceRegistry::Res
 	return l_resourceMap;
 }
 
-// TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
-bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
-{
-	// Resource validation before adding it to the project
-	if (!p_url.isValid() || p_url.isEmpty())
-	{
-		return false;
-	}
-
-	QString l_path = p_url.path(QUrl::ComponentFormattingOption::FullyDecoded).toLower();
-	return true;// l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
-		   //l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
-}
-
-bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
+bool ResourcesViewModel::addResources(const QList<QString>& p_resourceUrls)
 {
 	if (!m_resourceRegistry)
 	{
@@ -72,24 +58,16 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 
 	setLoading(true);
 
-	for (const auto& l_resourceUrl : p_resourceUrls)
-	{
-
-		if (!canAddResource(l_resourceUrl))
-		{
-			emit errorOccurred(tr("Invalid resource URL: %1").arg(l_resourceUrl.toString()));
-			setLoading(false);
-			return false;
-		}
-	}
+	QList<QUrl> l_resourcesToAddUrlDecoded;
+	std::ranges::transform(p_resourceUrls, std::back_inserter(l_resourcesToAddUrlDecoded), [](const QString& p_urlString) { return QUrl::fromUserInput(p_urlString); });
 
 	// Call resource registry addResources, it worked if all the resources were added.
-	QList<QUrl> l_addedResources{ m_resourceRegistry->addResources(p_resourceUrls) };
-	bool l_success{ l_addedResources.size() == p_resourceUrls.size() };
+	QList<QUrl> l_addedResources{ m_resourceRegistry->addResources(l_resourcesToAddUrlDecoded) };
+	bool l_success{ l_addedResources.size() == l_resourcesToAddUrlDecoded.size() };
 	
 	if (!l_success)
 	{
-		for (const auto& l_resourceToAdd : p_resourceUrls)
+		for (const QUrl& l_resourceToAdd : l_resourcesToAddUrlDecoded)
 		{
 			if (!l_addedResources.contains(l_resourceToAdd))
 			{
@@ -106,7 +84,7 @@ bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
 	return l_success;
 }
 
-bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
+bool ResourcesViewModel::removeResources(const QList<QString>& p_resourceUrls)
 {
 	if (!m_resourceRegistry)
 	{
@@ -115,11 +93,14 @@ bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 
 	setLoading(true);
 
-	QList<QUrl> l_removedResources{ m_resourceRegistry->removeResources(p_resourceUrls) };
-	const bool l_success{ l_removedResources.size() == p_resourceUrls.size() };
+	QList<QUrl> l_resourcesToRemoveUrlDecoded;
+	std::ranges::transform(p_resourceUrls, std::back_inserter(l_resourcesToRemoveUrlDecoded), [](const QString& p_urlString) { return QUrl::fromUserInput(p_urlString); });
+
+	QList<QUrl> l_removedResources{ m_resourceRegistry->removeResources(l_resourcesToRemoveUrlDecoded) };
+	const bool l_success{ l_removedResources.size() == l_resourcesToRemoveUrlDecoded.size() };
 	if (!l_success)
 	{
-		for (const auto& l_resourceToRemove : p_resourceUrls)
+		for (const QUrl& l_resourceToRemove : l_resourcesToRemoveUrlDecoded)
 		{
 			if (!l_removedResources.contains(l_resourceToRemove))
 			{
@@ -132,7 +113,7 @@ bool ResourcesViewModel::removeResources(const QList<QUrl>& p_resourceUrls)
 	return l_success;
 }
 
-bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString& p_newName)
+bool ResourcesViewModel::renameResource(const QString& p_resourceUrl, const QString& p_newName)
 {
 	if (!m_resourceRegistry)
 	{
@@ -141,17 +122,17 @@ bool ResourcesViewModel::renameResource(const QUrl& p_resourceUrl, const QString
 
 	setLoading(true);
 
-	const bool l_success{ m_resourceRegistry->renameResource(p_resourceUrl, p_newName) };
+	const bool l_success{ m_resourceRegistry->renameResource(QUrl::fromUserInput(p_resourceUrl), p_newName) };
 	if (!l_success)
 	{
-		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl.toString()));
+		emit errorOccurred(tr("Failed to rename resource: %1").arg(p_resourceUrl));
 	}
 
 	setLoading(false);
 	return l_success;
 }
 
-bool ResourcesViewModel::setResourceTag(const QUrl& p_resourceUrl, const QString& p_tag, bool p_add)
+bool ResourcesViewModel::setResourceTag(const QString& p_resourceUrl, const QString& p_tag, bool p_add)
 {
 	if (!m_resourceRegistry)
 	{
@@ -160,10 +141,10 @@ bool ResourcesViewModel::setResourceTag(const QUrl& p_resourceUrl, const QString
 
 	setLoading(true);
 
-	const bool l_success{ p_add ? m_resourceRegistry->addTagToResource(p_resourceUrl, p_tag) : m_resourceRegistry->removeTagFromResource(p_resourceUrl, p_tag) };
+	const bool l_success{ p_add ? m_resourceRegistry->addTagToResource(QUrl::fromUserInput(p_resourceUrl), p_tag) : m_resourceRegistry->removeTagFromResource(QUrl::fromUserInput(p_resourceUrl), p_tag) };
 	if (!l_success)
 	{
-		emit errorOccurred(tr("Failed to %1 tag: %2 to resource: %3").arg(p_add ? "add" : "remove", p_tag, p_resourceUrl.toString()));
+		emit errorOccurred(tr("Failed to %1 tag: %2 to resource: %3").arg(p_add ? "add" : "remove", p_tag, p_resourceUrl));
 	}
 
 	setLoading(false);

@@ -2,8 +2,15 @@
 
 // Qt
 #include <QJsonObject>
+#include <QQmlEngine>
 
 using namespace Asterindes;
+
+ResourceRegistry::ResourceRegistry(QObject* p_parent)
+	: QObject(p_parent)
+{
+	qmlRegisterType<ResourceRegistry>("Asterindes", 1, 0, "ResourceRegistry");
+}
 
 bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArray)
 {
@@ -29,7 +36,7 @@ bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArr
 		}
 
 		const auto& l_name = l_resourceJsonObject["name"].toString();
-		
+
 		// Get the URL and validate it
 		const auto& l_urlString = l_resourceJsonObject["url"].toString();
 		const QUrl l_url{ l_urlString };
@@ -41,6 +48,9 @@ bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArr
 			continue;
 		}
 
+		// Get the resource type
+		ResourceType l_type{ getResourceTypeFromUrl(l_url) };
+
 		// Get the creation date, if it is not present use the current date and time
 		const auto& l_creationDateString = l_resourceJsonObject["creationDate"].toString(QDateTime::currentDateTime().toString(Qt::ISODate));
 		const QDateTime l_creationDate = QDateTime::fromString(l_creationDateString, Qt::ISODate);
@@ -50,7 +60,7 @@ bool ResourceRegistry::loadResourcesFromJson(const QJsonArray& p_resourceJsonArr
 		QSet<QString> l_tags;
 		std::ranges::transform(l_tagsJsonArray, std::inserter(l_tags, l_tags.end()), [](const QJsonValue& value) { return value.toString(); });
 
-		m_resources.try_emplace(l_url.toString(), Resource{ .m_name = l_name, .m_resourceUrl = l_url, .m_creationDate = l_creationDate, .m_tags = l_tags });
+		m_resources.try_emplace(l_url.toString(), Resource{ .m_name = l_name, .m_resourceUrl = l_url, .m_type = l_type, .m_creationDate = l_creationDate, .m_tags = l_tags });
 	}
 
 	return l_jsonValid;
@@ -67,13 +77,13 @@ QJsonArray ResourceRegistry::getResourcesAsJson() const
 		{
 			l_tagsJsonArray.append(l_tag);
 		}
-		 
+
 		l_resourceJsonArray.append(QJsonObject{
 			{ "name", l_resource.m_name },
 			{ "url", l_resource.m_resourceUrl.toString() },
 			{ "creationDate", l_resource.m_creationDate.toString(Qt::ISODate) },
 			{ "tags", l_tagsJsonArray }
-			});
+		});
 	}
 
 	return l_resourceJsonArray;
@@ -112,8 +122,11 @@ QList<QUrl> ResourceRegistry::addResources(const QList<QUrl>& p_resourceUrls)
 
 	for (const auto& l_resourceUrl : p_resourceUrls)
 	{
+		const ResourceType l_type{ getResourceTypeFromUrl(l_resourceUrl) };
+		const QDateTime l_creationDate{ QDateTime::currentDateTime() };
+
 		// Try to emplace the new resource, and if it works add it to the list of added urls
-		auto [_, l_inserted] { m_resources.try_emplace(l_resourceUrl.toString(), Resource{.m_name = l_resourceUrl.fileName(), .m_resourceUrl = l_resourceUrl}) };
+		auto [_, l_inserted] { m_resources.try_emplace(l_resourceUrl.toString(), Resource{ .m_name = l_resourceUrl.fileName(), .m_resourceUrl = l_resourceUrl, .m_type = l_type, .m_creationDate = l_creationDate }) };
 		if (l_inserted)
 		{
 			l_added.append(l_resourceUrl);
@@ -219,4 +232,22 @@ bool ResourceRegistry::removeTagFromResource(const QUrl& p_resourceUrl, const QS
 		}
 	}
 	return false;
+}
+
+ResourceRegistry::ResourceType ResourceRegistry::getResourceTypeFromUrl(const QUrl& p_url) const
+{
+	// Default to Unknown if the type is not recognized
+	ResourceType l_type{ ResourceType::Unknown };
+	
+	if (QMimeType l_mime = m_mimeDatabase.mimeTypeForFile(p_url.toString(), QMimeDatabase::MatchDefault); 
+		l_mime.name().startsWith("image/"))
+	{
+		l_type = ResourceType::Image;
+	}
+	else if (l_mime.name().startsWith("video/"))
+	{
+		l_type = ResourceType::Video;
+	}
+
+	return l_type;
 }

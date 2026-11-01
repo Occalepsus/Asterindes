@@ -1,3 +1,5 @@
+import Asterindes 1.0
+
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -26,19 +28,18 @@ Item {
 	}
 	
 	ColumnLayout {
-
 		anchors.fill: parent
 		visible: resourcePreviewPanelRoot.hasValidSelection
 
-		// Resource preview image
-		Image {
+		// Resource preview display
+		ResourceDisplayComponent {
 			Layout.fillWidth: true
 			Layout.fillHeight: true
 			Layout.minimumHeight: 20
 			Layout.maximumWidth: parent.width
 			Layout.maximumHeight: parent.height - 20
-			fillMode: Image.PreserveAspectFit
-			source: resourcePreviewPanelRoot.previewResource ? (resourcePreviewPanelRoot.previewResource.resourceUrl || "") : ""
+
+			resource: resourcePreviewPanelRoot.previewResource
 		}
 
 		// Resource name field, modifiable

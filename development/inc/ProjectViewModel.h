@@ -3,6 +3,7 @@
 
 // Asterindes
 #include "ResourceBroadcastManager.h"
+#include "ResourcesViewModel.h"
 
 // Qt
 #include <QObject>
@@ -31,9 +32,10 @@ namespace Asterindes::Ui
 		Q_PROPERTY(QUrl currentProjectPath READ getCurrentProjectPath NOTIFY currentProjectPathChanged);
 
 		/**
-		 * The url of the resource being broadcasted, empty means nothing is being broadcasted.
+		 * The resource being broadcasted, empty url (default constructed) means nothing is being broadcasted.
+		 * The Map structure is defined by ResourcesViewModel::resourceToVariantMap()
 		 */
-		Q_PROPERTY(QUrl broadcastedResourceUrl READ getBroadcastedResourceUrl WRITE setBroadcastedResourceUrl NOTIFY broadcastedResourceChanged);
+		Q_PROPERTY(QVariantMap broadcastedResource READ getBroadcastedResource NOTIFY broadcastedResourceChanged);
 
 	public:
 		/**
@@ -64,9 +66,9 @@ namespace Asterindes::Ui
 		/**
 		 * Get the URL of the resource being broadcasted.
 		 *
-		 * @return The URL of the resource being broadcasted, empty if nothing is being broadcasted.
+		 * @return The URL of the resource being broadcasted, default constructed if nothing is being broadcasted.
 		 */
-		inline QUrl getBroadcastedResourceUrl() const { return m_resourceBroadcastManager ? m_resourceBroadcastManager->getBroadcastedResource().m_resourceUrl : QUrl(); }
+		inline QVariantMap getBroadcastedResource() const { return ResourcesViewModel::resourceToVariantMap(m_resourceBroadcastManager ? m_resourceBroadcastManager->getBroadcastedResource() : ResourceRegistry::Resource()); }
 
 		/**
 		 * Set the resource being broadcasted using its URL.

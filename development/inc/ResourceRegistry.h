@@ -5,6 +5,7 @@
 #include <QString>
 #include <QUrl>
 #include <QJsonArray>
+#include <QMimeDatabase>
 
 // STL
 #include <utility>
@@ -22,6 +23,17 @@ namespace Asterindes
 	public:
 
 		/**
+		 * ResourceType enum represents the type of the resource, it is used to categorize the resources and tell the server how to send the resource.
+		 */
+		enum class ResourceType : uint8_t
+		{
+			Unknown = 0,
+			Image,
+			Video,
+		};
+		Q_ENUM(ResourceType)
+
+		/**
 		 * Resource struct represents a resource in the project, name and url of the resource
 		 */
 		struct Resource
@@ -35,6 +47,11 @@ namespace Asterindes
 			 * The URL of the resource, it is used to access the resource file and should be unique among the project resources.
 			 */
 			QUrl m_resourceUrl;
+
+			/**
+			 * The type of the resource, it is used to categorize the resources tell the server how to send the resource.
+			 */
+			ResourceType m_type{ ResourceType::Unknown };
 
 			/**
 			 * The creation date of the resource, it is used to sort the resources by creation date.
@@ -56,8 +73,10 @@ namespace Asterindes
 
 		/**
 		 * Default constructor.
+		 * 
+		 * @param p_parent The parent QObject
 		 */
-		using QObject::QObject;
+		explicit ResourceRegistry(QObject* p_parent = nullptr);
 
 		/**
 		 * Destructor.
@@ -181,9 +200,19 @@ namespace Asterindes
 		 * unique_ptr to allow access to the resources by reference.
 		 */
 		ResourceList m_resources{};
+
+		/**
+		 * The mime database to use for the resources
+		 */
+		QMimeDatabase m_mimeDatabase{};
+
+		/**
+		 * Get the ResourceType from the url mime type
+		 * 
+		 * @param p_url the url to get the type from
+		 */
+		ResourceType getResourceTypeFromUrl(const QUrl& p_url) const;
 	};
 }
-
-
 
 #endif // RESOURCEREGISTRY_H

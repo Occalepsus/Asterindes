@@ -1,7 +1,7 @@
 #include "ResourceListModel.h"
 
 // Qt
-#include <qqml.h>
+#include <QQmlEngine>
 
 using namespace Asterindes::Ui;
 
@@ -23,10 +23,14 @@ QVariant ResourceListModel::data(const QModelIndex& p_index, int p_role) const
 	switch (auto l_roleEnum = static_cast<ResourceRoles>(p_role); l_roleEnum)
 	{
 		using enum ResourceRoles;
+	case StructReferenceRole:
+		return QVariant::fromValue(l_resource);
 	case NameRole:
 		return l_resource.m_name;
 	case ResourceUrlRole:
 		return l_resource.m_resourceUrl;
+	case ResourceTypeRole:
+		return std::to_underlying(l_resource.m_type);
 	case CreationDateRole:
 		return l_resource.m_creationDate;
 	case TagListRole:

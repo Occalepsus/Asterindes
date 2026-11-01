@@ -57,6 +57,15 @@ namespace Asterindes::Ui
 		~ResourcesViewModel() override = default;
 
 		/**
+		 * Converts a ResourceRegistry::Resource to a QVariantMap for QML consumption.
+		 *
+		 * @param p_resource The resource to convert.
+		 * 
+		 * @return A QVariantMap representing the resource.
+		 */
+		static QVariantMap resourceToVariantMap(const ResourceRegistry::Resource& p_resource);
+
+		/**
 		 * Get the displayed resource list model.
 		 * 
 		 * @return Pointer to the ResourceListModel.

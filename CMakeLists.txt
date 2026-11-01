@@ -62,6 +62,7 @@ set(ASTERINDES_SOURCES
 set(ASTERINDES_QML_FILES
 	"development/res/AsterindesMenuBar.qml"
 	"development/res/ProjectWindow.qml"
+	"development/res/ResourceDisplayComponent.qml"
 	"development/res/ResourceBroadcastPanel.qml"
 	"development/res/ResourcePreviewPanel.qml"
 	"development/res/ResourcesGridPanel.qml"
@@ -79,7 +80,7 @@ set(ASTERINDES_HTML_RESOURCES
 # 4. Dependencies (Find external packages)
 # ============================================================================
 
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick HttpServer WebSockets)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick HttpServer WebSockets Multimedia)
 
 # ============================================================================
 # 5. CMake & Qt Initialization
@@ -140,7 +141,7 @@ qt_add_resources(${PROJECT_NAME} "HTML"
 # 9. Link Libraries
 # ============================================================================
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Qml Qt6::Quick Qt6::HttpServer Qt6::WebSockets Qt6::Multimedia)
 
 # ============================================================================
 # 10. Target Properties
@@ -158,19 +159,20 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # Platform-specific deployment (Windows)
 if(WIN32)
-	find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
-	if(WINDEPLOYQT)
-		set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND_EXPAND_LISTS
-			COMMAND $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${WINDEPLOYQT}>
-					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--no-translations>
-					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:--qmldir>
-					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:${ASTERINDES_QML_DIR}>
-					$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:$<TARGET_FILE:${PROJECT_NAME}>>
-			COMMENT "Deploying Qt DLLs with windeployqt (Release only)"
-		)
-	endif()
+    find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
+    if(WINDEPLOYQT)
+        set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND_EXPAND_LISTS
+            COMMAND ${WINDEPLOYQT}
+                    --no-translations
+                    --qmldir ${ASTERINDES_QML_DIR}
+                    $<$<CONFIG:Debug>:--debug>
+                    $<$<NOT:$<CONFIG:Debug>>:--release>
+                    $<TARGET_FILE:${PROJECT_NAME}>
+            COMMENT "Deploying Qt runtime and QML modules with windeployqt"
+        )
+    endif()
 endif()
 
 # ============================================================================

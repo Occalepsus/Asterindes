@@ -22,8 +22,10 @@ namespace Asterindes::Ui
 		 */
 		enum class ResourceRoles
 		{
-			NameRole = Qt::UserRole + 1,
+			StructReferenceRole = Qt::UserRole + 1, // Special enum value that is used to get the reference of the Resource struct in QML, it is not used for display purposes.
+			NameRole,
 			ResourceUrlRole,
+			ResourceTypeRole,
 			CreationDateRole,
 			TagListRole
 		};
@@ -94,6 +96,7 @@ namespace Asterindes::Ui
 		{
 			{ std::to_underlying(ResourceRoles::NameRole), "name" },
 			{ std::to_underlying(ResourceRoles::ResourceUrlRole), "resourceUrl" },
+			{ std::to_underlying(ResourceRoles::ResourceTypeRole), "resourceType" },
 			{ std::to_underlying(ResourceRoles::CreationDateRole), "creationDate" },
 			{ std::to_underlying(ResourceRoles::TagListRole), "tagList" }
 		};

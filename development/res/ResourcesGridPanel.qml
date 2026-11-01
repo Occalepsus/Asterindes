@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 import QtQuick.Layouts
+
 import QtCore
 
 Item {
@@ -246,14 +247,12 @@ Item {
 						anchors.fill: parent
 						anchors.margins: 8
 
-						Image {
+						ResourceDisplayComponent {
 							width: parent.width
 							height: parent.height - resourcesGridPanel.mGridTextHeight
 							anchors.horizontalCenter: parent.horizontalCenter
-
-							fillMode: Image.PreserveAspectFit
-
-							source: resourceUrl
+							
+							resource: model
 						}
 
 						Text {

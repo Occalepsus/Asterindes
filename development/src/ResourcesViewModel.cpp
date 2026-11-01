@@ -1,7 +1,5 @@
 #include "ResourcesViewModel.h"
 
-#include <utility>
-
 using namespace Asterindes::Ui;
 
 ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QObject* p_parent)
@@ -33,6 +31,24 @@ ResourcesViewModel::ResourcesViewModel(ResourceRegistry* p_resourceRegistry, QOb
 	updateResourceList();
 }
 
+QVariantMap ResourcesViewModel::resourceToVariantMap(const ResourceRegistry::Resource& p_resource)
+{
+	QVariantMap l_resourceMap;
+
+	QList l_tagsList(p_resource.m_tags.begin(), p_resource.m_tags.end());
+	std::ranges::sort(l_tagsList, [](const QString& a, const QString& b) {
+		return QString::compare(a, b, Qt::CaseInsensitive) < 0;
+	});
+
+	l_resourceMap["name"] = p_resource.m_name;
+	l_resourceMap["resourceUrl"] = p_resource.m_resourceUrl;
+	l_resourceMap["resourceType"] = std::to_underlying(p_resource.m_type);
+	l_resourceMap["creationDate"] = p_resource.m_creationDate;
+	l_resourceMap["tagList"] = QVariant::fromValue(l_tagsList);
+
+	return l_resourceMap;
+}
+
 // TODO: Do this check in the manager instead and return an error message if it fails, so we can display it in the UI
 bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 {
@@ -43,8 +59,8 @@ bool ResourcesViewModel::canAddResource(const QUrl& p_url) const
 	}
 
 	QString l_path = p_url.path(QUrl::ComponentFormattingOption::FullyDecoded).toLower();
-	return l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
-		   l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
+	return true;// l_path.endsWith(".png") || l_path.endsWith(".jpg") || 
+		   //l_path.endsWith(".jpeg") || l_path.endsWith(".webp");
 }
 
 bool ResourcesViewModel::addResources(const QList<QUrl>& p_resourceUrls)
@@ -195,14 +211,9 @@ void ResourcesViewModel::setSelectedResourceIndex(int p_index)
 
 QVariantMap ResourcesViewModel::getResourceAtIndex(int p_index) const
 {
-	// TODO: How to improve this?
-	QVariantMap l_resourceMap;
-
 	QModelIndex l_modelIndex = m_resourcesSortFilterProxyModel->index(p_index, 0);
 
-	l_resourceMap["name"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::NameRole));
-	l_resourceMap["resourceUrl"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::ResourceUrlRole));
-	l_resourceMap["tagList"] = m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::TagListRole));
+	QVariantMap l_resourceMap = resourceToVariantMap(m_resourcesSortFilterProxyModel->data(l_modelIndex, std::to_underlying(ResourceListModel::ResourceRoles::StructReferenceRole)).value<ResourceRegistry::Resource>());
 
 	return l_resourceMap;
 }

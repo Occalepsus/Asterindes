@@ -261,14 +261,37 @@ ResourceRegistry::ResourceType ResourceRegistry::getResourceTypeFromUrl(const QU
 	// Default to Unknown if the type is not recognized
 	ResourceType l_type{ ResourceType::Unknown };
 	
-	if (QMimeType l_mime = m_mimeDatabase.mimeTypeForFile(p_url.toString(), QMimeDatabase::MatchDefault);
-		l_mime.name().startsWith("image/"))
+	auto l_mimeToResourceType = [](const QString& p_mimeName)
 	{
-		l_type = ResourceType::Image;
+		if (p_mimeName.startsWith("image/"))
+		{
+			return ResourceType::Image;
+		}
+		if (p_mimeName.startsWith("video/"))
+		{
+			return ResourceType::Video;
+		}
+		return ResourceType::Unknown;
+	};
+
+	// 1) First pass: infer from URL
+	QMimeType l_mime = m_mimeDatabase.mimeTypeForUrl(p_url);
+	l_type = l_mimeToResourceType(l_mime.name());
+
+	// 2) Fallback when generic/unknown MIME is returned
+	if (l_type == ResourceType::Unknown || l_mime.name() == "application/octet-stream")
+	{
+		const QString l_pathOrFileName = p_url.isLocalFile() ? p_url.toLocalFile() : p_url.fileName();
+		if (!l_pathOrFileName.isEmpty())
+		{
+			l_mime = m_mimeDatabase.mimeTypeForFile(l_pathOrFileName, QMimeDatabase::MatchExtension);
+			l_type = l_mimeToResourceType(l_mime.name());
+		}
 	}
-	else if (l_mime.name().startsWith("video/"))
+
+	if (l_type == ResourceType::Unknown)
 	{
-		l_type = ResourceType::Video;
+		qWarning() << "Unrecognized resource type at" << p_url.toString() << "with MIME type" << l_mime.name();
 	}
 
 	return l_type;

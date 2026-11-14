@@ -159,20 +159,21 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # Platform-specific deployment (Windows)
 if(WIN32)
-    find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
-    if(WINDEPLOYQT)
-        set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND_EXPAND_LISTS
-            COMMAND ${WINDEPLOYQT}
-                    --no-translations
-                    --qmldir ${ASTERINDES_QML_DIR}
-                    $<$<CONFIG:Debug>:--debug>
-                    $<$<NOT:$<CONFIG:Debug>>:--release>
-                    $<TARGET_FILE:${PROJECT_NAME}>
-            COMMENT "Deploying Qt runtime and QML modules with windeployqt"
-        )
-    endif()
+	find_program(WINDEPLOYQT windeployqt HINTS ${Qt6_DIR}/../../../bin)
+	if(WINDEPLOYQT)
+		set(ASTERINDES_QML_DIR "${ASTERINDES_DEVELOPMENT_DIR}/res")
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND_EXPAND_LISTS
+			COMMAND ${WINDEPLOYQT}
+					--no-translations
+					--qmldir ${ASTERINDES_QML_DIR}
+					$<$<CONFIG:Debug>:--debug>
+					$<$<CONFIG:Debug>:--pdb>
+					$<$<NOT:$<CONFIG:Debug>>:--release>
+					$<TARGET_FILE:${PROJECT_NAME}>
+			COMMENT "Deploying Qt runtime and QML modules with windeployqt"
+		)
+	endif()
 endif()
 
 # ============================================================================
